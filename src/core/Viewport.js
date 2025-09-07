@@ -32,6 +32,11 @@ export class Viewport {
       const isNode = e.target.closest('.node');
       const isSocket = e.target.classList.contains('socket');
       
+      // Don't start panning on right-click (button 2)
+      if (e.button === 2) {
+        return;
+      }
+      
       if (!isNode && !isSocket) {
         this.startPan(e);
       }

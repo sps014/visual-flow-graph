@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { FlowGraph } from '../core/FlowGraph.js';
+import './flow-context-menu.js';
 
 export class FlowGraphElement extends LitElement {
   static properties = {
@@ -86,6 +87,16 @@ export class FlowGraphElement extends LitElement {
     this.flowGraph.addEventListener('edge:create', (e) => {
       this.dispatchEvent(new CustomEvent('edge:create', { detail: e.detail }));
     });
+    
+    // Add right-click handler for context menu
+    this.addEventListener('contextmenu', this.handleViewportRightClick.bind(this));
+    
+    // Add surface event listener after flowGraph is initialized
+    setTimeout(() => {
+      if (this.flowGraph && this.flowGraph.viewport && this.flowGraph.viewport.surface) {
+        this.flowGraph.viewport.surface.addEventListener('contextmenu', this.handleViewportRightClick.bind(this));
+      }
+    }, 100);
   }
   
   processChildren() {
@@ -115,6 +126,9 @@ export class FlowGraphElement extends LitElement {
       const label = def.getAttribute('label') || name;
       const width = parseInt(def.getAttribute('width')) || 160;
       const height = parseInt(def.getAttribute('height')) || 100;
+      const category = def.getAttribute('category') || 'General';
+      const description = def.getAttribute('description') || '';
+      const icon = def.getAttribute('icon') || '';
       
       const nodeBody = def.querySelector('node-body');
       const inputs = def.querySelectorAll('flow-input');
@@ -125,6 +139,9 @@ export class FlowGraphElement extends LitElement {
         label,
         width,
         height,
+        category,
+        description,
+        icon,
         html: nodeBody ? nodeBody.innerHTML : null,
         inputs: Array.from(inputs).map(input => ({
           id: input.getAttribute('socket')?.split(':')[1] || input.getAttribute('socket'),
@@ -231,8 +248,54 @@ export class FlowGraphElement extends LitElement {
     return this.flowGraph.deserialize(data);
   }
   
+  handleViewportRightClick(e) {
+    // Only show context menu if clicking on empty space (not on nodes)
+    // Check if the target is a node or inside a node, but allow clicks on the nodes-root container
+    if (e.target.classList.contains('node') || e.target.closest('.node')) {
+      return;
+    }
+    
+    // Also check if clicking on sockets
+    if (e.target.classList.contains('socket')) {
+      return;
+    }
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Get all available node definitions
+    const nodeDefinitions = Array.from(this.flowGraph.templates.values()).map(template => ({
+      name: template.name,
+      label: template.label,
+      category: template.category || 'General',
+      description: template.description,
+      icon: template.icon,
+      inputs: template.inputs,
+      outputs: template.outputs
+    }));
+    
+    // Show context menu
+    const contextMenu = this.shadowRoot.getElementById('context-menu');
+    if (contextMenu) {
+      contextMenu.show(e.clientX, e.clientY, nodeDefinitions, this.addNodeFromContextMenu.bind(this));
+    }
+  }
+  
+  addNodeFromContextMenu(nodeDef, x, y) {
+    // Convert viewport coordinates to world coordinates
+    const rect = this.getBoundingClientRect();
+    const worldX = (this.flowGraph.viewport.x + (x - rect.left)) / this.flowGraph.viewport.scale;
+    const worldY = (this.flowGraph.viewport.y + (y - rect.top)) / this.flowGraph.viewport.scale;
+    
+    // Add the node
+    this.addNode(nodeDef.name, { x: worldX, y: worldY });
+  }
+  
   render() {
-    return html`<slot></slot>`;
+    return html`
+      <slot></slot>
+      <flow-context-menu id="context-menu"></flow-context-menu>
+    `;
   }
 }
 

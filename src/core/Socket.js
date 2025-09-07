@@ -98,9 +98,13 @@ export class Socket {
         gap: 8px;
       `;
       
+      // Get the connected node (the one that's not this socket's node)
+      const connectedNode = edge.fromSocket?.node === this.node ? edge.toSocket?.node : edge.fromSocket?.node;
+      const nodeLabel = connectedNode?.label || connectedNode?.type || 'node';
+      
       item.innerHTML = `
         <span style="color: var(--fg-error);">🗑️</span>
-        <span>Delete connection to ${edge.toSocket?.node?.label || edge.fromSocket?.node?.label || 'node'}</span>
+        <span>Delete connection to ${nodeLabel}</span>
       `;
       
       item.addEventListener('click', () => {

@@ -47,7 +47,7 @@
     <flow-graph theme="dark" snap-to-grid grid-size="20">
       <flow-definitions>
         <!-- Number Input Node -->
-        <flow-node-def name="data.number" label="Number" width="160" height="100">
+        <flow-node-def name="data.number" label="Number" width="160" height="100" category="Data" description="Outputs a numeric value" icon="🔢">
           <node-body>
             <div class="title">🔢 Number</div>
             <div class="body">
@@ -61,7 +61,7 @@
         </flow-node-def>
         
         <!-- Math Add Node -->
-        <flow-node-def name="math.add" label="Add" width="180" height="120">
+        <flow-node-def name="math.add" label="Add" width="180" height="120" category="Math" description="Adds two numbers together" icon="➕">
           <node-body>
             <div class="title">➕ Add</div>
             <div class="body">
@@ -83,7 +83,7 @@
         </flow-node-def>
         
         <!-- Watch Node -->
-        <flow-node-def name="data.watch" label="Watch" width="160" height="100">
+        <flow-node-def name="data.watch" label="Watch" width="160" height="100" category="Data" description="Displays input value" icon="👁️">
           <node-body>
             <div class="title">👁️ Watch</div>
             <div class="body">
@@ -96,7 +96,7 @@
         </flow-node-def>
         
         <!-- Multiply Node -->
-        <flow-node-def name="math.multiply" label="Multiply" width="180" height="120">
+        <flow-node-def name="math.multiply" label="Multiply" width="180" height="120" category="Math" description="Multiplies two numbers" icon="✖️">
           <node-body>
             <div class="title">✖️ Multiply</div>
             <div class="body">
@@ -118,7 +118,7 @@
         </flow-node-def>
         
         <!-- Split Node -->
-        <flow-node-def name="util.split" label="Split" width="160" height="140">
+        <flow-node-def name="util.split" label="Split" width="160" height="140" category="Utility" description="Splits input into two outputs" icon="🔀">
           <node-body>
             <div class="title">🔀 Split</div>
             <div class="body">
@@ -144,7 +144,7 @@
         </flow-node-def>
         
         <!-- Advanced 3D Renderer Node - Shows arbitrary HTML content with data-draggable attributes -->
-        <flow-node-def name="render.3d" label="3D Renderer" width="320" height="280">
+        <flow-node-def name="render.3d" label="3D Renderer" width="320" height="280" category="Render" description="Advanced 3D rendering with controls" icon="🎨">
           <node-body>
             <div class="title">🎮 3D Renderer</div>
             <div class="body">
@@ -310,6 +310,9 @@
     
     // Multi-drag instructions
     console.log('💡 Multi-drag: Select multiple nodes with Ctrl/Cmd+click, then drag any selected node to move all together!');
+    
+    // Context menu instructions
+    console.log('🎯 Context Menu: Right-click on empty space to add new nodes from the context menu!');
   </script>
 </body>
 </html>

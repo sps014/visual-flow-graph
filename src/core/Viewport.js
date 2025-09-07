@@ -62,9 +62,11 @@ export class Viewport {
       if (this.panState.isPanning) {
         const deltaX = e.clientX - this.panState.startX;
         const deltaY = e.clientY - this.panState.startY;
-        this.x = this.panState.startViewportX + deltaX;
-        this.y = this.panState.startViewportY + deltaY;
-        this.updateTransform();
+        const newX = this.panState.startViewportX + deltaX;
+        const newY = this.panState.startViewportY + deltaY;
+        
+        // Use panBy to fire events
+        this.panBy(newX - this.x, newY - this.y);
       }
     };
     
@@ -74,6 +76,14 @@ export class Viewport {
       this.surface.releasePointerCapture(e.pointerId);
       this.surface.removeEventListener('pointermove', onPointerMove);
       this.surface.removeEventListener('pointerup', onPointerUp);
+      
+      // Fire pan event at the end of panning
+      if (this.flowGraph) {
+        // Dispatch on the container element, not the FlowGraph instance
+        this.flowGraph.container.dispatchEvent(new CustomEvent('viewport:pan', {
+          detail: { x: this.x, y: this.y, scale: this.scale }
+        }));
+      }
     };
     
     this.surface.addEventListener('pointermove', onPointerMove);
@@ -121,6 +131,14 @@ export class Viewport {
       this.scale = newScale;
       
       this.updateTransform();
+      
+      // Fire zoom event
+      if (this.flowGraph) {
+        // Dispatch on the container element, not the FlowGraph instance
+        this.flowGraph.container.dispatchEvent(new CustomEvent('viewport:zoom', {
+          detail: { scale: this.scale, x: this.x, y: this.y }
+        }));
+      }
     }
   }
   
@@ -140,7 +158,8 @@ export class Viewport {
     
     // Fire viewport change event
     if (this.flowGraph) {
-      this.flowGraph.dispatchEvent(new CustomEvent('viewport:change', {
+      // Dispatch on the container element, not the FlowGraph instance
+      this.flowGraph.container.dispatchEvent(new CustomEvent('viewport:change', {
         detail: { 
           x: this.x, 
           y: this.y, 

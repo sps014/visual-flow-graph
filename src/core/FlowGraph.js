@@ -268,7 +268,7 @@ export class FlowGraph extends EventTarget {
     const node = new Node(this, { ...config, type, template });
     this.nodes.set(node.id, node);
     
-    this.dispatchEvent(new CustomEvent('node:create', { 
+    this.container.dispatchEvent(new CustomEvent('node:create', { 
       detail: { node } 
     }));
     
@@ -292,7 +292,7 @@ export class FlowGraph extends EventTarget {
     node.destroy();
     this.nodes.delete(nodeId);
     
-    this.dispatchEvent(new CustomEvent('node:remove', { 
+    this.container.dispatchEvent(new CustomEvent('node:remove', { 
       detail: { nodeId } 
     }));
   }
@@ -303,7 +303,7 @@ export class FlowGraph extends EventTarget {
     const edge = new Edge(this, fromSocket, toSocket);
     this.edges.set(edge.id, edge);
     
-    this.dispatchEvent(new CustomEvent('edge:create', { 
+    this.container.dispatchEvent(new CustomEvent('edge:create', { 
       detail: { edge } 
     }));
     
@@ -317,8 +317,8 @@ export class FlowGraph extends EventTarget {
     edge.destroy();
     this.edges.delete(edgeId);
     
-    this.dispatchEvent(new CustomEvent('edge:remove', { 
-      detail: { edgeId } 
+    this.container.dispatchEvent(new CustomEvent('edge:remove', {
+      detail: { edgeId }
     }));
   }
   
@@ -386,6 +386,100 @@ export class FlowGraph extends EventTarget {
     }
   }
   
+  // ===== MULTI-DRAG SYSTEM =====
+  
+  /**
+   * Start multi-drag operation
+   */
+  startMultiDrag(e, draggedNode) {
+    this.multiDragState = {
+      active: true,
+      draggedNode: draggedNode,
+      startX: e.clientX,
+      startY: e.clientY,
+      initialPositions: new Map()
+    };
+    
+    // Store initial positions of all selected nodes and add dragging class
+    for (const nodeId of this.selection) {
+      const node = this.nodes.get(nodeId);
+      if (node) {
+        this.multiDragState.initialPositions.set(nodeId, {
+          x: node.x,
+          y: node.y
+        });
+        // Add dragging class to all selected nodes
+        node.element.classList.add('dragging');
+      }
+    }
+  }
+  
+  /**
+   * Update multi-drag operation
+   */
+  updateMultiDrag(e) {
+    if (!this.multiDragState || !this.multiDragState.active) return;
+    
+    const deltaX = e.clientX - this.multiDragState.startX;
+    const deltaY = e.clientY - this.multiDragState.startY;
+    
+    // Convert screen delta to world delta
+    const worldDeltaX = deltaX / this.viewport.scale;
+    const worldDeltaY = deltaY / this.viewport.scale;
+    
+    // Update all selected nodes
+    for (const nodeId of this.selection) {
+      const node = this.nodes.get(nodeId);
+      if (node) {
+        const initialPos = this.multiDragState.initialPositions.get(nodeId);
+        const newX = initialPos.x + worldDeltaX;
+        const newY = initialPos.y + worldDeltaY;
+        
+        // Update position without firing events (we'll fire one batch event)
+        node.x = newX;
+        node.y = newY;
+        node.element.style.left = newX + 'px';
+        node.element.style.top = newY + 'px';
+      }
+    }
+    
+    // Update edges for all moved nodes
+    requestAnimationFrame(() => {
+      for (const nodeId of this.selection) {
+        const node = this.nodes.get(nodeId);
+        if (node) {
+          this.updateEdgesForNode(node);
+        }
+      }
+    });
+  }
+  
+  /**
+   * End multi-drag operation
+   */
+  endMultiDrag() {
+    if (!this.multiDragState || !this.multiDragState.active) return;
+    
+    // Fire move events for all moved nodes and remove dragging class
+    for (const nodeId of this.selection) {
+      const node = this.nodes.get(nodeId);
+      if (node) {
+        const initialPos = this.multiDragState.initialPositions.get(nodeId);
+        this.container.dispatchEvent(new CustomEvent('node:move', {
+          detail: { 
+            nodeId: node.id, 
+            node: node, 
+            oldPosition: initialPos,
+            newPosition: { x: node.x, y: node.y }
+          }
+        }));
+        // Remove dragging class
+        node.element.classList.remove('dragging');
+      }
+    }
+    
+    this.multiDragState = null;
+  }
   
   /**
    * Select a node
@@ -401,7 +495,7 @@ export class FlowGraph extends EventTarget {
     this.selection.add(nodeId);
     node.setSelected(true);
     
-    this.dispatchEvent(new CustomEvent('node:select', {
+    this.container.dispatchEvent(new CustomEvent('node:select', {
       detail: { nodeId, node, selection: Array.from(this.selection) }
     }));
   }
@@ -416,7 +510,7 @@ export class FlowGraph extends EventTarget {
     this.selection.delete(nodeId);
     node.setSelected(false);
     
-    this.dispatchEvent(new CustomEvent('node:deselect', {
+    this.container.dispatchEvent(new CustomEvent('node:deselect', {
       detail: { nodeId, node, selection: Array.from(this.selection) }
     }));
   }
@@ -434,7 +528,7 @@ export class FlowGraph extends EventTarget {
     
     this.selection.clear();
     
-    this.dispatchEvent(new CustomEvent('selection:clear', {
+    this.container.dispatchEvent(new CustomEvent('selection:clear', {
       detail: { previousSelection }
     }));
   }
@@ -456,7 +550,7 @@ export class FlowGraph extends EventTarget {
     const oldPosition = { x: node.x, y: node.y };
     node.setPosition(x, y);
     
-    this.dispatchEvent(new CustomEvent('node:move', {
+    this.container.dispatchEvent(new CustomEvent('node:move', {
       detail: { nodeId, node, oldPosition, newPosition: { x, y } }
     }));
     
@@ -474,7 +568,7 @@ export class FlowGraph extends EventTarget {
     // Add visual selection class
     edge.element.classList.add('selected');
     
-    this.dispatchEvent(new CustomEvent('edge:select', {
+    this.container.dispatchEvent(new CustomEvent('edge:select', {
       detail: { edgeId, edge }
     }));
   }
@@ -488,7 +582,7 @@ export class FlowGraph extends EventTarget {
     
     edge.element.classList.remove('selected');
     
-    this.dispatchEvent(new CustomEvent('edge:deselect', {
+    this.container.dispatchEvent(new CustomEvent('edge:deselect', {
       detail: { edgeId, edge }
     }));
   }
@@ -497,7 +591,7 @@ export class FlowGraph extends EventTarget {
    * Handle viewport changes
    */
   onViewportChange() {
-    this.dispatchEvent(new CustomEvent('viewport:change', {
+    this.container.dispatchEvent(new CustomEvent('viewport:change', {
       detail: { 
         x: this.viewport.x, 
         y: this.viewport.y, 
@@ -510,7 +604,7 @@ export class FlowGraph extends EventTarget {
    * Handle viewport zoom
    */
   onViewportZoom(scale) {
-    this.dispatchEvent(new CustomEvent('viewport:zoom', {
+    this.container.dispatchEvent(new CustomEvent('viewport:zoom', {
       detail: { scale, x: this.viewport.x, y: this.viewport.y }
     }));
   }
@@ -519,7 +613,7 @@ export class FlowGraph extends EventTarget {
    * Handle viewport pan
    */
   onViewportPan(x, y) {
-    this.dispatchEvent(new CustomEvent('viewport:pan', {
+    this.container.dispatchEvent(new CustomEvent('viewport:pan', {
       detail: { x, y, scale: this.viewport.scale }
     }));
   }

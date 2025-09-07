@@ -251,7 +251,6 @@
       console.log('Edge created:', e.detail.edge);
     });
     
-    // ===== COMPREHENSIVE EVENT SYSTEM =====
     
     // Node selection events
     flowGraph.addEventListener('node:select', (e) => {
@@ -294,6 +293,7 @@
       console.log('👆 Panned to:', e.detail.x, e.detail.y);
     });
     
+    
     // Wait for the component to be fully initialized
     const waitForFlowGraph = () => {
       return new Promise((resolve) => {
@@ -308,16 +308,8 @@
     await waitForFlowGraph();
     console.log('FlowGraph loaded with', flowGraph.flowGraph.nodes.size, 'nodes');
     
-    // Example: Programmatic control
-    setTimeout(() => {
-      console.log('🎮 Testing programmatic selection...');
-      flowGraph.flowGraph.selectNode('n1');
-      flowGraph.flowGraph.selectNode('n2', true); // Add to selection
-      
-      setTimeout(() => {
-        flowGraph.flowGraph.clearSelection();
-      }, 2000);
-    }, 1000);
+    // Multi-drag instructions
+    console.log('💡 Multi-drag: Select multiple nodes with Ctrl/Cmd+click, then drag any selected node to move all together!');
   </script>
 </body>
 </html>

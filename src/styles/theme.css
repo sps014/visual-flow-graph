@@ -302,14 +302,18 @@ button.interactive:hover {
   border-color: var(--fg-accent);
 }
 
-.node.selected .socket {
-  background: var(--fg-accent);
-}
-
 .edge.selected {
   stroke: var(--fg-accent) !important;
   stroke-width: 3px !important;
   filter: drop-shadow(0 0 4px var(--fg-accent));
+}
+
+/* ===== DRAGGING STYLES ===== */
+.node.dragging {
+  opacity: 0.8;
+  transform: scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
 }
 
 /* Hide definitions */

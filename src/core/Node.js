@@ -156,13 +156,18 @@ export class Node {
       const isMultiSelect = e.ctrlKey || e.metaKey;
       this.flowGraph.selectNode(this.id, isMultiSelect);
       
+      // Check if this node is in the current selection
+      const isSelected = this.flowGraph.selection.has(this.id);
+      
+      // Only start dragging if this node is selected
+      if (!isSelected) return;
+      
       isDragging = true;
       this.element.classList.add('dragging');
       this.element.setPointerCapture(e.pointerId);
       
-      const rect = this.element.getBoundingClientRect();
-      dragOffset.x = e.clientX - rect.left;
-      dragOffset.y = e.clientY - rect.top;
+      // Store initial positions of all selected nodes for multi-drag
+      this.flowGraph.startMultiDrag(e, this);
       
       e.preventDefault();
       e.stopPropagation();
@@ -171,16 +176,10 @@ export class Node {
     const handlePointerMove = (e) => {
       if (!isDragging) return;
       
-      const surfaceRect = this.flowGraph.surface.getBoundingClientRect();
-      const newX = (e.clientX - dragOffset.x - surfaceRect.left - this.flowGraph.viewport.x) / this.flowGraph.viewport.scale;
-      const newY = (e.clientY - dragOffset.y - surfaceRect.top - this.flowGraph.viewport.y) / this.flowGraph.viewport.scale;
+      // Use the multi-drag system to move all selected nodes
+      this.flowGraph.updateMultiDrag(e);
       
-      this.setPosition(newX, newY);
-      
-      // Update connected edges
-      requestAnimationFrame(() => {
-        this.flowGraph.updateEdgesForNode(this);
-      });
+      e.preventDefault();
     };
     
     const handlePointerUp = (e) => {
@@ -189,6 +188,9 @@ export class Node {
       isDragging = false;
       this.element.classList.remove('dragging');
       this.element.releasePointerCapture(e.pointerId);
+      
+      // End multi-drag
+      this.flowGraph.endMultiDrag();
     };
     
     this.element.addEventListener('pointerdown', handlePointerDown);
@@ -204,7 +206,7 @@ export class Node {
     this.element.style.top = y + 'px';
     
     // Fire move event
-    this.flowGraph.dispatchEvent(new CustomEvent('node:move', {
+    this.flowGraph.container.dispatchEvent(new CustomEvent('node:move', {
       detail: { 
         nodeId: this.id, 
         node: this, 

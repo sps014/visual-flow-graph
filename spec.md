@@ -423,6 +423,113 @@ flowGraph.deserialize(savedData);
 </flow-node-def>
 ```
 
+## 🎯 Event System
+
+FlowGraph provides a comprehensive event system for monitoring and responding to user interactions and programmatic changes.
+
+### Node Events
+
+```javascript
+const flowGraph = document.querySelector('flow-graph').flowGraph;
+
+// Selection events
+flowGraph.addEventListener('node:select', (e) => {
+  console.log('Node selected:', e.detail.nodeId);
+  console.log('Current selection:', e.detail.selection);
+});
+
+flowGraph.addEventListener('node:deselect', (e) => {
+  console.log('Node deselected:', e.detail.nodeId);
+});
+
+flowGraph.addEventListener('selection:clear', (e) => {
+  console.log('Selection cleared, previous:', e.detail.previousSelection);
+});
+
+// Movement events
+flowGraph.addEventListener('node:move', (e) => {
+  console.log('Node moved:', e.detail.nodeId);
+  console.log('From:', e.detail.oldPosition);
+  console.log('To:', e.detail.newPosition);
+});
+
+// Creation/destruction events
+flowGraph.addEventListener('node:create', (e) => {
+  console.log('Node created:', e.detail.node);
+});
+
+flowGraph.addEventListener('node:remove', (e) => {
+  console.log('Node removed:', e.detail.nodeId);
+});
+```
+
+### Edge Events
+
+```javascript
+// Edge selection
+flowGraph.addEventListener('edge:select', (e) => {
+  console.log('Edge selected:', e.detail.edgeId);
+});
+
+flowGraph.addEventListener('edge:deselect', (e) => {
+  console.log('Edge deselected:', e.detail.edgeId);
+});
+
+// Edge creation/destruction
+flowGraph.addEventListener('edge:create', (e) => {
+  console.log('Edge created:', e.detail.edge);
+});
+
+flowGraph.addEventListener('edge:remove', (e) => {
+  console.log('Edge removed:', e.detail.edgeId);
+});
+```
+
+### Viewport Events
+
+```javascript
+// Viewport changes
+flowGraph.addEventListener('viewport:change', (e) => {
+  console.log('Viewport changed:', e.detail);
+  // { x, y, scale }
+});
+
+flowGraph.addEventListener('viewport:zoom', (e) => {
+  console.log('Zoomed to:', e.detail.scale);
+});
+
+flowGraph.addEventListener('viewport:pan', (e) => {
+  console.log('Panned to:', e.detail.x, e.detail.y);
+});
+```
+
+### Programmatic Control
+
+```javascript
+// Selection control
+flowGraph.selectNode('node1');                    // Select single node
+flowGraph.selectNode('node2', true);             // Add to selection
+flowGraph.deselectNode('node1');                 // Deselect specific node
+flowGraph.clearSelection();                      // Clear all selections
+const selection = flowGraph.getSelection();      // Get current selection
+
+// Movement control
+flowGraph.moveNode('node1', 100, 200);          // Move node programmatically
+
+// Edge control
+flowGraph.selectEdge('edge1');                   // Select edge
+flowGraph.deselectEdge('edge1');                 // Deselect edge
+```
+
+### Event Details
+
+All events include a `detail` object with relevant information:
+
+- **Node events**: `nodeId`, `node`, `selection` (for selection events)
+- **Movement events**: `oldPosition`, `newPosition`
+- **Viewport events**: `x`, `y`, `scale`
+- **Edge events**: `edgeId`, `edge`
+
 ## 🔧 Development
 
 ### Building
@@ -446,6 +553,10 @@ MIT License - see LICENSE file for details.
 
 ## 🆕 Recent Updates
 
+- ✅ **Comprehensive Event System** - Added node selection, movement, viewport, and edge events
+- ✅ **Visual Selection Feedback** - Selected nodes and edges have distinct styling
+- ✅ **Multi-selection Support** - Ctrl/Cmd+click for multiple node selection
+- ✅ **Programmatic Control** - Full API for selection, movement, and viewport control
 - ✅ **Clean Interactive Element System** - Replaced hardcoded lists with `data-draggable` attributes
 - ✅ **Fixed input box typing functionality** - All form elements work properly
 - ✅ **Improved panning** - Matches original POC behavior perfectly

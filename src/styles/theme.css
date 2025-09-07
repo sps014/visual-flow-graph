@@ -296,6 +296,22 @@ button.interactive:hover {
   transform: translateY(-1px);
 }
 
+/* ===== SELECTION STYLES ===== */
+.node.selected {
+  box-shadow: 0 0 0 2px var(--fg-accent);
+  border-color: var(--fg-accent);
+}
+
+.node.selected .socket {
+  background: var(--fg-accent);
+}
+
+.edge.selected {
+  stroke: var(--fg-accent) !important;
+  stroke-width: 3px !important;
+  filter: drop-shadow(0 0 4px var(--fg-accent));
+}
+
 /* Hide definitions */
 flow-definitions {
   display: none !important;

@@ -67,7 +67,7 @@ export class FlowGraph extends EventTarget {
     this.container.appendChild(this.surface);
     
     // Initialize viewport with content container
-    this.viewport = new Viewport(this.surface, this.contentContainer);
+    this.viewport = new Viewport(this.surface, this.contentContainer, this);
     
     // Connection state
     this.connectionState = {
@@ -88,6 +88,14 @@ export class FlowGraph extends EventTarget {
     this.container.addEventListener('pointerdown', this.handleSocketPointerDown.bind(this));
     this.container.addEventListener('pointermove', this.handleSocketPointerMove.bind(this));
     this.container.addEventListener('pointerup', this.handleSocketPointerUp.bind(this));
+    
+    // Clear selection when clicking on empty space
+    this.surface.addEventListener('click', (e) => {
+      // Only clear if clicking directly on surface (not on nodes)
+      if (e.target === this.surface) {
+        this.clearSelection();
+      }
+    });
     
     // Prevent context menu on right click
     this.container.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -376,6 +384,144 @@ export class FlowGraph extends EventTarget {
     if (data.viewport) {
       this.viewport.deserialize(data.viewport);
     }
+  }
+  
+  
+  /**
+   * Select a node
+   */
+  selectNode(nodeId, addToSelection = false) {
+    const node = this.nodes.get(nodeId);
+    if (!node) return;
+    
+    if (!addToSelection) {
+      this.clearSelection();
+    }
+    
+    this.selection.add(nodeId);
+    node.setSelected(true);
+    
+    this.dispatchEvent(new CustomEvent('node:select', {
+      detail: { nodeId, node, selection: Array.from(this.selection) }
+    }));
+  }
+  
+  /**
+   * Deselect a node
+   */
+  deselectNode(nodeId) {
+    const node = this.nodes.get(nodeId);
+    if (!node) return;
+    
+    this.selection.delete(nodeId);
+    node.setSelected(false);
+    
+    this.dispatchEvent(new CustomEvent('node:deselect', {
+      detail: { nodeId, node, selection: Array.from(this.selection) }
+    }));
+  }
+  
+  /**
+   * Clear all selections
+   */
+  clearSelection() {
+    const previousSelection = Array.from(this.selection);
+    
+    this.selection.forEach(nodeId => {
+      const node = this.nodes.get(nodeId);
+      if (node) node.setSelected(false);
+    });
+    
+    this.selection.clear();
+    
+    this.dispatchEvent(new CustomEvent('selection:clear', {
+      detail: { previousSelection }
+    }));
+  }
+  
+  /**
+   * Get current selection
+   */
+  getSelection() {
+    return Array.from(this.selection);
+  }
+  
+  /**
+   * Move a node and fire event
+   */
+  moveNode(nodeId, x, y) {
+    const node = this.nodes.get(nodeId);
+    if (!node) return;
+    
+    const oldPosition = { x: node.x, y: node.y };
+    node.setPosition(x, y);
+    
+    this.dispatchEvent(new CustomEvent('node:move', {
+      detail: { nodeId, node, oldPosition, newPosition: { x, y } }
+    }));
+    
+    // Update connected edges
+    this.updateEdgesForNode(node);
+  }
+  
+  /**
+   * Select an edge
+   */
+  selectEdge(edgeId) {
+    const edge = this.edges.get(edgeId);
+    if (!edge) return;
+    
+    // Add visual selection class
+    edge.element.classList.add('selected');
+    
+    this.dispatchEvent(new CustomEvent('edge:select', {
+      detail: { edgeId, edge }
+    }));
+  }
+  
+  /**
+   * Deselect an edge
+   */
+  deselectEdge(edgeId) {
+    const edge = this.edges.get(edgeId);
+    if (!edge) return;
+    
+    edge.element.classList.remove('selected');
+    
+    this.dispatchEvent(new CustomEvent('edge:deselect', {
+      detail: { edgeId, edge }
+    }));
+  }
+  
+  /**
+   * Handle viewport changes
+   */
+  onViewportChange() {
+    this.dispatchEvent(new CustomEvent('viewport:change', {
+      detail: { 
+        x: this.viewport.x, 
+        y: this.viewport.y, 
+        scale: this.viewport.scale 
+      }
+    }));
+  }
+  
+  /**
+   * Handle viewport zoom
+   */
+  onViewportZoom(scale) {
+    this.dispatchEvent(new CustomEvent('viewport:zoom', {
+      detail: { scale, x: this.viewport.x, y: this.viewport.y }
+    }));
+  }
+  
+  /**
+   * Handle viewport pan
+   */
+  onViewportPan(x, y) {
+    this.dispatchEvent(new CustomEvent('viewport:pan', {
+      detail: { x, y, scale: this.viewport.scale }
+    }));
   }
   
   destroy() {

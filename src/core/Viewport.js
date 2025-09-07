@@ -1,7 +1,8 @@
 export class Viewport {
-  constructor(surface, contentContainer) {
+  constructor(surface, contentContainer, flowGraph = null) {
     this.surface = surface;
     this.contentContainer = contentContainer;
+    this.flowGraph = flowGraph;
     this.x = 0;
     this.y = 0;
     this.scale = 1;
@@ -136,6 +137,17 @@ export class Viewport {
       `${this.x % gridSize}px ${this.y % gridSize}px, ` +
       `${this.x % minorGridSize}px ${this.y % minorGridSize}px, ` +
       `${this.x % minorGridSize}px ${this.y % minorGridSize}px`;
+    
+    // Fire viewport change event
+    if (this.flowGraph) {
+      this.flowGraph.dispatchEvent(new CustomEvent('viewport:change', {
+        detail: { 
+          x: this.x, 
+          y: this.y, 
+          scale: this.scale 
+        }
+      }));
+    }
   }
   
   screenToWorld(screenX, screenY) {

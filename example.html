@@ -251,6 +251,49 @@
       console.log('Edge created:', e.detail.edge);
     });
     
+    // ===== COMPREHENSIVE EVENT SYSTEM =====
+    
+    // Node selection events
+    flowGraph.addEventListener('node:select', (e) => {
+      console.log('🎯 Node selected:', e.detail.nodeId, 'Selection:', e.detail.selection);
+    });
+    
+    flowGraph.addEventListener('node:deselect', (e) => {
+      console.log('❌ Node deselected:', e.detail.nodeId, 'Selection:', e.detail.selection);
+    });
+    
+    flowGraph.addEventListener('selection:clear', (e) => {
+      console.log('🧹 Selection cleared, previous:', e.detail.previousSelection);
+    });
+    
+    // Node movement events
+    flowGraph.addEventListener('node:move', (e) => {
+      console.log('🚀 Node moved:', e.detail.nodeId, 
+        'from', e.detail.oldPosition, 'to', e.detail.newPosition);
+    });
+    
+    // Edge selection events
+    flowGraph.addEventListener('edge:select', (e) => {
+      console.log('🔗 Edge selected:', e.detail.edgeId);
+    });
+    
+    flowGraph.addEventListener('edge:deselect', (e) => {
+      console.log('🔗 Edge deselected:', e.detail.edgeId);
+    });
+    
+    // Viewport events
+    flowGraph.addEventListener('viewport:change', (e) => {
+      console.log('📐 Viewport changed:', e.detail);
+    });
+    
+    flowGraph.addEventListener('viewport:zoom', (e) => {
+      console.log('🔍 Zoomed to:', e.detail.scale);
+    });
+    
+    flowGraph.addEventListener('viewport:pan', (e) => {
+      console.log('👆 Panned to:', e.detail.x, e.detail.y);
+    });
+    
     // Wait for the component to be fully initialized
     const waitForFlowGraph = () => {
       return new Promise((resolve) => {
@@ -265,8 +308,16 @@
     await waitForFlowGraph();
     console.log('FlowGraph loaded with', flowGraph.flowGraph.nodes.size, 'nodes');
     
-    // Example: Add a node programmatically
-    // flowGraph.addNode('data.number', { x: 500, y: 400 });
+    // Example: Programmatic control
+    setTimeout(() => {
+      console.log('🎮 Testing programmatic selection...');
+      flowGraph.flowGraph.selectNode('n1');
+      flowGraph.flowGraph.selectNode('n2', true); // Add to selection
+      
+      setTimeout(() => {
+        flowGraph.flowGraph.clearSelection();
+      }, 2000);
+    }, 1000);
   </script>
 </body>
 </html>

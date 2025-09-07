@@ -152,6 +152,10 @@ export class Node {
       // Don't start dragging if clicking on interactive elements
       if (this.isInteractiveElement(e.target)) return;
       
+      // Select node on click (unless Ctrl/Cmd is held for multi-select)
+      const isMultiSelect = e.ctrlKey || e.metaKey;
+      this.flowGraph.selectNode(this.id, isMultiSelect);
+      
       isDragging = true;
       this.element.classList.add('dragging');
       this.element.setPointerCapture(e.pointerId);
@@ -193,10 +197,21 @@ export class Node {
   }
   
   setPosition(x, y) {
+    const oldPosition = { x: this.x, y: this.y };
     this.x = x;
     this.y = y;
     this.element.style.left = x + 'px';
     this.element.style.top = y + 'px';
+    
+    // Fire move event
+    this.flowGraph.dispatchEvent(new CustomEvent('node:move', {
+      detail: { 
+        nodeId: this.id, 
+        node: this, 
+        oldPosition, 
+        newPosition: { x, y } 
+      }
+    }));
   }
   
   getSocket(socketId) {

@@ -38,8 +38,8 @@ export class FlowGraph extends EventTarget {
     
     // Temp path for drawing connections
     this.tempPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    this.tempPath.setAttribute('stroke', 'var(--fg-edge)');
-    this.tempPath.setAttribute('stroke-width', '3.5');
+    this.tempPath.setAttribute('stroke', '#10b981'); // Green color for better visibility
+    this.tempPath.setAttribute('stroke-width', '2.5'); // Reduced stroke width
     this.tempPath.setAttribute('fill', 'none');
     this.tempPath.setAttribute('stroke-linecap', 'round');
     this.tempPath.style.pointerEvents = 'none';

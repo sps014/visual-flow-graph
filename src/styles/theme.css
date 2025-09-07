@@ -164,6 +164,8 @@ flow-graph {
   outline: none;
   transition: all 0.2s ease;
   margin: 4px 0;
+  pointer-events: auto;
+  cursor: text;
 }
 
 .input-box:focus {
@@ -269,6 +271,29 @@ flow-graph {
 .edge:hover {
   stroke-width: 4 !important;
   filter: drop-shadow(0 4px 8px rgba(124,58,237,0.4));
+}
+
+/* Interactive elements in nodes */
+.interactive {
+  pointer-events: auto !important;
+  cursor: auto;
+}
+
+.interactive:hover {
+  /* Ensure interactive elements show proper hover states */
+}
+
+canvas.interactive {
+  cursor: grab;
+}
+
+canvas.interactive:active {
+  cursor: grabbing;
+}
+
+button.interactive:hover {
+  opacity: 0.8;
+  transform: translateY(-1px);
 }
 
 /* Hide definitions */

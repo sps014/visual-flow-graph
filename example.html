@@ -142,6 +142,72 @@
           <flow-output socket="out2" label="Out 2" type="any"></flow-output>
           <flow-output socket="out3" label="Out 3" type="any"></flow-output>
         </flow-node-def>
+        
+        <!-- Advanced 3D Renderer Node - Shows arbitrary HTML content with data-draggable attributes -->
+        <flow-node-def name="render.3d" label="3D Renderer" width="320" height="280">
+          <node-body>
+            <div class="title">🎮 3D Renderer</div>
+            <div class="body">
+              <!-- Input sockets -->
+              <div class="line">
+                <span class="socket in" data-sock="mesh"></span> Mesh Data
+              </div>
+              <div class="line">
+                <span class="socket in" data-sock="camera"></span> Camera
+              </div>
+              
+              <!-- 3D Canvas (simulated) -->
+              <div style="margin: 8px 0; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; background: linear-gradient(45deg, #1a1a2e, #16213e); height: 120px; position: relative; overflow: hidden;">
+                <canvas width="280" height="110" style="width: 100%; height: 100%; cursor: grab;" data-draggable="false"></canvas>
+                <div style="position: absolute; top: 4px; right: 4px; font-size: 10px; color: rgba(255,255,255,0.5);">WebGL</div>
+                <div style="position: absolute; bottom: 4px; left: 4px; font-size: 10px; color: rgba(255,255,255,0.5);">FPS: 60</div>
+              </div>
+              
+              <!-- Various control types -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin: 8px 0;">
+                <div>
+                  <label style="font-size: 10px; color: rgba(255,255,255,0.7);">Rotation X:</label>
+                  <input type="range" min="0" max="360" value="45" data-draggable="false" style="width: 100%; accent-color: #10b981;">
+                </div>
+                <div>
+                  <label style="font-size: 10px; color: rgba(255,255,255,0.7);">Rotation Y:</label>
+                  <input type="range" min="0" max="360" value="30" data-draggable="false" style="width: 100%; accent-color: #10b981;">
+                </div>
+              </div>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin: 4px 0;">
+                <select class="input-box" data-draggable="false" style="font-size: 11px;">
+                  <option>Perspective</option>
+                  <option>Orthographic</option>
+                  <option>Isometric</option>
+                </select>
+                <input type="color" value="#10b981" data-draggable="false" style="width: 100%; height: 24px; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; background: transparent;">
+              </div>
+              
+              <div style="margin: 4px 0;">
+                <textarea class="input-box" data-draggable="false" placeholder="Shader code..." rows="2" style="resize: vertical; font-family: monospace; font-size: 10px;"></textarea>
+              </div>
+              
+              <div style="display: flex; gap: 4px; margin: 4px 0;">
+                <button data-draggable="false" style="flex: 1; padding: 4px 8px; background: rgba(16,185,129,0.2); border: 1px solid #10b981; color: #10b981; border-radius: 4px; font-size: 10px; cursor: pointer;">Render</button>
+                <button data-draggable="false" style="flex: 1; padding: 4px 8px; background: rgba(239,68,68,0.2); border: 1px solid #ef4444; color: #ef4444; border-radius: 4px; font-size: 10px; cursor: pointer;">Reset</button>
+              </div>
+              
+              <!-- Output sockets -->
+              <div style="height:8px"></div>
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="render"></span> Rendered
+              </div>
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="stats"></span> Stats
+              </div>
+            </div>
+          </node-body>
+          <flow-input socket="mesh" label="Mesh Data" type="object"></flow-input>
+          <flow-input socket="camera" label="Camera" type="object"></flow-input>
+          <flow-output socket="render" label="Rendered" type="texture"></flow-output>
+          <flow-output socket="stats" label="Stats" type="object"></flow-output>
+        </flow-node-def>
       </flow-definitions>
       
       <flow-nodes>
@@ -153,6 +219,8 @@
         <flow-node type="util.split" id="n5" x="850" y="150"></flow-node>
         <flow-node type="data.watch" id="n6" x="1100" y="100"></flow-node>
         <flow-node type="data.watch" id="n7" x="1100" y="200"></flow-node>
+        <!-- Advanced 3D Renderer Node with arbitrary HTML content -->
+        <flow-node type="render.3d" id="n8" x="400" y="350"></flow-node>
       </flow-nodes>
       
       <flow-edges>

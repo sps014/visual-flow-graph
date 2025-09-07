@@ -20,8 +20,8 @@ export class Edge {
   
   createElement() {
     this.element = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    this.element.setAttribute('stroke', 'var(--fg-edge)');
-    this.element.setAttribute('stroke-width', '3.5');
+    this.element.setAttribute('stroke', '#10b981'); // Green color for better visibility
+    this.element.setAttribute('stroke-width', '2.5'); // Reduced stroke width
     this.element.setAttribute('fill', 'none');
     this.element.setAttribute('stroke-linecap', 'round');
     this.element.classList.add('connection');

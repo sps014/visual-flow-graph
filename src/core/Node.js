@@ -123,13 +123,34 @@ export class Node {
     });
   }
   
+  /**
+   * Check if an element is interactive and should not trigger node dragging
+   */
+  isInteractiveElement(element) {
+    // Explicit control via data attributes
+    if (element.dataset.draggable === 'false') return true;  // Prevent dragging
+    if (element.dataset.draggable === 'true') return false;  // Allow dragging
+    
+    // Socket elements always prevent dragging
+    if (element.classList.contains('socket')) return true;
+    
+    // Form elements are naturally interactive
+    if (element.matches('input, textarea, select, button, a[href]')) return true;
+    
+    // Contenteditable elements
+    if (element.isContentEditable) return true;
+    
+    // Everything else allows dragging by default
+    return false;
+  }
+
   setupDragging() {
     let isDragging = false;
     let dragOffset = { x: 0, y: 0 };
     
     const handlePointerDown = (e) => {
-      // Don't start dragging if clicking on a socket
-      if (e.target.classList.contains('socket')) return;
+      // Don't start dragging if clicking on interactive elements
+      if (this.isInteractiveElement(e.target)) return;
       
       isDragging = true;
       this.element.classList.add('dragging');

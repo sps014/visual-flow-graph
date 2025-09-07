@@ -111,6 +111,7 @@ export class Node {
       const element = this.element.querySelector(`[data-sock="${socket.id}"]`);
       if (element) {
         socket.element = element;
+        socket.setupContextMenu();
       }
     });
     
@@ -119,6 +120,7 @@ export class Node {
       const element = this.element.querySelector(`[data-sock="${socket.id}"]`);
       if (element) {
         socket.element = element;
+        socket.setupContextMenu();
       }
     });
   }

@@ -316,6 +316,22 @@ button.interactive:hover {
   z-index: 1000;
 }
 
+/* ===== CONTEXT MENU STYLES ===== */
+.socket-context-menu {
+  font-family: inherit;
+  user-select: none;
+}
+
+.context-menu-item {
+  transition: all 0.2s ease;
+}
+
+.context-menu-item:hover {
+  background: var(--fg-accent) !important;
+  color: white !important;
+}
+
+
 /* Hide definitions */
 flow-definitions {
   display: none !important;

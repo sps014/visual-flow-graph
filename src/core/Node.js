@@ -33,6 +33,22 @@ export class Node {
     this.element.style.top = this.y + 'px';
     this.element.dataset.id = this.id;
     
+    // Add category-based styling
+    if (this.template && this.template.category) {
+      this.element.dataset.category = this.template.category.toLowerCase();
+    }
+    
+    // Add color patch styling from node definition
+    if (this.template && this.template.colorPatch) {
+      this.element.dataset.colorPatch = 'true';
+      if (this.template.colorPatch.background) {
+        this.element.style.setProperty('--node-color-bg', this.template.colorPatch.background);
+      }
+      if (this.template.colorPatch.color) {
+        this.element.style.setProperty('--node-color-text', this.template.colorPatch.color);
+      }
+    }
+    
     if (this.selected) {
       this.element.classList.add('selected');
     }

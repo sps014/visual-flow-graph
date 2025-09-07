@@ -130,6 +130,18 @@ export class FlowGraphElement extends LitElement {
       const description = def.getAttribute('description') || '';
       const icon = def.getAttribute('icon') || '';
       
+      // Parse color patch attributes
+      const colorPatch = {};
+      const colorBg = def.getAttribute('color-bg');
+      const colorText = def.getAttribute('color-text');
+      
+      if (colorBg) {
+        colorPatch.background = colorBg;
+      }
+      if (colorText) {
+        colorPatch.color = colorText;
+      }
+      
       const nodeBody = def.querySelector('node-body');
       const inputs = def.querySelectorAll('flow-input');
       const outputs = def.querySelectorAll('flow-output');
@@ -142,6 +154,7 @@ export class FlowGraphElement extends LitElement {
         category,
         description,
         icon,
+        colorPatch: Object.keys(colorPatch).length > 0 ? colorPatch : null,
         html: nodeBody ? nodeBody.innerHTML : null,
         inputs: Array.from(inputs).map(input => ({
           id: input.getAttribute('socket')?.split(':')[1] || input.getAttribute('socket'),

@@ -47,7 +47,8 @@
     <flow-graph theme="dark" snap-to-grid grid-size="20">
       <flow-definitions>
         <!-- Number Input Node -->
-        <flow-node-def name="data.number" label="Number" width="160" height="100" category="Data" description="Outputs a numeric value" icon="🔢">
+        <flow-node-def name="data.number" label="Number" width="160" height="100" category="Data" description="Outputs a numeric value" icon="🔢" 
+                       color-bg="linear-gradient(90deg, rgba(59,130,246,0.15), transparent)" color-text="#3b82f6">
           <node-body>
             <div class="title">🔢 Number</div>
             <div class="body">
@@ -61,7 +62,8 @@
         </flow-node-def>
         
         <!-- Math Add Node -->
-        <flow-node-def name="math.add" label="Add" width="180" height="120" category="Math" description="Adds two numbers together" icon="➕">
+        <flow-node-def name="math.add" label="Add" width="180" height="120" category="Math" description="Adds two numbers together" icon="➕" 
+                       color-bg="linear-gradient(90deg, rgba(245,158,11,0.15), transparent)" color-text="#f59e0b">
           <node-body>
             <div class="title">➕ Add</div>
             <div class="body">
@@ -207,6 +209,59 @@
           <flow-input socket="camera" label="Camera" type="object"></flow-input>
           <flow-output socket="render" label="Rendered" type="texture"></flow-output>
           <flow-output socket="stats" label="Stats" type="object"></flow-output>
+        </flow-node-def>
+        
+        <!-- Logic Node -->
+        <flow-node-def name="logic.if" label="If" width="160" height="120" category="Logic" description="Conditional logic" icon="⚡" 
+                       color-bg="linear-gradient(90deg, rgba(239,68,68,0.15), transparent)" color-text="#ef4444">
+          <node-body>
+            <div class="title">⚡ If</div>
+            <div class="body">
+              <div class="line">
+                <span class="socket in" data-sock="condition"></span> Condition
+              </div>
+              <div style="height:8px"></div>
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="true"></span> True
+              </div>
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="false"></span> False
+              </div>
+            </div>
+          </node-body>
+          <flow-input socket="condition" label="Condition" type="boolean"></flow-input>
+          <flow-output socket="true" label="True" type="any"></flow-output>
+          <flow-output socket="false" label="False" type="any"></flow-output>
+        </flow-node-def>
+        
+        <!-- Text Node -->
+        <flow-node-def name="text.string" label="String" width="160" height="100" category="Text" description="Text input/output" icon="📝" 
+                       color-bg="linear-gradient(90deg, rgba(59,130,246,0.15), transparent)" color-text="#3b82f6">
+          <node-body>
+            <div class="title">📝 String</div>
+            <div class="body">
+              <input type="text" class="input-box" value="Hello" placeholder="Enter text">
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="text"></span> Text
+              </div>
+            </div>
+          </node-body>
+          <flow-output socket="text" label="Text" type="string"></flow-output>
+        </flow-node-def>
+        
+        <!-- Canvas Node -->
+        <flow-node-def name="render.canvas" label="Canvas" width="200" height="150" category="Render" description="2D Canvas renderer" icon="🎨" 
+                       color-bg="linear-gradient(90deg, rgba(139,92,246,0.15), transparent)" color-text="#8b5cf6">
+          <node-body>
+            <div class="title">🎨 Canvas</div>
+            <div class="body">
+              <canvas data-draggable="false" style="width: 100%; height: 60px; background: #000; border-radius: 4px;"></canvas>
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="image"></span> Image
+              </div>
+            </div>
+          </node-body>
+          <flow-output socket="image" label="Image" type="image"></flow-output>
         </flow-node-def>
       </flow-definitions>
       

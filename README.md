@@ -15,6 +15,22 @@ A modern, declarative, HTML-based visual scripting library built with Lit web co
 - **Context Menus**: Right-click menus for adding nodes and managing connections
 - **Search Functionality**: Real-time search in node creation context menu
 - **Multi-selection**: Select and drag multiple nodes simultaneously
+- **Color Patches**: Flexible node title styling defined in node definitions
+
+## 🆕 Recent Updates
+
+### v1.2.0 - Color Patch System
+- **Flexible Color Patches**: Define node title colors directly in `flow-node-def` using `color-bg` and `color-text` attributes
+- **No Hardcoded CSS**: Each node type can have unique styling without global CSS changes
+- **CSS Custom Properties**: Uses `--node-color-bg` and `--node-color-text` for dynamic styling
+- **Enhanced Context Menus**: Improved viewport and socket context menus with search functionality
+- **Better UX**: Friendly names in socket delete menus, improved node placement
+
+### v1.1.0 - Context Menus & Multi-Selection
+- **Viewport Context Menu**: Right-click to add nodes with categorized, searchable menu
+- **Socket Context Menu**: Right-click sockets to delete connected edges
+- **Multi-Node Dragging**: Select and move multiple nodes simultaneously
+- **Enhanced Event System**: Comprehensive events for all graph interactions
 
 ## 📦 Installation
 
@@ -60,7 +76,9 @@ npm install flowgraph lit
   <!-- Define reusable node templates -->
   <flow-definitions>
     <flow-node-def name="data.number" label="Number" width="160" height="100" 
-                   category="Data" description="Numeric input" icon="🔢">
+                   category="Data" description="Numeric input" icon="🔢"
+                   color-bg="linear-gradient(90deg, rgba(59,130,246,0.15), transparent)" 
+                   color-text="#3b82f6">
       <node-body>
         <div class="title">🔢 Number</div>
         <div class="body">
@@ -74,7 +92,9 @@ npm install flowgraph lit
     </flow-node-def>
     
     <flow-node-def name="math.add" label="Add" width="180" height="120" 
-                   category="Math" description="Add two numbers" icon="➕">
+                   category="Math" description="Add two numbers" icon="➕"
+                   color-bg="linear-gradient(90deg, rgba(245,158,11,0.15), transparent)" 
+                   color-text="#f59e0b">
       <node-body>
         <div class="title">➕ Add</div>
         <div class="body">
@@ -167,9 +187,54 @@ flow-graph[theme="light"] {
 }
 ```
 
+### Node Color Patches
+
+FlowGraph supports flexible color patches defined directly in node definitions using `color-bg` and `color-text` attributes. This approach eliminates the need for hardcoded CSS and allows each node type to have its own unique styling.
+
+#### Basic Usage
+```html
+<flow-node-def name="data.number" label="Number" 
+               color-bg="linear-gradient(90deg, rgba(59,130,246,0.15), transparent)" 
+               color-text="#3b82f6">
+  <node-body>
+    <div class="title">🔢 Number</div>
+    <!-- node content -->
+  </node-body>
+</flow-node-def>
+```
+
+#### Color Patch Examples
+```html
+<!-- Blue gradient for data nodes -->
+<flow-node-def name="data.string" 
+               color-bg="linear-gradient(90deg, rgba(59,130,246,0.15), transparent)" 
+               color-text="#3b82f6">
+
+<!-- Orange gradient for math nodes -->
+<flow-node-def name="math.add" 
+               color-bg="linear-gradient(90deg, rgba(245,158,11,0.15), transparent)" 
+               color-text="#f59e0b">
+
+<!-- Red gradient for logic nodes -->
+<flow-node-def name="logic.if" 
+               color-bg="linear-gradient(90deg, rgba(239,68,68,0.15), transparent)" 
+               color-text="#ef4444">
+
+<!-- Purple gradient for render nodes -->
+<flow-node-def name="render.canvas" 
+               color-bg="linear-gradient(90deg, rgba(139,92,246,0.15), transparent)" 
+               color-text="#8b5cf6">
+```
+
+#### How It Works
+- **CSS Custom Properties**: Color patches use CSS custom properties (`--node-color-bg`, `--node-color-text`)
+- **Data Attributes**: Nodes automatically get a `data-color-patch` attribute when color patches are defined
+- **Flexible Styling**: Each node can have completely custom colors without affecting others
+- **No Hardcoded CSS**: Colors are defined per node type, not in global stylesheets
+
 ### Advanced Color Customization
 
-#### Node Styling
+#### Manual Node Styling (Alternative to Color Patches)
 ```css
 /* Custom node types with specific colors */
 .node.type-data .title {
@@ -328,9 +393,11 @@ Define reusable node templates with enhanced metadata.
 | `label` | String | ❌ | Display label (defaults to name) |
 | `width` | Number | ❌ | Node width in pixels (default: 160) |
 | `height` | Number | ❌ | Node height in pixels (default: 100) |
-| `category` | String | ❌ | Category for context menu grouping |
+| `category` | String | ❌ | Category for context menu grouping (default: "General") |
 | `description` | String | ❌ | Description shown in context menu |
-| `icon` | String | ❌ | Icon emoji for context menu |
+| `icon` | String | ❌ | Icon/emoji for context menu display |
+| `color-bg` | String | ❌ | Background gradient for node title (CSS gradient) |
+| `color-text` | String | ❌ | Text color for node title (CSS color) |
 
 #### Child Elements
 - `<node-body>`: Contains the HTML template for the node's visual representation

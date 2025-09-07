@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>FlowGraph - Lit Example</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    html, body {
+      height: 100%; 
+      margin: 0; 
+      background: linear-gradient(180deg, #091027 0%, #071420 100%); 
+      font-family: 'Inter', 'Roboto', system-ui, sans-serif; 
+      color: #fff;
+      overflow: hidden;
+    }
+    
+    #app {
+      position: relative; 
+      height: 100vh; 
+      width: 100vw; 
+      overflow: hidden; 
+      display: flex;
+    }
+  </style>
+  <link rel="stylesheet" href="src/styles/theme.css">
+  
+  <!-- Import map for Lit -->
+  <script type="importmap">
+    {
+      "imports": {
+        "lit": "https://cdn.jsdelivr.net/npm/lit@3.1.0/index.js",
+        "lit/": "https://cdn.jsdelivr.net/npm/lit@3.1.0/",
+        "@lit/reactive-element": "https://cdn.jsdelivr.net/npm/@lit/reactive-element@2.0.4/reactive-element.js",
+        "@lit/reactive-element/": "https://cdn.jsdelivr.net/npm/@lit/reactive-element@2.0.4/",
+        "lit-html": "https://cdn.jsdelivr.net/npm/lit-html@3.1.0/lit-html.js",
+        "lit-html/": "https://cdn.jsdelivr.net/npm/lit-html@3.1.0/",
+        "lit-element": "https://cdn.jsdelivr.net/npm/lit-element@4.0.4/lit-element.js",
+        "lit-element/": "https://cdn.jsdelivr.net/npm/lit-element@4.0.4/"
+      }
+    }
+  </script>
+  
+  <script type="module" src="src/index.js"></script>
+</head>
+<body>
+  <div id="app">
+    <flow-graph theme="dark" snap-to-grid grid-size="20">
+      <flow-definitions>
+        <!-- Number Input Node -->
+        <flow-node-def name="data.number" label="Number" width="160" height="100">
+          <node-body>
+            <div class="title">🔢 Number</div>
+            <div class="body">
+              <input type="number" class="input-box" value="0" placeholder="Enter value">
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="value"></span> Value
+              </div>
+            </div>
+          </node-body>
+          <flow-output socket="value" label="Value" type="number"></flow-output>
+        </flow-node-def>
+        
+        <!-- Math Add Node -->
+        <flow-node-def name="math.add" label="Add" width="180" height="120">
+          <node-body>
+            <div class="title">➕ Add</div>
+            <div class="body">
+              <div class="line">
+                <span class="socket in" data-sock="a"></span> A
+              </div>
+              <div class="line">
+                <span class="socket in" data-sock="b"></span> B
+              </div>
+              <div style="height:8px"></div>
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="sum"></span> Sum
+              </div>
+            </div>
+          </node-body>
+          <flow-input socket="a" label="A" type="number"></flow-input>
+          <flow-input socket="b" label="B" type="number"></flow-input>
+          <flow-output socket="sum" label="Sum" type="number"></flow-output>
+        </flow-node-def>
+        
+        <!-- Watch Node -->
+        <flow-node-def name="data.watch" label="Watch" width="160" height="100">
+          <node-body>
+            <div class="title">👁️ Watch</div>
+            <div class="body">
+              <div class="line">
+                <span class="socket in" data-sock="value"></span> Value
+              </div>
+            </div>
+          </node-body>
+          <flow-input socket="value" label="Value" type="any"></flow-input>
+        </flow-node-def>
+        
+        <!-- Multiply Node -->
+        <flow-node-def name="math.multiply" label="Multiply" width="180" height="120">
+          <node-body>
+            <div class="title">✖️ Multiply</div>
+            <div class="body">
+              <div class="line">
+                <span class="socket in" data-sock="a"></span> A
+              </div>
+              <div class="line">
+                <span class="socket in" data-sock="b"></span> B
+              </div>
+              <div style="height:8px"></div>
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="product"></span> Product
+              </div>
+            </div>
+          </node-body>
+          <flow-input socket="a" label="A" type="number"></flow-input>
+          <flow-input socket="b" label="B" type="number"></flow-input>
+          <flow-output socket="product" label="Product" type="number"></flow-output>
+        </flow-node-def>
+        
+        <!-- Split Node -->
+        <flow-node-def name="util.split" label="Split" width="160" height="140">
+          <node-body>
+            <div class="title">🔀 Split</div>
+            <div class="body">
+              <div class="line">
+                <span class="socket in" data-sock="input"></span> Input
+              </div>
+              <div style="height:8px"></div>
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="out1"></span> Out 1
+              </div>
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="out2"></span> Out 2
+              </div>
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="out3"></span> Out 3
+              </div>
+            </div>
+          </node-body>
+          <flow-input socket="input" label="Input" type="any"></flow-input>
+          <flow-output socket="out1" label="Out 1" type="any"></flow-output>
+          <flow-output socket="out2" label="Out 2" type="any"></flow-output>
+          <flow-output socket="out3" label="Out 3" type="any"></flow-output>
+        </flow-node-def>
+      </flow-definitions>
+      
+      <flow-nodes>
+        <!-- Create some example nodes -->
+        <flow-node type="data.number" id="n1" x="100" y="100"></flow-node>
+        <flow-node type="data.number" id="n2" x="100" y="250"></flow-node>
+        <flow-node type="math.add" id="n3" x="350" y="175"></flow-node>
+        <flow-node type="math.multiply" id="n4" x="600" y="100"></flow-node>
+        <flow-node type="util.split" id="n5" x="850" y="150"></flow-node>
+        <flow-node type="data.watch" id="n6" x="1100" y="100"></flow-node>
+        <flow-node type="data.watch" id="n7" x="1100" y="200"></flow-node>
+      </flow-nodes>
+      
+      <flow-edges>
+        <!-- Create some example connections -->
+        <flow-edge from="n1:value" to="n3:a"></flow-edge>
+        <flow-edge from="n2:value" to="n3:b"></flow-edge>
+        <flow-edge from="n3:sum" to="n4:a"></flow-edge>
+        <flow-edge from="n1:value" to="n4:b"></flow-edge>
+        <flow-edge from="n4:product" to="n5:input"></flow-edge>
+        <flow-edge from="n5:out1" to="n6:value"></flow-edge>
+        <flow-edge from="n5:out2" to="n7:value"></flow-edge>
+      </flow-edges>
+    </flow-graph>
+  </div>
+  
+  <script type="module">
+    // Wait for custom elements to be defined
+    await customElements.whenDefined('flow-graph');
+    
+    // Example of programmatic API usage
+    const flowGraph = document.querySelector('flow-graph');
+    
+    flowGraph.addEventListener('node:create', (e) => {
+      console.log('Node created:', e.detail.node);
+    });
+    
+    flowGraph.addEventListener('edge:create', (e) => {
+      console.log('Edge created:', e.detail.edge);
+    });
+    
+    // Wait for the component to be fully initialized
+    const waitForFlowGraph = () => {
+      return new Promise((resolve) => {
+        if (flowGraph.flowGraph && flowGraph.flowGraph.nodes) {
+          resolve();
+        } else {
+          setTimeout(() => waitForFlowGraph().then(resolve), 50);
+        }
+      });
+    };
+    
+    await waitForFlowGraph();
+    console.log('FlowGraph loaded with', flowGraph.flowGraph.nodes.size, 'nodes');
+    
+    // Example: Add a node programmatically
+    // flowGraph.addNode('data.number', { x: 500, y: 400 });
+  </script>
+</body>
+</html>

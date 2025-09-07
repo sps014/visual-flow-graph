@@ -1,0 +1,21 @@
+{
+  "name": "flowgraph",
+  "version": "1.0.0",
+  "description": "A declarative, HTML-based visual scripting library built with Lit",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "lit": "^3.1.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  },
+  "keywords": ["visual-scripting", "node-editor", "web-components", "lit"],
+  "author": "",
+  "license": "MIT"
+}

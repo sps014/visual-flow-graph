@@ -1,0 +1,277 @@
+/* FlowGraph Theme - Based on original POC */
+:root { 
+  --fg-bg: #111827; 
+  --fg-panel: #0b1220; 
+  --fg-node: #0f1724; 
+  --fg-accent: #7c3aed; 
+  --fg-muted: #94a3b8; 
+  --fg-edge: rgba(124,58,237,0.95);
+  --fg-success: #10b981;
+  --fg-warning: #f59e0b;
+  --fg-error: #ef4444;
+}
+
+/* ===== FLOW SURFACE ===== */
+flow-graph {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: 
+    /* Main grid lines */
+    linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px),
+    /* Minor grid lines */
+    linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px);
+  background-size: 
+    50px 50px,  /* Main grid */
+    50px 50px,  /* Main grid */
+    10px 10px,  /* Minor grid */
+    10px 10px;  /* Minor grid */
+  background-position: 
+    0 0,        /* Main grid */
+    0 0,        /* Main grid */
+    0 0,        /* Minor grid */
+    0 0;        /* Minor grid */
+  transform-origin: 0px 0px;
+}
+
+.surface {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  transform-origin: 0px 0px;
+}
+
+/* svg layer for edges (goes behind nodes) */
+#edge-svg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none; /* so nodes can handle events */
+  width: 100%; 
+  height: 100%;
+  overflow: visible;
+  z-index: 1; /* Behind nodes */
+}
+
+#nodes-root {
+  position: absolute;
+  inset: 0;
+  z-index: 2; /* Above edges */
+}
+
+/* ===== NODE STYLES ===== */
+.node {
+  position: absolute;
+  min-width: 160px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 
+    0 8px 32px rgba(2,6,23,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  transform-origin: 0 0;
+  user-select: none;
+  cursor: grab;
+  backdrop-filter: blur(8px);
+}
+
+.node.dragging { 
+  cursor: grabbing; 
+  box-shadow: 
+    0 12px 48px rgba(2,6,23,0.8),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+  transform: scale(1.02);
+}
+
+.node.selected {
+  border-color: var(--fg-accent);
+  box-shadow: 
+    0 8px 32px rgba(2,6,23,0.6),
+    0 0 0 2px rgba(124,58,237,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.node .title { 
+  font-weight: 600; 
+  font-size: 14px; 
+  margin-bottom: 8px; 
+  color: var(--fg-muted);
+  padding: 12px 16px 8px;
+  background: linear-gradient(90deg, rgba(124,58,237,0.1), transparent);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-radius: 12px 12px 0 0;
+}
+
+.node .body { 
+  font-size: 13px; 
+  color: #cbd5e1;
+  padding: 12px 16px;
+}
+
+/* Node type variations */
+.node.type-input .title { 
+  background: linear-gradient(90deg, rgba(16,185,129,0.15), transparent);
+  color: var(--fg-success);
+}
+
+.node.type-math .title { 
+  background: linear-gradient(90deg, rgba(245,158,11,0.15), transparent);
+  color: var(--fg-warning);
+}
+
+.node.type-output .title { 
+  background: linear-gradient(90deg, rgba(239,68,68,0.15), transparent);
+  color: var(--fg-error);
+}
+
+.node.type-number .title { 
+  background: linear-gradient(90deg, rgba(59,130,246,0.15), transparent);
+  color: #3b82f6;
+}
+
+.node.type-sum .title { 
+  background: linear-gradient(90deg, rgba(168,85,247,0.15), transparent);
+  color: #a855f7;
+}
+
+.node.type-watch .title { 
+  background: linear-gradient(90deg, rgba(34,197,94,0.15), transparent);
+  color: #22c55e;
+}
+
+.node.type-multiply .title { 
+  background: linear-gradient(90deg, rgba(139,92,246,0.15), transparent);
+  color: #8b5cf6;
+}
+
+.node.type-split .title { 
+  background: linear-gradient(90deg, rgba(6,182,212,0.15), transparent);
+  color: #06b6d4;
+}
+
+/* Input box styles */
+.input-box {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+  font-size: 12px;
+  outline: none;
+  transition: all 0.2s ease;
+  margin: 4px 0;
+}
+
+.input-box:focus {
+  border-color: var(--fg-accent);
+  background: rgba(255,255,255,0.1);
+}
+
+.input-box::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+.line {
+  margin: 4px 0;
+}
+
+/* ===== SOCKET STYLES ===== */
+.socket {
+  width: 14px; 
+  height: 14px; 
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+  border: 2px solid rgba(0,0,0,0.4);
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 8px;
+  box-shadow: 
+    0 2px 6px rgba(2,6,23,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+  cursor: pointer;
+  position: relative;
+}
+
+.socket:hover {
+  transform: scale(1.1);
+  box-shadow: 
+    0 4px 12px rgba(2,6,23,0.7),
+    0 0 0 2px rgba(124,58,237,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+.socket.socket-active {
+  background: linear-gradient(180deg, var(--fg-accent), rgba(124,58,237,0.8));
+  box-shadow: 
+    0 4px 12px rgba(124,58,237,0.4),
+    0 0 0 3px rgba(124,58,237,0.3);
+  transform: scale(1.15);
+}
+
+.socket.socket-hover {
+  background: linear-gradient(180deg, rgba(16,185,129,0.8), rgba(16,185,129,0.6));
+  box-shadow: 
+    0 4px 12px rgba(16,185,129,0.4),
+    0 0 0 2px rgba(16,185,129,0.3);
+  transform: scale(1.1);
+}
+
+/* Socket type indicators and colors */
+.socket.in { 
+  border-color: rgba(16,185,129,0.8);
+  background: linear-gradient(180deg, rgba(16,185,129,0.3), rgba(16,185,129,0.1));
+}
+
+.socket.out { 
+  float: right; 
+  margin-right: 0; 
+  margin-left: 8px;
+  border-color: rgba(239,68,68,0.8);
+  background: linear-gradient(180deg, rgba(239,68,68,0.3), rgba(239,68,68,0.1));
+}
+
+.socket.in:hover {
+  background: linear-gradient(180deg, rgba(16,185,129,0.6), rgba(16,185,129,0.3));
+  box-shadow: 
+    0 4px 12px rgba(16,185,129,0.4),
+    0 0 0 2px rgba(16,185,129,0.5);
+}
+
+.socket.out:hover {
+  background: linear-gradient(180deg, rgba(239,68,68,0.6), rgba(239,68,68,0.3));
+  box-shadow: 
+    0 4px 12px rgba(239,68,68,0.4),
+    0 0 0 2px rgba(239,68,68,0.5);
+}
+
+/* ===== CONNECTION STYLES ===== */
+.connection {
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.connection:hover {
+  stroke-width: 4 !important;
+  filter: drop-shadow(0 4px 8px rgba(124,58,237,0.4));
+}
+
+.temp-connection {
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.edge {
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.edge:hover {
+  stroke-width: 4 !important;
+  filter: drop-shadow(0 4px 8px rgba(124,58,237,0.4));
+}
+
+/* Hide definitions */
+flow-definitions {
+  display: none !important;
+}

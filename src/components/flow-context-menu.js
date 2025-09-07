@@ -22,8 +22,8 @@ export class FlowContextMenu extends LitElement {
     }
 
     .context-menu {
-      background: var(--fg-panel);
-      border: 1px solid var(--fg-muted);
+      background: var(--fg-panel, #0b1220);
+      border: 1px solid var(--fg-muted, #94a3b8);
       border-radius: 8px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
       min-width: 200px;
@@ -39,36 +39,36 @@ export class FlowContextMenu extends LitElement {
       padding: 8px 16px;
       font-size: 12px;
       font-weight: bold;
-      color: var(--fg-muted);
+      color: var(--fg-muted, #94a3b8);
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      border-bottom: 1px solid var(--fg-muted);
+      border-bottom: 1px solid var(--fg-muted, #94a3b8);
       margin-bottom: 4px;
     }
 
     .search-container {
       padding: 8px 12px;
-      border-bottom: 1px solid var(--fg-muted);
+      border-bottom: 1px solid var(--fg-muted, #94a3b8);
     }
 
     .search-input {
       width: 100%;
       padding: 6px 8px;
-      border: 1px solid var(--fg-muted);
+      border: 1px solid var(--fg-muted, #94a3b8);
       border-radius: 4px;
-      background: var(--fg-panel);
-      color: var(--fg-text);
+      background: var(--fg-panel, #0b1220);
+      color: var(--fg-text, #ffffff);
       font-size: 12px;
       outline: none;
       transition: border-color 0.2s ease;
     }
 
     .search-input:focus {
-      border-color: var(--fg-accent);
+      border-color: var(--fg-accent, #7c3aed);
     }
 
     .search-input::placeholder {
-      color: var(--fg-muted);
+      color: var(--fg-muted, #94a3b8);
     }
 
     .node-category {
@@ -79,15 +79,15 @@ export class FlowContextMenu extends LitElement {
       padding: 6px 16px;
       font-size: 11px;
       font-weight: 600;
-      color: var(--fg-accent);
+      color: var(--fg-accent, #7c3aed);
       background: rgba(124, 58, 237, 0.1);
-      border-left: 3px solid var(--fg-accent);
+      border-left: 3px solid var(--fg-accent, #7c3aed);
     }
 
     .node-item {
       padding: 10px 16px;
       cursor: pointer;
-      color: var(--fg-text);
+      color: var(--fg-text, #ffffff);
       font-size: 13px;
       display: flex;
       align-items: center;
@@ -97,7 +97,7 @@ export class FlowContextMenu extends LitElement {
     }
 
     .node-item:hover {
-      background: var(--fg-accent);
+      background: var(--fg-accent, #7c3aed);
       color: white;
       border-left-color: white;
     }
@@ -123,7 +123,7 @@ export class FlowContextMenu extends LitElement {
 
     .node-description {
       font-size: 11px;
-      color: var(--fg-muted);
+      color: var(--fg-muted, #94a3b8);
       opacity: 0.8;
     }
 
@@ -136,7 +136,7 @@ export class FlowContextMenu extends LitElement {
       padding: 2px 6px;
       background: rgba(255, 255, 255, 0.1);
       border-radius: 3px;
-      color: var(--fg-muted);
+      color: var(--fg-muted, #94a3b8);
     }
 
     .node-item:hover .node-type {
@@ -147,7 +147,7 @@ export class FlowContextMenu extends LitElement {
     .no-nodes {
       padding: 20px 16px;
       text-align: center;
-      color: var(--fg-muted);
+      color: var(--fg-muted, #94a3b8);
       font-size: 12px;
     }
 
@@ -161,12 +161,12 @@ export class FlowContextMenu extends LitElement {
     }
 
     .context-menu::-webkit-scrollbar-thumb {
-      background: var(--fg-muted);
+      background: var(--fg-muted, #94a3b8);
       border-radius: 3px;
     }
 
     .context-menu::-webkit-scrollbar-thumb:hover {
-      background: var(--fg-accent);
+      background: var(--fg-accent, #7c3aed);
     }
   `;
 
@@ -241,7 +241,7 @@ export class FlowContextMenu extends LitElement {
 
   handleNodeClick(nodeDef) {
     if (this.onNodeAdd) {
-      this.onNodeAdd(nodeDef, this.x, this.y);
+      this.onNodeAdd(nodeDef);
     }
     this.hide();
   }

@@ -281,11 +281,23 @@ export class FlowGraphElement extends LitElement {
     }
   }
   
-  addNodeFromContextMenu(nodeDef, x, y) {
-    // Convert viewport coordinates to world coordinates
+  addNodeFromContextMenu(nodeDef) {
+    // Get the context menu element to get its position
+    const contextMenu = this.shadowRoot.getElementById('context-menu');
+    if (!contextMenu) return;
+    
+    // Convert screen coordinates to world coordinates, accounting for pan and zoom
     const rect = this.getBoundingClientRect();
-    const worldX = (this.flowGraph.viewport.x + (x - rect.left)) / this.flowGraph.viewport.scale;
-    const worldY = (this.flowGraph.viewport.y + (y - rect.top)) / this.flowGraph.viewport.scale;
+    const viewport = this.flowGraph.viewport;
+    
+    // Convert screen coordinates to world coordinates
+    // First, convert to local viewport coordinates, then apply inverse transform
+    const localX = contextMenu.x - rect.left;
+    const localY = contextMenu.y - rect.top;
+    
+    // Apply inverse viewport transform: (local - pan) / scale
+    const worldX = (localX - viewport.x) / viewport.scale;
+    const worldY = (localY - viewport.y) / viewport.scale;
     
     // Add the node
     this.addNode(nodeDef.name, { x: worldX, y: worldY });

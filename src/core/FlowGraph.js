@@ -641,6 +641,8 @@ export class FlowGraph extends EventTarget {
     let executedCount = 0;
     
     // Execute nodes in order
+    let executionError = null;
+    
     for (const nodeId of executionOrder) {
       const node = this.nodes.get(nodeId);
       if (node && node.template && node.template.onExecute) {
@@ -649,7 +651,8 @@ export class FlowGraph extends EventTarget {
           executedCount++;
         } catch (error) {
           console.error(`Error executing node ${nodeId}:`, error);
-          // Continue with other nodes even if one fails
+          executionError = error;
+          break; // Stop execution on first failure
         }
       }
     }
@@ -659,9 +662,15 @@ export class FlowGraph extends EventTarget {
       detail: { 
         executedNodes: executedCount,
         totalNodes: executionOrder.length,
+        error: executionError,
         timestamp: Date.now()
       }
     }));
+    
+    // Re-throw error if execution failed
+    if (executionError) {
+      throw executionError;
+    }
   }
   
   /**

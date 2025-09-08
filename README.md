@@ -215,7 +215,7 @@ The graph execution system automatically:
 1. **Dependency Analysis**: Uses topological sorting to determine execution order
 2. **Sequential Execution**: Executes nodes in dependency order (inputs before outputs)
 3. **Value Propagation**: Automatically propagates values between connected sockets
-4. **Error Handling**: Continues execution even if individual nodes fail
+4. **Error Handling**: Stops execution immediately if any individual node fails
 
 ### Socket Index Order
 
@@ -238,12 +238,21 @@ flowGraph.addEventListener('node:execute', (e) => {
   console.log('Node executed:', e.detail.nodeId, 'Result:', e.detail.result);
 });
 
+flowGraph.addEventListener('node:execute:error', (e) => {
+  console.error('Node execution failed:', e.detail.nodeId, 'Error:', e.detail.error);
+});
+
 flowGraph.addEventListener('graph:execute:start', (e) => {
   console.log('Graph execution started');
 });
 
 flowGraph.addEventListener('graph:execute:complete', (e) => {
-  console.log('Graph execution completed');
+  if (e.detail.error) {
+    console.error('Graph execution failed:', e.detail.error);
+    console.log(`Executed ${e.detail.executedNodes}/${e.detail.totalNodes} nodes before failure`);
+  } else {
+    console.log(`Graph execution completed successfully - ${e.detail.executedNodes} nodes executed`);
+  }
 });
 ```
 

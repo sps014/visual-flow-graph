@@ -1,5 +1,8 @@
 // FlowGraph Library - Main Entry Point
 
+// Import theme styles
+import './styles/theme.css';
+
 // Import all components to register them
 import './components/flow-graph.js';
 import './components/flow-node-def.js';

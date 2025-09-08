@@ -1,12 +1,10 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8" />
-<title>FlowScript - Visual Scripting Library</title>
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<link rel="stylesheet" href="src/styles/theme.css">
+  <meta charset="utf-8">
+  <title>FlowGraph - Lit Example</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
-  
   html, body {
     height: 100%; 
     margin: 0; 
@@ -23,440 +21,337 @@
     overflow: hidden; 
     display: flex;
   }
-  
-  /* ===== FLOW SURFACE ===== */
-  .surface {
-    flex: 1;
-    position: relative;
-    background: 
-      /* Main grid lines */
-      linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px),
-      /* Minor grid lines */
-      linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px);
-    background-size: 
-      50px 50px,  /* Main grid */
-      50px 50px,  /* Main grid */
-      10px 10px,  /* Minor grid */
-      10px 10px;  /* Minor grid */
-    background-position: 
-      0 0,        /* Main grid */
-      0 0,        /* Main grid */
-      0 0,        /* Minor grid */
-      0 0;        /* Minor grid */
-    overflow: hidden;
-    transform-origin: 0px 0px;
-  }
-
-  /* svg layer for edges (goes behind nodes) */
-  #edge-svg {
-    position: absolute;
-    inset: 0;
-    pointer-events: none; /* so nodes can handle events */
-    width: 100%; 
-    height: 100%;
-    overflow: visible;
-    z-index: 1; /* Behind nodes */
-  }
-
-  #nodes-root {
-    position: absolute;
-    inset: 0;
-    z-index: 2; /* Above edges */
-  }
-
-  /* ===== NODE STYLES ===== */
-  .node {
-    position: absolute;
-    min-width: 160px;
-    border-radius: 12px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
-    border: 1px solid rgba(255,255,255,0.05);
-    box-shadow: 
-      0 8px 32px rgba(2,6,23,0.6),
-      inset 0 1px 0 rgba(255,255,255,0.05);
-    transform-origin: 0 0;
-    user-select: none;
-    cursor: grab;
-    backdrop-filter: blur(8px);
-  }
-  
-  .node.dragging { 
-    cursor: grabbing; 
-    box-shadow: 
-      0 12px 48px rgba(2,6,23,0.8),
-      inset 0 1px 0 rgba(255,255,255,0.1);
-    transform: scale(1.02);
-  }
-  
-  .node.selected {
-    border-color: var(--accent);
-    box-shadow: 
-      0 8px 32px rgba(2,6,23,0.6),
-      0 0 0 2px rgba(124,58,237,0.3),
-      inset 0 1px 0 rgba(255,255,255,0.05);
-  }
-  
-  .node-header {
-    padding: 12px 16px 8px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-  }
-  
-  .node-title { 
-    font-weight: 600; 
-    font-size: 14px; 
-    color: var(--muted); 
-    margin: 0;
-  }
-  
-  .node-body { 
-    padding: 12px 16px;
-  }
-  
-  .node-inputs, .node-outputs {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .node-content {
-    margin: 8px 0;
-    min-height: 20px;
-  }
-
-  /* Node styles - matching actual HTML structure */
-  .node .title { 
-    font-weight: 600; 
-    font-size: 14px; 
-    margin-bottom: 8px; 
-    color: var(--muted);
-    padding: 12px 16px 8px;
-    background: linear-gradient(90deg, rgba(124,58,237,0.1), transparent);
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    border-radius: 12px 12px 0 0;
-  }
-  
-  .node .body { 
-    font-size: 13px; 
-    color: #cbd5e1;
-    padding: 12px 16px;
-  }
-
-  /* Node type variations */
-  .node.type-input .title { 
-    background: linear-gradient(90deg, rgba(16,185,129,0.15), transparent);
-    color: var(--success);
-  }
-  
-  .node.type-math .title { 
-    background: linear-gradient(90deg, rgba(245,158,11,0.15), transparent);
-    color: var(--warning);
-  }
-  
-  .node.type-output .title { 
-    background: linear-gradient(90deg, rgba(239,68,68,0.15), transparent);
-    color: var(--error);
-  }
-  
-  .node.type-number .title { 
-    background: linear-gradient(90deg, rgba(59,130,246,0.15), transparent);
-    color: #3b82f6;
-  }
-  
-  .node.type-sum .title { 
-    background: linear-gradient(90deg, rgba(168,85,247,0.15), transparent);
-    color: #a855f7;
-  }
-  
-  .node.type-watch .title { 
-    background: linear-gradient(90deg, rgba(34,197,94,0.15), transparent);
-    color: #22c55e;
-  }
-  
-  .node.type-multiply .title { 
-    background: linear-gradient(90deg, rgba(139,92,246,0.15), transparent);
-    color: #8b5cf6;
-  }
-  
-  .node.type-split .title { 
-    background: linear-gradient(90deg, rgba(6,182,212,0.15), transparent);
-    color: #06b6d4;
-  }
-
-  /* Input box styles */
-  .input-box-container {
-    margin: 8px 0;
-    padding: 0 8px;
-  }
-  
-  .input-box {
-    width: 100%;
-    padding: 6px 8px;
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 6px;
-    background: rgba(255,255,255,0.05);
-    color: #fff;
-    font-size: 12px;
-    outline: none;
-    transition: all 0.2s ease;
-  }
-  
-  .input-box:focus {
-    border-color: var(--accent);
-    background: rgba(255,255,255,0.1);
-  }
-  
-  .input-box::placeholder {
-    color: rgba(255,255,255,0.5);
-  }
-
-  .line {
-    margin: 4px 0;
-  }
-
-  /* ===== SOCKET STYLES ===== */
-  .socket-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    color: #cbd5e1;
-  }
-  
-  .socket-wrapper.output {
-    justify-content: flex-end;
-    text-align: right;
-  }
-  
-  .socket {
-    width: 14px; 
-    height: 14px; 
-    border-radius: 50%;
-    background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
-    border: 2px solid rgba(0,0,0,0.4);
-    display: inline-block;
-    vertical-align: middle;
-    margin-right: 8px;
-    box-shadow: 
-      0 2px 6px rgba(2,6,23,0.5),
-      inset 0 1px 0 rgba(255,255,255,0.1);
-    cursor: pointer;
-    position: relative;
-  }
-  
-  .socket:hover {
-    transform: scale(1.1);
-    box-shadow: 
-      0 4px 12px rgba(2,6,23,0.7),
-      0 0 0 2px rgba(124,58,237,0.4),
-      inset 0 1px 0 rgba(255,255,255,0.2);
-  }
-  
-  .socket.socket-active {
-    background: linear-gradient(180deg, var(--accent), rgba(124,58,237,0.8));
-    box-shadow: 
-      0 4px 12px rgba(124,58,237,0.4),
-      0 0 0 3px rgba(124,58,237,0.3);
-    transform: scale(1.15);
-  }
-  
-  .socket.socket-hover {
-    background: linear-gradient(180deg, rgba(16,185,129,0.8), rgba(16,185,129,0.6));
-    box-shadow: 
-      0 4px 12px rgba(16,185,129,0.4),
-      0 0 0 2px rgba(16,185,129,0.3);
-    transform: scale(1.1);
-  }
-  
-  .socket-label {
-    font-size: 11px;
-    font-weight: 500;
-    opacity: 0.8;
-  }
-
-  /* Socket type indicators and colors */
-  .socket.in { 
-    border-color: rgba(16,185,129,0.8);
-    background: linear-gradient(180deg, rgba(16,185,129,0.3), rgba(16,185,129,0.1));
-  }
-  
-  .socket.out { 
-    float: right; 
-    margin-right: 0; 
-    margin-left: 8px;
-    border-color: rgba(239,68,68,0.8);
-    background: linear-gradient(180deg, rgba(239,68,68,0.3), rgba(239,68,68,0.1));
-  }
-
-  .socket.in:hover {
-    background: linear-gradient(180deg, rgba(16,185,129,0.6), rgba(16,185,129,0.3));
-    box-shadow: 
-      0 4px 12px rgba(16,185,129,0.4),
-      0 0 0 2px rgba(16,185,129,0.5);
-  }
-
-  .socket.out:hover {
-    background: linear-gradient(180deg, rgba(239,68,68,0.6), rgba(239,68,68,0.3));
-    box-shadow: 
-      0 4px 12px rgba(239,68,68,0.4),
-      0 0 0 2px rgba(239,68,68,0.5);
-  }
-
-  /* ===== CONNECTION STYLES ===== */
-  .connection {
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-  }
-  
-  .connection:hover {
-    stroke-width: 4 !important;
-    filter: drop-shadow(0 4px 8px rgba(124,58,237,0.4));
-  }
-  
-  .temp-connection {
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-  }
-
-  .edge {
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-  }
-
-  .edge:hover {
-    stroke-width: 4 !important;
-    filter: drop-shadow(0 4px 8px rgba(124,58,237,0.4));
-  }
-
-  /* ===== CONTROL PANEL ===== */
-  #panel {
-    position: absolute; 
-    right: 16px; 
-    top: 16px; 
-    z-index: 40;
-    background: rgba(2,6,23,0.8); 
-    border: 1px solid rgba(255,255,255,0.05);
-    padding: 12px; 
-    border-radius: 12px;
-    display: flex; 
-    gap: 12px; 
-    align-items: center;
-    backdrop-filter: blur(12px);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-  }
-  
-  button { 
-    background: rgba(255,255,255,0.05); 
-    border: 1px solid rgba(255,255,255,0.1); 
-    color: var(--muted); 
-    padding: 8px 16px; 
-    border-radius: 8px; 
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 500;
-  }
-  
-  button:hover { 
-    border-color: var(--accent); 
-    color: var(--accent); 
-    background: rgba(124,58,237,0.1);
-    transform: translateY(-1px);
-  }
-  
-  button:active {
-    transform: translateY(0);
-  }
-  
-  .hint { 
-    color: var(--muted); 
-    font-size: 11px; 
-    margin-left: 16px; 
-    opacity: 0.7;
-  }
-
-  /* ===== STATUS BAR ===== */
-  #status-bar {
-    position: absolute;
-    bottom: 16px;
-    left: 16px;
-    background: rgba(2,6,23,0.8);
-    border: 1px solid rgba(255,255,255,0.05);
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 11px;
-    color: var(--muted);
-    backdrop-filter: blur(12px);
-    z-index: 40;
-  }
-
-  /* ===== RESPONSIVE DESIGN ===== */
-  @media (max-width: 768px) {
-    #panel {
-      right: 8px;
-      top: 8px;
-      padding: 8px;
-      gap: 8px;
-    }
-    
-    button {
-      padding: 6px 12px;
-      font-size: 11px;
-    }
-    
-    .hint {
-      display: none;
-    }
-    
-    .node {
-      min-width: 140px;
-    }
-    
-    .node-header, .node-body {
-      padding: 8px 12px;
-    }
-  }
-
-  /* ===== SCROLLBARS ===== */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    background: rgba(255,255,255,0.05);
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.2);
-    border-radius: 4px;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255,255,255,0.3);
-  }
-</style>
+  </style>
+  <!-- Use bundled FlowGraph with CSS -->
+  <link rel="stylesheet" href="dist/style.css">
+  <script type="module" src="dist/flowgraph.es.js"></script>
 </head>
 <body>
-<div id="app">
-  <div class="surface" id="surface">
-    <svg id="edge-svg"></svg>
-    <div id="nodes-root"></div>
+  <div id="app">
+    <flow-graph theme="dark" snap-to-grid grid-size="20">
+      <flow-definitions>
+        <!-- Number Input Node -->
+        <flow-node-def name="data.number" label="Number" width="160" height="100" category="Data" description="Outputs a numeric value" icon="🔢" 
+                       color-bg="linear-gradient(90deg, rgba(59,130,246,0.15), transparent)" color-text="#3b82f6">
+          <node-body>
+            <div class="title">🔢 Number</div>
+            <div class="body">
+              <input type="number" class="input-box" value="0" placeholder="Enter value">
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="value"></span> Value
+              </div>
+            </div>
+          </node-body>
+          <flow-output socket="value" label="Value" type="number"></flow-output>
+        </flow-node-def>
+        
+        <!-- Math Add Node -->
+        <flow-node-def name="math.add" label="Add" width="180" height="120" category="Math" description="Adds two numbers together" icon="➕" 
+                       color-bg="linear-gradient(90deg, rgba(245,158,11,0.15), transparent)" color-text="#f59e0b">
+          <node-body>
+            <div class="title">➕ Add</div>
+            <div class="body">
+              <div class="line">
+                <span class="socket in" data-sock="a"></span> A
+              </div>
+              <div class="line">
+                <span class="socket in" data-sock="b"></span> B
+              </div>
+              <div style="height:8px"></div>
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="sum"></span> Sum
+              </div>
+            </div>
+          </node-body>
+          <flow-input socket="a" label="A" type="number"></flow-input>
+          <flow-input socket="b" label="B" type="number"></flow-input>
+          <flow-output socket="sum" label="Sum" type="number"></flow-output>
+        </flow-node-def>
+        
+        <!-- Watch Node -->
+        <flow-node-def name="data.watch" label="Watch" width="160" height="100" category="Data" description="Displays input value" icon="👁️">
+          <node-body>
+            <div class="title">👁️ Watch</div>
+            <div class="body">
+              <div class="line">
+                <span class="socket in" data-sock="value"></span> Value
+              </div>
+            </div>
+          </node-body>
+          <flow-input socket="value" label="Value" type="any"></flow-input>
+        </flow-node-def>
+        
+        <!-- Multiply Node -->
+        <flow-node-def name="math.multiply" label="Multiply" width="180" height="120" category="Math" description="Multiplies two numbers" icon="✖️">
+          <node-body>
+            <div class="title">✖️ Multiply</div>
+            <div class="body">
+              <div class="line">
+                <span class="socket in" data-sock="a"></span> A
+              </div>
+              <div class="line">
+                <span class="socket in" data-sock="b"></span> B
+              </div>
+              <div style="height:8px"></div>
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="product"></span> Product
+              </div>
+            </div>
+          </node-body>
+          <flow-input socket="a" label="A" type="number"></flow-input>
+          <flow-input socket="b" label="B" type="number"></flow-input>
+          <flow-output socket="product" label="Product" type="number"></flow-output>
+        </flow-node-def>
+        
+        <!-- Split Node -->
+        <flow-node-def name="util.split" label="Split" width="160" height="140" category="Utility" description="Splits input into two outputs" icon="🔀">
+          <node-body>
+            <div class="title">🔀 Split</div>
+            <div class="body">
+              <div class="line">
+                <span class="socket in" data-sock="input"></span> Input
+              </div>
+              <div style="height:8px"></div>
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="out1"></span> Out 1
+              </div>
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="out2"></span> Out 2
+              </div>
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="out3"></span> Out 3
+              </div>
+            </div>
+          </node-body>
+          <flow-input socket="input" label="Input" type="any"></flow-input>
+          <flow-output socket="out1" label="Out 1" type="any"></flow-output>
+          <flow-output socket="out2" label="Out 2" type="any"></flow-output>
+          <flow-output socket="out3" label="Out 3" type="any"></flow-output>
+        </flow-node-def>
+        
+        <!-- Advanced 3D Renderer Node - Shows arbitrary HTML content with data-draggable attributes -->
+        <flow-node-def name="render.3d" label="3D Renderer" width="320" height="280" category="Render" description="Advanced 3D rendering with controls" icon="🎨">
+          <node-body>
+            <div class="title">🎮 3D Renderer</div>
+            <div class="body">
+              <!-- Input sockets -->
+              <div class="line">
+                <span class="socket in" data-sock="mesh"></span> Mesh Data
+              </div>
+              <div class="line">
+                <span class="socket in" data-sock="camera"></span> Camera
+              </div>
+              
+              <!-- 3D Canvas (simulated) -->
+              <div style="margin: 8px 0; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; background: linear-gradient(45deg, #1a1a2e, #16213e); height: 120px; position: relative; overflow: hidden;">
+                <canvas width="280" height="110" style="width: 100%; height: 100%; cursor: grab;" data-draggable="false"></canvas>
+                <div style="position: absolute; top: 4px; right: 4px; font-size: 10px; color: rgba(255,255,255,0.5);">WebGL</div>
+                <div style="position: absolute; bottom: 4px; left: 4px; font-size: 10px; color: rgba(255,255,255,0.5);">FPS: 60</div>
+              </div>
+              
+              <!-- Various control types -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin: 8px 0;">
+                <div>
+                  <label style="font-size: 10px; color: rgba(255,255,255,0.7);">Rotation X:</label>
+                  <input type="range" min="0" max="360" value="45" data-draggable="false" style="width: 100%; accent-color: #10b981;">
+                </div>
+                <div>
+                  <label style="font-size: 10px; color: rgba(255,255,255,0.7);">Rotation Y:</label>
+                  <input type="range" min="0" max="360" value="30" data-draggable="false" style="width: 100%; accent-color: #10b981;">
+                </div>
+              </div>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin: 4px 0;">
+                <select class="input-box" data-draggable="false" style="font-size: 11px;">
+                  <option>Perspective</option>
+                  <option>Orthographic</option>
+                  <option>Isometric</option>
+                </select>
+                <input type="color" value="#10b981" data-draggable="false" style="width: 100%; height: 24px; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; background: transparent;">
+              </div>
+              
+              <div style="margin: 4px 0;">
+                <textarea class="input-box" data-draggable="false" placeholder="Shader code..." rows="2" style="resize: vertical; font-family: monospace; font-size: 10px;"></textarea>
+              </div>
+              
+              <div style="display: flex; gap: 4px; margin: 4px 0;">
+                <button data-draggable="false" style="flex: 1; padding: 4px 8px; background: rgba(16,185,129,0.2); border: 1px solid #10b981; color: #10b981; border-radius: 4px; font-size: 10px; cursor: pointer;">Render</button>
+                <button data-draggable="false" style="flex: 1; padding: 4px 8px; background: rgba(239,68,68,0.2); border: 1px solid #ef4444; color: #ef4444; border-radius: 4px; font-size: 10px; cursor: pointer;">Reset</button>
+              </div>
+              
+              <!-- Output sockets -->
+              <div style="height:8px"></div>
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="render"></span> Rendered
+              </div>
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="stats"></span> Stats
+              </div>
+            </div>
+          </node-body>
+          <flow-input socket="mesh" label="Mesh Data" type="object"></flow-input>
+          <flow-input socket="camera" label="Camera" type="object"></flow-input>
+          <flow-output socket="render" label="Rendered" type="texture"></flow-output>
+          <flow-output socket="stats" label="Stats" type="object"></flow-output>
+        </flow-node-def>
+        
+        <!-- Logic Node -->
+        <flow-node-def name="logic.if" label="If" width="160" height="120" category="Logic" description="Conditional logic" icon="⚡" 
+                       color-bg="linear-gradient(90deg, rgba(239,68,68,0.15), transparent)" color-text="#ef4444">
+          <node-body>
+            <div class="title">⚡ If</div>
+            <div class="body">
+              <div class="line">
+                <span class="socket in" data-sock="condition"></span> Condition
+              </div>
+              <div style="height:8px"></div>
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="true"></span> True
+              </div>
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="false"></span> False
+              </div>
+            </div>
+          </node-body>
+          <flow-input socket="condition" label="Condition" type="boolean"></flow-input>
+          <flow-output socket="true" label="True" type="any"></flow-output>
+          <flow-output socket="false" label="False" type="any"></flow-output>
+        </flow-node-def>
+        
+        <!-- Text Node -->
+        <flow-node-def name="text.string" label="String" width="160" height="100" category="Text" description="Text input/output" icon="📝" 
+                       color-bg="linear-gradient(90deg, rgba(59,130,246,0.15), transparent)" color-text="#3b82f6">
+          <node-body>
+            <div class="title">📝 String</div>
+            <div class="body">
+              <input type="text" class="input-box" value="Hello" placeholder="Enter text">
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="text"></span> Text
+              </div>
+            </div>
+          </node-body>
+          <flow-output socket="text" label="Text" type="string"></flow-output>
+        </flow-node-def>
+        
+        <!-- Canvas Node -->
+        <flow-node-def name="render.canvas" label="Canvas" width="200" height="150" category="Render" description="2D Canvas renderer" icon="🎨" 
+                       color-bg="linear-gradient(90deg, rgba(139,92,246,0.15), transparent)" color-text="#8b5cf6">
+          <node-body>
+            <div class="title">🎨 Canvas</div>
+            <div class="body">
+              <canvas data-draggable="false" style="width: 100%; height: 60px; background: #000; border-radius: 4px;"></canvas>
+              <div class="line" style="text-align:right">
+                <span class="socket out" data-sock="image"></span> Image
+              </div>
+            </div>
+          </node-body>
+          <flow-output socket="image" label="Image" type="image"></flow-output>
+        </flow-node-def>
+      </flow-definitions>
+      
+      <flow-nodes>
+        <!-- Create some example nodes -->
+        <flow-node type="data.number" id="n1" x="100" y="100"></flow-node>
+        <flow-node type="data.number" id="n2" x="100" y="250"></flow-node>
+        <flow-node type="math.add" id="n3" x="350" y="175"></flow-node>
+        <flow-node type="math.multiply" id="n4" x="600" y="100"></flow-node>
+        <flow-node type="util.split" id="n5" x="850" y="150"></flow-node>
+        <flow-node type="data.watch" id="n6" x="1100" y="100"></flow-node>
+        <flow-node type="data.watch" id="n7" x="1100" y="200"></flow-node>
+        <!-- Advanced 3D Renderer Node with arbitrary HTML content -->
+        <flow-node type="render.3d" id="n8" x="400" y="350"></flow-node>
+      </flow-nodes>
+      
+      <flow-edges>
+        <!-- Create some example connections -->
+        <flow-edge from="n1:value" to="n3:a"></flow-edge>
+        <flow-edge from="n2:value" to="n3:b"></flow-edge>
+        <flow-edge from="n3:sum" to="n4:a"></flow-edge>
+        <flow-edge from="n1:value" to="n4:b"></flow-edge>
+        <flow-edge from="n4:product" to="n5:input"></flow-edge>
+        <flow-edge from="n5:out1" to="n6:value"></flow-edge>
+        <flow-edge from="n5:out2" to="n7:value"></flow-edge>
+      </flow-edges>
+    </flow-graph>
   </div>
-
-  <div id="panel">
-    <button id="add-node">+ Add Node</button>
-    <button id="clear">Clear All</button>
-    <button id="save">Save</button>
-    <button id="load">Load</button>
-    <button id="reset-view">Reset View</button>
-    <span class="hint">Drag nodes • Drag from sockets to connect • Mouse wheel to zoom • Drag background to pan</span>
-  </div>
-
-  <div id="status-bar">
-    <span id="node-count">Nodes: 0</span> • 
-    <span id="connection-count">Connections: 0</span> • 
-    <span id="zoom-level">Zoom: 100%</span>
-  </div>
-</div>
-
-<script src="lib.js"></script>
+  
+  <script type="module">
+    // Wait for custom elements to be defined
+    await customElements.whenDefined('flow-graph');
+    
+    // Example of programmatic API usage
+    const flowGraph = document.querySelector('flow-graph');
+    
+    flowGraph.addEventListener('node:create', (e) => {
+      console.log('Node created:', e.detail.node);
+    });
+    
+    flowGraph.addEventListener('edge:create', (e) => {
+      console.log('Edge created:', e.detail.edge);
+    });
+    
+    
+    // Node selection events
+    flowGraph.addEventListener('node:select', (e) => {
+      console.log('🎯 Node selected:', e.detail.nodeId, 'Selection:', e.detail.selection);
+    });
+    
+    flowGraph.addEventListener('node:deselect', (e) => {
+      console.log('❌ Node deselected:', e.detail.nodeId, 'Selection:', e.detail.selection);
+    });
+    
+    flowGraph.addEventListener('selection:clear', (e) => {
+      console.log('🧹 Selection cleared, previous:', e.detail.previousSelection);
+    });
+    
+    // Node movement events
+    flowGraph.addEventListener('node:move', (e) => {
+      console.log('🚀 Node moved:', e.detail.nodeId, 
+        'from', e.detail.oldPosition, 'to', e.detail.newPosition);
+    });
+    
+    // Edge selection events
+    flowGraph.addEventListener('edge:select', (e) => {
+      console.log('🔗 Edge selected:', e.detail.edgeId);
+    });
+    
+    flowGraph.addEventListener('edge:deselect', (e) => {
+      console.log('🔗 Edge deselected:', e.detail.edgeId);
+    });
+    
+    // Viewport events
+    flowGraph.addEventListener('viewport:change', (e) => {
+      console.log('📐 Viewport changed:', e.detail);
+    });
+    
+    flowGraph.addEventListener('viewport:zoom', (e) => {
+      console.log('🔍 Zoomed to:', e.detail.scale);
+    });
+    
+    flowGraph.addEventListener('viewport:pan', (e) => {
+      console.log('👆 Panned to:', e.detail.x, e.detail.y);
+    });
+    
+    
+    // Wait for the component to be fully initialized
+    const waitForFlowGraph = () => {
+      return new Promise((resolve) => {
+        if (flowGraph.flowGraph && flowGraph.flowGraph.nodes) {
+          resolve();
+        } else {
+          setTimeout(() => waitForFlowGraph().then(resolve), 50);
+        }
+      });
+    };
+    
+    await waitForFlowGraph();
+    console.log('FlowGraph loaded with', flowGraph.flowGraph.nodes.size, 'nodes');
+    
+    // Multi-drag instructions
+    console.log('💡 Multi-drag: Select multiple nodes with Ctrl/Cmd+click, then drag any selected node to move all together!');
+    
+    // Context menu instructions
+    console.log('🎯 Context Menu: Right-click on empty space to add new nodes from the context menu!');
+  </script>
 </body>
 </html>

@@ -60,6 +60,7 @@ export class Node {
       this.element.innerHTML = this.generateDefaultHTML();
     }
     
+    
     // Add to DOM
     this.flowGraph.nodesRoot.appendChild(this.element);
   }
@@ -214,6 +215,13 @@ export class Node {
     this.element.addEventListener('pointerdown', handlePointerDown);
     this.element.addEventListener('pointermove', handlePointerMove);
     this.element.addEventListener('pointerup', handlePointerUp);
+    
+    // Add double-click to execute
+    this.element.addEventListener('dblclick', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.execute();
+    });
   }
   
   setPosition(x, y) {
@@ -250,6 +258,89 @@ export class Node {
       this.element.classList.remove('selected');
     }
   }
+  
+  /**
+   * Execute the node's onExecuteMethod if defined
+   */
+  async execute() {
+    if (!this.template || !this.template.onExecute) {
+      console.log(`Node ${this.id} has no onExecute method defined`);
+      return;
+    }
+    
+    // Get the function from the global scope
+    const executeFunction = window[this.template.onExecute];
+    if (typeof executeFunction !== 'function') {
+      console.error(`onExecute method '${this.template.onExecute}' not found for node ${this.id}`);
+      return;
+    }
+    
+    // Prepare context with element access and helper methods
+    const context = {
+      nodeId: this.id,
+      nodeType: this.type,
+      element: this.element,
+      inputs: this.inputs,
+      outputs: this.outputs,
+      setOutput: (index, value) => this.setOutputValue(index, value),
+      getInput: (index) => this.getInputValue(index)
+    };
+    
+    try {
+      const result = await executeFunction(context);
+      
+      // Fire execution event
+      this.flowGraph.container.dispatchEvent(new CustomEvent('node:execute', {
+        detail: { 
+          nodeId: this.id, 
+          node: this, 
+          result,
+          context
+        }
+      }));
+      
+    } catch (error) {
+      console.error(`Error executing node ${this.id}:`, error);
+      this.flowGraph.container.dispatchEvent(new CustomEvent('node:execute:error', {
+        detail: { 
+          nodeId: this.id, 
+          node: this, 
+          error: error.message
+        }
+      }));
+    }
+  }
+  
+  
+  /**
+   * Set output socket value by index
+   */
+  setOutputValue(index, value) {
+    const outputArray = Array.from(this.outputs.values());
+    const socket = outputArray[index];
+    if (socket) {
+      socket.value = value;
+      
+      // Propagate value to connected input sockets
+      socket.connections.forEach(edge => {
+        if (edge.toSocket) {
+          edge.toSocket.value = value;
+        }
+      });
+    } else {
+      console.warn(`Output socket [${index}] not found for node ${this.id}`);
+    }
+  }
+  
+  /**
+   * Get input socket value by index
+   */
+  getInputValue(index) {
+    const inputArray = Array.from(this.inputs.values());
+    const socket = inputArray[index];
+    return socket?.value;
+  }
+  
   
   serialize() {
     return {

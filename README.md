@@ -16,8 +16,18 @@ A modern, declarative, HTML-based visual scripting library built with Lit web co
 - **Search Functionality**: Real-time search in node creation context menu
 - **Multi-selection**: Select and drag multiple nodes simultaneously
 - **Color Patches**: Flexible node title styling defined in node definitions
+- **Async Execution**: Execute nodes and entire graphs with async functions and value propagation
 
 ## 🆕 Recent Updates
+
+### v1.4.0 - Async Node Execution System
+- **Async Execution**: Full support for async `onExecute` methods in node definitions
+- **Graph Execution**: Execute entire graphs in dependency order using topological sorting
+- **Value Propagation**: Automatic value flow between connected nodes through socket system
+- **Index-Based Access**: Simple socket value access using array indices instead of names
+- **Execution Events**: Comprehensive event system for monitoring graph execution
+- **Multiple Triggers**: Double-click nodes, keyboard shortcuts, or execute button
+- **Clean API**: Direct element access and helper methods for socket value management
 
 ### v1.3.0 - CSS Cleanup & Optimization
 - **Consolidated CSS Variables**: All CSS custom properties now centralized in `theme.css`
@@ -74,7 +84,7 @@ FlowGraph is distributed as a single bundled ES6 module with all dependencies in
     <flow-node-def name="data.number" label="Number" width="160" height="100" 
                    category="Data" description="Numeric input" icon="🔢"
                    color-bg="linear-gradient(90deg, rgba(59,130,246,0.15), transparent)" 
-                   color-text="#3b82f6">
+                   color-text="#3b82f6" onExecute="loadData">
       <node-body>
         <div class="title">🔢 Number</div>
         <div class="body">
@@ -90,7 +100,7 @@ FlowGraph is distributed as a single bundled ES6 module with all dependencies in
     <flow-node-def name="math.add" label="Add" width="180" height="120" 
                    category="Math" description="Add two numbers" icon="➕"
                    color-bg="linear-gradient(90deg, rgba(245,158,11,0.15), transparent)" 
-                   color-text="#f59e0b">
+                   color-text="#f59e0b" onExecute="addNumbers">
       <node-body>
         <div class="title">➕ Add</div>
         <div class="body">
@@ -125,6 +135,116 @@ FlowGraph is distributed as a single bundled ES6 module with all dependencies in
     <flow-edge from="n2:value" to="n3:b"></flow-edge>
   </flow-edges>
 </flow-graph>
+```
+
+## ⚡ Async Node Execution
+
+FlowGraph supports async execution of nodes and entire graphs with automatic value propagation between connected nodes.
+
+### Basic Execution Setup
+
+Add `onExecute` attribute to your node definitions and define corresponding async functions:
+
+```html
+<flow-node-def name="data.number" label="Number" onExecute="loadData">
+  <!-- node body -->
+</flow-node-def>
+
+<flow-node-def name="math.add" label="Add" onExecute="addNumbers">
+  <!-- node body -->
+</flow-node-def>
+```
+
+### Async Function Implementation
+
+Define your async functions globally:
+
+```javascript
+// Number input node
+window.loadData = async function(context) {
+  // Access DOM element directly
+  const inputElement = context.element.querySelector('input[type="number"]');
+  const value = inputElement ? parseFloat(inputElement.value) || 0 : 0;
+  
+  // Simulate async work
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
+  // Set output value (index 0 for first output socket)
+  context.setOutput(0, value);
+};
+
+// Math operation node
+window.addNumbers = async function(context) {
+  // Get input values by index
+  const a = context.getInput(0) || 0;  // first input socket
+  const b = context.getInput(1) || 0;  // second input socket
+  
+  // Simulate async calculation
+  await new Promise(resolve => setTimeout(resolve, 50));
+  
+  const sum = a + b;
+  
+  // Set output value
+  context.setOutput(0, sum);
+};
+```
+
+### Execution Context
+
+Each async function receives a `context` object with:
+
+- `context.nodeId` - Unique node identifier
+- `context.nodeType` - Node type name
+- `context.element` - DOM element of the node
+- `context.inputs` - Map of input sockets
+- `context.outputs` - Map of output sockets
+- `context.getInput(index)` - Get input socket value by index
+- `context.setOutput(index, value)` - Set output socket value by index
+
+### Execution Triggers
+
+- **Double-click** any node to execute it individually
+- **Ctrl/Cmd+Enter** to execute selected nodes
+- **Shift+Enter** to execute entire graph
+- **Execute Graph button** in the top-left corner
+
+### Graph Execution
+
+The graph execution system automatically:
+
+1. **Dependency Analysis**: Uses topological sorting to determine execution order
+2. **Sequential Execution**: Executes nodes in dependency order (inputs before outputs)
+3. **Value Propagation**: Automatically propagates values between connected sockets
+4. **Error Handling**: Continues execution even if individual nodes fail
+
+### Socket Index Order
+
+Inputs and outputs are ordered by their definition order in the `flow-node-def`:
+
+```html
+<flow-node-def name="math.add">
+  <flow-input socket="a" label="A" type="number"></flow-input>  <!-- index 0 -->
+  <flow-input socket="b" label="B" type="number"></flow-input>  <!-- index 1 -->
+  <flow-output socket="sum" label="Sum" type="number"></flow-output>  <!-- index 0 -->
+</flow-node-def>
+```
+
+### Execution Events
+
+Listen to execution events for monitoring:
+
+```javascript
+flowGraph.addEventListener('node:execute', (e) => {
+  console.log('Node executed:', e.detail.nodeId, 'Result:', e.detail.result);
+});
+
+flowGraph.addEventListener('graph:execute:start', (e) => {
+  console.log('Graph execution started');
+});
+
+flowGraph.addEventListener('graph:execute:complete', (e) => {
+  console.log('Graph execution completed');
+});
 ```
 
 ## 🎨 Color Customization & Theming
@@ -390,6 +510,7 @@ Define reusable node templates with enhanced metadata.
 | `icon` | String | ❌ | Icon/emoji for context menu display |
 | `color-bg` | String | ❌ | Background gradient for node title (CSS gradient) |
 | `color-text` | String | ❌ | Text color for node title (CSS color) |
+| `onExecute` | String | ❌ | Name of async function to execute when node runs |
 
 #### Child Elements
 - `<node-body>`: Contains the HTML template for the node's visual representation

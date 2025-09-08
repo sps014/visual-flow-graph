@@ -33,11 +33,40 @@
 </head>
 <body>
   <div id="app">
+    <!-- Graph execution controls -->
+    <div style="position: absolute; top: 10px; left: 10px; z-index: 1000; display: flex; gap: 10px;">
+      <button id="execute-graph-btn" style="
+        padding: 8px 16px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        transition: all 0.2s ease;
+      " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+        🚀 Execute Graph
+      </button>
+      <div style="
+        padding: 8px 12px;
+        background: rgba(0,0,0,0.7);
+        color: #10b981;
+        border-radius: 6px;
+        font-size: 12px;
+        font-family: monospace;
+        border: 1px solid rgba(16,185,129,0.3);
+      ">
+        Shift+Enter
+      </div>
+    </div>
+    
     <flow-graph theme="dark" snap-to-grid grid-size="20">
       <flow-definitions>
         <!-- Number Input Node -->
         <flow-node-def name="data.number" label="Number" width="160" height="100" category="Data" description="Outputs a numeric value" icon="🔢" 
-                       color-bg="linear-gradient(90deg, rgba(59,130,246,0.15), transparent)" color-text="#3b82f6">
+                       color-bg="linear-gradient(90deg, rgba(59,130,246,0.15), transparent)" color-text="#3b82f6" onExecute="loadData">
           <node-body>
             <div class="title">🔢 Number</div>
             <div class="body">
@@ -52,7 +81,7 @@
         
         <!-- Math Add Node -->
         <flow-node-def name="math.add" label="Add" width="180" height="120" category="Math" description="Adds two numbers together" icon="➕" 
-                       color-bg="linear-gradient(90deg, rgba(245,158,11,0.15), transparent)" color-text="#f59e0b">
+                       color-bg="linear-gradient(90deg, rgba(245,158,11,0.15), transparent)" color-text="#f59e0b" onExecute="addNumbers">
           <node-body>
             <div class="title">➕ Add</div>
             <div class="body">
@@ -74,7 +103,7 @@
         </flow-node-def>
         
         <!-- Watch Node -->
-        <flow-node-def name="data.watch" label="Watch" width="160" height="100" category="Data" description="Displays input value" icon="👁️">
+        <flow-node-def name="data.watch" label="Watch" width="160" height="100" category="Data" description="Displays input value" icon="👁️" onExecute="watchValue">
           <node-body>
             <div class="title">👁️ Watch</div>
             <div class="body">
@@ -87,7 +116,7 @@
         </flow-node-def>
         
         <!-- Multiply Node -->
-        <flow-node-def name="math.multiply" label="Multiply" width="180" height="120" category="Math" description="Multiplies two numbers" icon="✖️">
+        <flow-node-def name="math.multiply" label="Multiply" width="180" height="120" category="Math" description="Multiplies two numbers" icon="✖️" onExecute="multiplyNumbers">
           <node-body>
             <div class="title">✖️ Multiply</div>
             <div class="body">
@@ -109,7 +138,7 @@
         </flow-node-def>
         
         <!-- Split Node -->
-        <flow-node-def name="util.split" label="Split" width="160" height="140" category="Utility" description="Splits input into two outputs" icon="🔀">
+        <flow-node-def name="util.split" label="Split" width="160" height="140" category="Utility" description="Splits input into two outputs" icon="🔀" onExecute="splitValue">
           <node-body>
             <div class="title">🔀 Split</div>
             <div class="body">
@@ -135,7 +164,7 @@
         </flow-node-def>
         
         <!-- Advanced 3D Renderer Node - Shows arbitrary HTML content with data-draggable attributes -->
-        <flow-node-def name="render.3d" label="3D Renderer" width="320" height="280" category="Render" description="Advanced 3D rendering with controls" icon="🎨">
+        <flow-node-def name="render.3d" label="3D Renderer" width="320" height="280" category="Render" description="Advanced 3D rendering with controls" icon="🎨" onExecute="render3D">
           <node-body>
             <div class="title">🎮 3D Renderer</div>
             <div class="body">
@@ -202,7 +231,7 @@
         
         <!-- Logic Node -->
         <flow-node-def name="logic.if" label="If" width="160" height="120" category="Logic" description="Conditional logic" icon="⚡" 
-                       color-bg="linear-gradient(90deg, rgba(239,68,68,0.15), transparent)" color-text="#ef4444">
+                       color-bg="linear-gradient(90deg, rgba(239,68,68,0.15), transparent)" color-text="#ef4444" onExecute="conditionalLogic">
           <node-body>
             <div class="title">⚡ If</div>
             <div class="body">
@@ -225,7 +254,7 @@
         
         <!-- Text Node -->
         <flow-node-def name="text.string" label="String" width="160" height="100" category="Text" description="Text input/output" icon="📝" 
-                       color-bg="linear-gradient(90deg, rgba(59,130,246,0.15), transparent)" color-text="#3b82f6">
+                       color-bg="linear-gradient(90deg, rgba(59,130,246,0.15), transparent)" color-text="#3b82f6" onExecute="processString">
           <node-body>
             <div class="title">📝 String</div>
             <div class="body">
@@ -240,7 +269,7 @@
         
         <!-- Canvas Node -->
         <flow-node-def name="render.canvas" label="Canvas" width="200" height="150" category="Render" description="2D Canvas renderer" icon="🎨" 
-                       color-bg="linear-gradient(90deg, rgba(139,92,246,0.15), transparent)" color-text="#8b5cf6">
+                       color-bg="linear-gradient(90deg, rgba(139,92,246,0.15), transparent)" color-text="#8b5cf6" onExecute="renderCanvas">
           <node-body>
             <div class="title">🎨 Canvas</div>
             <div class="body">
@@ -354,6 +383,30 @@
       console.log('🗑️ Nodes deleted:', e.detail.deletedNodes.length, 'nodes,', e.detail.deletedEdges.length, 'edges');
     });
     
+    // Node execution events
+    flowGraph.addEventListener('node:execute', (e) => {
+      console.log('⚡ Node executed:', e.detail.nodeId);
+    });
+    
+    flowGraph.addEventListener('node:execute:error', (e) => {
+      console.error('❌ Node execution error:', e.detail.nodeId, 'Error:', e.detail.error);
+    });
+    
+    // Graph execution events
+    flowGraph.addEventListener('graph:execute:start', (e) => {
+      console.log('🚀 Graph execution started');
+    });
+    
+    flowGraph.addEventListener('graph:execute:complete', (e) => {
+      console.log('✅ Graph execution completed');
+    });
+    
+    // Execute graph button
+    document.getElementById('execute-graph-btn').addEventListener('click', async () => {
+      console.log('🚀 Executing entire graph...');
+      await flowGraph.flowGraph.execute();
+    });
+    
     
     // Wait for the component to be fully initialized
     const waitForFlowGraph = () => {
@@ -374,6 +427,143 @@
     
     // Context menu instructions
     console.log('🎯 Context Menu: Right-click on empty space to add new nodes from the context menu!');
+    
+    // Execution instructions
+    console.log('⚡ Execution: Double-click a node, Ctrl/Cmd+Enter for selected nodes, or Shift+Enter for entire graph!');
+    
+    // Async onExecuteMethod functions for all flow-node-def elements
+    // Make functions globally accessible
+    window.loadData = async function(context) {
+      console.log('🔢 Loading data for Number node:', context);
+      
+      // Access the DOM element directly
+      const inputElement = context.element.querySelector('input[type="number"]');
+      const value = inputElement ? parseFloat(inputElement.value) || 0 : 0;
+      
+      // Simulate async data loading
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      console.log('Number value:', value);
+      
+      // Set output value (index 0 for first output socket)
+      context.setOutput(0, value);
+    };
+    
+    window.addNumbers = async function(context) {
+      console.log('➕ Adding numbers:', context);
+      
+      // Get input values using index (a=0, b=1)
+      const a = context.getInput(0) || 0;
+      const b = context.getInput(1) || 0;
+      
+      // Simulate async calculation
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+      const sum = a + b;
+      console.log(`Adding ${a} + ${b} = ${sum}`);
+      
+      // Set output value (index 0 for first output socket)
+      context.setOutput(0, sum);
+    };
+    
+    window.watchValue = async function(context) {
+      console.log('👁️ Watching value:', context);
+      
+      // Get input value (index 0 for first input socket)
+      const value = context.getInput(0);
+      
+      // Simulate async value processing
+      await new Promise(resolve => setTimeout(resolve, 30));
+      
+      console.log('Watched value:', value);
+    };
+    
+    window.multiplyNumbers = async function(context) {
+      console.log('✖️ Multiplying numbers:', context);
+      
+      // Get input values (a=0, b=1)
+      const a = context.getInput(0) || 1;
+      const b = context.getInput(1) || 1;
+      
+      // Simulate async calculation
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+      const product = a * b;
+      console.log(`Multiplying ${a} * ${b} = ${product}`);
+      
+      // Set output value (index 0 for first output socket)
+      context.setOutput(0, product);
+    };
+    
+    window.splitValue = async function(context) {
+      console.log('🔀 Splitting value:', context);
+      
+      // Get input value (index 0 for first input socket)
+      const input = context.getInput(0);
+      
+      // Simulate async value splitting
+      await new Promise(resolve => setTimeout(resolve, 40));
+      
+      // Set multiple output values (out1=0, out2=1, out3=2)
+      context.setOutput(0, input); // out1
+      context.setOutput(1, input); // out2
+      context.setOutput(2, input); // out3
+    };
+    
+    window.render3D = async function(context) {
+      console.log('🎨 Rendering 3D:', context);
+      
+      // Get input values
+      const meshData = context.getInput(0);
+      const camera = context.getInput(1);
+      
+      // Simulate async 3D rendering
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Set output values
+      context.setOutput(0, '3D rendered content'); // render
+      context.setOutput(1, { fps: 60, triangles: 1000 }); // stats
+    };
+    
+    window.conditionalLogic = async function(context) {
+      console.log('⚡ Processing conditional logic:', context);
+      
+      // Get input value
+      const condition = Boolean(context.getInput(0));
+      
+      // Simulate async condition evaluation
+      await new Promise(resolve => setTimeout(resolve, 60));
+      
+      // Set output values
+      context.setOutput(0, condition ? context.getInput(0) : null); // true
+      context.setOutput(1, !condition ? context.getInput(0) : null); // false
+    };
+    
+    window.processString = async function(context) {
+      console.log('📝 Processing string:', context);
+      
+      // Access the DOM element directly
+      const inputElement = context.element.querySelector('input[type="text"]');
+      const text = inputElement ? inputElement.value : '';
+      
+      // Simulate async string processing
+      await new Promise(resolve => setTimeout(resolve, 30));
+      
+      console.log('Processed text:', text);
+      
+      // Set output value
+      context.setOutput(0, text);
+    };
+    
+    window.renderCanvas = async function(context) {
+      console.log('🎨 Rendering canvas:', context);
+      
+      // Simulate async canvas rendering
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Set output value
+      context.setOutput(0, 'canvas rendered image data');
+    };
   </script>
 </body>
 </html>

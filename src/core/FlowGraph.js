@@ -618,6 +618,140 @@ export class FlowGraph extends EventTarget {
     }));
   }
   
+  
+  /**
+   * Execute all nodes in the graph in dependency order
+   */
+  async execute() {
+    // Fire start event
+    this.container.dispatchEvent(new CustomEvent('graph:execute:start', {
+      detail: { timestamp: Date.now() }
+    }));
+    
+    // Get execution order based on dependencies
+    const executionOrder = this.getExecutionOrder();
+    
+    if (executionOrder.length === 0) {
+      this.container.dispatchEvent(new CustomEvent('graph:execute:complete', {
+        detail: { executedNodes: 0, timestamp: Date.now() }
+      }));
+      return;
+    }
+    
+    let executedCount = 0;
+    
+    // Execute nodes in order
+    for (const nodeId of executionOrder) {
+      const node = this.nodes.get(nodeId);
+      if (node && node.template && node.template.onExecute) {
+        try {
+          await node.execute();
+          executedCount++;
+        } catch (error) {
+          console.error(`Error executing node ${nodeId}:`, error);
+          // Continue with other nodes even if one fails
+        }
+      }
+    }
+    
+    // Fire complete event
+    this.container.dispatchEvent(new CustomEvent('graph:execute:complete', {
+      detail: { 
+        executedNodes: executedCount,
+        totalNodes: executionOrder.length,
+        timestamp: Date.now()
+      }
+    }));
+  }
+  
+  /**
+   * Get execution order using topological sort
+   */
+  getExecutionOrder() {
+    const visited = new Set();
+    const visiting = new Set();
+    const result = [];
+    
+    // Build dependency graph
+    const dependencies = new Map();
+    
+    // Initialize dependencies for all nodes
+    this.nodes.forEach((node, nodeId) => {
+      dependencies.set(nodeId, new Set());
+    });
+    
+    // Add dependencies based on edges
+    this.edges.forEach(edge => {
+      const fromNodeId = edge.fromSocket.node.id;
+      const toNodeId = edge.toSocket.node.id;
+      dependencies.get(toNodeId).add(fromNodeId);
+    });
+    
+    // Topological sort
+    const visit = (nodeId) => {
+      if (visiting.has(nodeId)) {
+        console.warn(`Circular dependency detected involving node ${nodeId}`);
+        return;
+      }
+      
+      if (visited.has(nodeId)) {
+        return;
+      }
+      
+      visiting.add(nodeId);
+      
+      // Visit all dependencies first
+      const deps = dependencies.get(nodeId) || new Set();
+      for (const depId of deps) {
+        visit(depId);
+      }
+      
+      visiting.delete(nodeId);
+      visited.add(nodeId);
+      
+      // Only add nodes that have onExecute methods
+      const node = this.nodes.get(nodeId);
+      if (node && node.template && node.template.onExecute) {
+        result.push(nodeId);
+      }
+    };
+    
+    // Visit all nodes
+    this.nodes.forEach((node, nodeId) => {
+      if (!visited.has(nodeId)) {
+        visit(nodeId);
+      }
+    });
+    
+    return result;
+  }
+  
+  /**
+   * Execute all selected nodes
+   */
+  async executeSelectedNodes() {
+    if (this.selection.size === 0) {
+      return;
+    }
+    
+    const selectedNodes = Array.from(this.selection);
+    
+    // Execute nodes in parallel
+    const executionPromises = selectedNodes.map(nodeId => {
+      const node = this.nodes.get(nodeId);
+      if (node) {
+        return node.execute();
+      }
+      return Promise.resolve();
+    });
+    
+    try {
+      await Promise.all(executionPromises);
+    } catch (error) {
+      console.error('Error executing selected nodes:', error);
+    }
+  }
+  
   // Keyboard shortcut methods
   selectAllNodes() {
     this.clearSelection();

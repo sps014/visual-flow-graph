@@ -38,6 +38,40 @@
   /* Animation effects */
   --fg-animation-glow-intensity: 8px;
   --fg-animation-trail-glow-intensity: 6px;
+  
+  /* Socket customization */
+  --fg-socket-size: 14px;
+  --fg-socket-border-width: 2px;
+  --fg-socket-border-radius: 50%;
+  --fg-socket-scale-hover: 1.1;
+  --fg-socket-scale-active: 1.15;
+  
+  /* Socket shapes - use border-radius for different shapes */
+  --fg-socket-shape-circle: 50%;
+  --fg-socket-shape-square: 0%;
+  --fg-socket-shape-rounded: 20%;
+  --fg-socket-shape-diamond: 0%;
+  
+  /* Socket colors */
+  --fg-socket-bg-default: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+  --fg-socket-border-default: rgba(0,0,0,0.4);
+  --fg-socket-bg-hover: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
+  --fg-socket-bg-active: linear-gradient(180deg, var(--fg-accent), rgba(124,58,237,0.8));
+  
+  /* Input socket colors */
+  --fg-socket-input-border: rgba(16,185,129,0.8);
+  --fg-socket-input-bg: linear-gradient(180deg, rgba(16,185,129,0.3), rgba(16,185,129,0.1));
+  --fg-socket-input-bg-hover: linear-gradient(180deg, rgba(16,185,129,0.6), rgba(16,185,129,0.3));
+  
+  /* Output socket colors */
+  --fg-socket-output-border: rgba(239,68,68,0.8);
+  --fg-socket-output-bg: linear-gradient(180deg, rgba(239,68,68,0.3), rgba(239,68,68,0.1));
+  --fg-socket-output-bg-hover: linear-gradient(180deg, rgba(239,68,68,0.6), rgba(239,68,68,0.3));
+  
+  /* Socket shadows */
+  --fg-socket-shadow-default: 0 2px 6px rgba(2,6,23,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+  --fg-socket-shadow-hover: 0 4px 12px rgba(2,6,23,0.7), 0 0 0 2px rgba(124,58,237,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+  --fg-socket-shadow-active: 0 4px 12px rgba(124,58,237,0.4), 0 0 0 3px rgba(124,58,237,0.3);
 }
 
 /* Theme variants */
@@ -216,71 +250,83 @@ flow-graph {
 
 /* ===== SOCKET STYLES ===== */
 .socket {
-  width: 14px; 
-  height: 14px; 
-  border-radius: 50%;
-  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
-  border: 2px solid rgba(0,0,0,0.4);
+  width: var(--fg-socket-size); 
+  height: var(--fg-socket-size); 
+  border-radius: var(--fg-socket-border-radius);
+  background: var(--fg-socket-bg-default);
+  border: var(--fg-socket-border-width) solid var(--fg-socket-border-default);
   display: inline-block;
   vertical-align: middle;
   margin-right: 8px;
-  box-shadow: 
-    0 2px 6px rgba(2,6,23,0.5),
-    inset 0 1px 0 rgba(255,255,255,0.1);
+  box-shadow: var(--fg-socket-shadow-default);
   cursor: pointer;
   position: relative;
+  transition: all 0.2s ease;
 }
 
 .socket:hover {
-  transform: scale(1.1);
-  box-shadow: 
-    0 4px 12px rgba(2,6,23,0.7),
-    0 0 0 2px rgba(124,58,237,0.4),
-    inset 0 1px 0 rgba(255,255,255,0.2);
+  transform: scale(var(--fg-socket-scale-hover));
+  background: var(--fg-socket-bg-hover);
+  box-shadow: var(--fg-socket-shadow-hover);
 }
 
 .socket.socket-active {
-  background: linear-gradient(180deg, var(--fg-accent), rgba(124,58,237,0.8));
-  box-shadow: 
-    0 4px 12px rgba(124,58,237,0.4),
-    0 0 0 3px rgba(124,58,237,0.3);
-  transform: scale(1.15);
+  background: var(--fg-socket-bg-active);
+  box-shadow: var(--fg-socket-shadow-active);
+  transform: scale(var(--fg-socket-scale-active));
 }
 
 .socket.socket-hover {
-  background: linear-gradient(180deg, rgba(16,185,129,0.8), rgba(16,185,129,0.6));
-  box-shadow: 
-    0 4px 12px rgba(16,185,129,0.4),
-    0 0 0 2px rgba(16,185,129,0.3);
-  transform: scale(1.1);
+  background: var(--fg-socket-input-bg-hover);
+  box-shadow: var(--fg-socket-shadow-hover);
+  transform: scale(var(--fg-socket-scale-hover));
 }
 
 /* Socket type indicators and colors */
 .socket.in { 
-  border-color: rgba(16,185,129,0.8);
-  background: linear-gradient(180deg, rgba(16,185,129,0.3), rgba(16,185,129,0.1));
+  border-color: var(--fg-socket-input-border);
+  background: var(--fg-socket-input-bg);
 }
 
 .socket.out { 
   float: right; 
   margin-right: 0; 
   margin-left: 8px;
-  border-color: rgba(239,68,68,0.8);
-  background: linear-gradient(180deg, rgba(239,68,68,0.3), rgba(239,68,68,0.1));
+  border-color: var(--fg-socket-output-border);
+  background: var(--fg-socket-output-bg);
 }
 
 .socket.in:hover {
-  background: linear-gradient(180deg, rgba(16,185,129,0.6), rgba(16,185,129,0.3));
-  box-shadow: 
-    0 4px 12px rgba(16,185,129,0.4),
-    0 0 0 2px rgba(16,185,129,0.5);
+  background: var(--fg-socket-input-bg-hover);
+  box-shadow: var(--fg-socket-shadow-hover);
 }
 
 .socket.out:hover {
-  background: linear-gradient(180deg, rgba(239,68,68,0.6), rgba(239,68,68,0.3));
-  box-shadow: 
-    0 4px 12px rgba(239,68,68,0.4),
-    0 0 0 2px rgba(239,68,68,0.5);
+  background: var(--fg-socket-output-bg-hover);
+  box-shadow: var(--fg-socket-shadow-hover);
+}
+
+/* Socket shape variants */
+.socket.shape-circle {
+  border-radius: var(--fg-socket-shape-circle);
+}
+
+.socket.shape-square {
+  border-radius: var(--fg-socket-shape-square);
+}
+
+.socket.shape-rounded {
+  border-radius: var(--fg-socket-shape-rounded);
+}
+
+.socket.shape-diamond {
+  border-radius: var(--fg-socket-shape-diamond);
+  transform: rotate(45deg);
+}
+
+.socket.shape-diamond:hover,
+.socket.shape-diamond.socket-active {
+  transform: rotate(45deg) scale(var(--fg-socket-scale-hover));
 }
 
 /* ===== CONNECTION STYLES ===== */

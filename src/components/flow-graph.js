@@ -386,6 +386,12 @@ export class FlowGraphElement extends LitElement {
     this.addNode(nodeDef.name, { x: worldX, y: worldY });
   }
   
+  setTrailDuration(duration) {
+    if (this.flowGraph) {
+      this.flowGraph.setTrailDuration(duration);
+    }
+  }
+  
   render() {
     return html`
       <slot></slot>

@@ -17,6 +17,7 @@ A modern, declarative, HTML-based visual scripting library built with Lit web co
 - **Multi-selection**: Select and drag multiple nodes simultaneously
 - **Color Patches**: Flexible node title styling defined in node definitions
 - **Async Execution**: Execute nodes and entire graphs with async functions and value propagation
+- **Configurable Trail Duration**: Execution trails remain visible for adjustable duration after completion
 
 ## 🆕 Recent Updates
 
@@ -31,6 +32,7 @@ A modern, declarative, HTML-based visual scripting library built with Lit web co
 - **Edge Animations**: Visual feedback during execution with customizable animation styles
 - **Conditional Branching**: Smart execution system that only runs active branches in conditional logic
 - **CSS Customization**: Complete animation theming system with orange default theme
+- **Trail Duration**: Configurable execution trail visibility duration for better visual feedback
 
 ### v1.3.0 - CSS Cleanup & Optimization
 - **Consolidated CSS Variables**: All CSS custom properties now centralized in `theme.css`
@@ -421,6 +423,22 @@ flow-graph {
 }
 ```
 
+#### Trail Duration Configuration
+The execution trail can be configured to remain visible for a specified duration after graph execution completes. This is useful for visualizing the execution path and understanding data flow.
+
+```javascript
+// Set trail duration to 5 seconds (default)
+flowGraph.setTrailDuration(5000);
+
+// Set trail duration to 10 seconds
+flowGraph.setTrailDuration(10000);
+
+// Set trail duration to 1 second for quick feedback
+flowGraph.setTrailDuration(1000);
+```
+
+**Default Trail Duration**: 5000ms (5 seconds)
+
 #### Animation Effects
 ```css
 flow-graph {
@@ -441,6 +459,82 @@ flow-graph {
   --fg-animation-data-flow-color: #06b6d4;   /* Cyan data-flow */
   --fg-animation-speed-normal: 1s;           /* Faster animations */
   --fg-trail-opacity: 0.9;                   /* More visible trail */
+}
+```
+
+### 🔌 Socket Customization
+
+FlowGraph provides comprehensive customization for socket appearance, including size, shape, colors, and interactive effects.
+
+#### Socket Size & Shape
+```css
+flow-graph {
+  /* Socket dimensions */
+  --fg-socket-size: 16px;                    /* Socket width and height */
+  --fg-socket-border-width: 3px;             /* Border thickness */
+  --fg-socket-border-radius: 50%;            /* Shape (50% = circle, 0% = square) */
+  
+  /* Interactive scaling */
+  --fg-socket-scale-hover: 1.2;              /* Scale on hover */
+  --fg-socket-scale-active: 1.3;             /* Scale when active */
+}
+```
+
+#### Socket Colors
+```css
+flow-graph {
+  /* Default socket colors */
+  --fg-socket-bg-default: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+  --fg-socket-border-default: rgba(0,0,0,0.5);
+  
+  /* Input socket colors (green theme) */
+  --fg-socket-input-border: rgba(16,185,129,0.8);
+  --fg-socket-input-bg: linear-gradient(180deg, rgba(16,185,129,0.3), rgba(16,185,129,0.1));
+  --fg-socket-input-bg-hover: linear-gradient(180deg, rgba(16,185,129,0.6), rgba(16,185,129,0.3));
+  
+  /* Output socket colors (red theme) */
+  --fg-socket-output-border: rgba(239,68,68,0.8);
+  --fg-socket-output-bg: linear-gradient(180deg, rgba(239,68,68,0.3), rgba(239,68,68,0.1));
+  --fg-socket-output-bg-hover: linear-gradient(180deg, rgba(239,68,68,0.6), rgba(239,68,68,0.3));
+}
+```
+
+#### Socket Shapes
+```css
+/* Different socket shapes using CSS classes */
+.socket.shape-circle { border-radius: 50%; }     /* Default circular */
+.socket.shape-square { border-radius: 0%; }      /* Square sockets */
+.socket.shape-rounded { border-radius: 20%; }    /* Rounded rectangles */
+.socket.shape-diamond { 
+  border-radius: 0%; 
+  transform: rotate(45deg); 
+} /* Diamond shape */
+```
+
+#### Socket Shadows & Effects
+```css
+flow-graph {
+  /* Custom shadow effects */
+  --fg-socket-shadow-default: 0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+  --fg-socket-shadow-hover: 0 4px 16px rgba(0,0,0,0.4), 0 0 0 2px rgba(124,58,237,0.5);
+  --fg-socket-shadow-active: 0 6px 20px rgba(124,58,237,0.4), 0 0 0 3px rgba(124,58,237,0.3);
+}
+```
+
+#### Example: Custom Socket Theme
+```css
+/* Large square sockets with custom colors */
+flow-graph {
+  --fg-socket-size: 20px;
+  --fg-socket-border-width: 3px;
+  --fg-socket-border-radius: 0%;              /* Square shape */
+  --fg-socket-scale-hover: 1.3;
+  
+  /* Custom purple theme */
+  --fg-socket-input-border: rgba(147,51,234,0.8);
+  --fg-socket-input-bg: linear-gradient(180deg, rgba(147,51,234,0.4), rgba(147,51,234,0.2));
+  --fg-socket-output-border: rgba(236,72,153,0.8);
+  --fg-socket-output-bg: linear-gradient(180deg, rgba(236,72,153,0.4), rgba(236,72,153,0.2));
 }
 ```
 

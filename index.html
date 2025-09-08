@@ -37,6 +37,17 @@
     --fg-trail-opacity: 0.9;
   }
   */
+  
+  /* Example: Custom socket styling (commented out to show default) */
+  /*
+  flow-graph {
+    --fg-socket-size: 18px;
+    --fg-socket-border-width: 3px;
+    --fg-socket-scale-hover: 1.2;
+    --fg-socket-input-border: rgba(59,130,246,0.8);
+    --fg-socket-output-border: rgba(147,51,234,0.8);
+  }
+  */
   </style>
   <!-- Use bundled FlowGraph with CSS -->
   <link rel="stylesheet" href="dist/flowgraph.css">
@@ -123,6 +134,32 @@
           font-size: 12px;
           cursor: pointer;
         ">Reset Colors</button>
+      </div>
+      
+      <!-- Trail Duration Control -->
+      <div style="
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding: 8px 12px;
+        background: rgba(0,0,0,0.7);
+        border-radius: 6px;
+        border: 1px solid rgba(245,158,11,0.3);
+      ">
+        <label style="font-size: 12px; color: #94a3b8;">Trail Duration:</label>
+        <select id="trail-duration" style="
+          padding: 4px 8px;
+          background: rgba(15,23,36,0.8);
+          color: white;
+          border: 1px solid rgba(245,158,11,0.5);
+          border-radius: 4px;
+          font-size: 12px;
+        ">
+          <option value="1000">1 second</option>
+          <option value="3000">3 seconds</option>
+          <option value="5000" selected>5 seconds</option>
+          <option value="10000">10 seconds</option>
+        </select>
       </div>
       <div style="
         padding: 8px 12px;
@@ -654,6 +691,7 @@
     const toggleAnimationsBtn = document.getElementById('toggle-animations');
     const clearTrailBtn = document.getElementById('clear-trail');
     const resetColorsBtn = document.getElementById('reset-colors');
+    const trailDurationSelect = document.getElementById('trail-duration');
     
     // Update animation configuration
     function updateAnimationConfig() {
@@ -665,6 +703,17 @@
         });
       } else {
         console.warn('FlowGraph instance not available yet');
+      }
+    }
+    
+    // Update trail duration
+    function updateTrailDuration() {
+      if (flowGraph.flowGraphInstance) {
+        const duration = parseInt(trailDurationSelect.value);
+        flowGraph.flowGraphInstance.setTrailDuration(duration);
+        console.log(`⏱️ Trail duration set to ${duration}ms`);
+      } else {
+        setTimeout(updateTrailDuration, 100);
       }
     }
     
@@ -681,6 +730,7 @@
     // Update config when style or speed changes
     animationStyleSelect.addEventListener('change', updateAnimationConfig);
     animationSpeedSelect.addEventListener('change', updateAnimationConfig);
+    trailDurationSelect.addEventListener('change', updateTrailDuration);
     
     // Clear trail button
     clearTrailBtn.addEventListener('click', () => {
@@ -699,6 +749,7 @@
     // Initialize animation config after a short delay to ensure FlowGraph is ready
     setTimeout(() => {
       updateAnimationConfig();
+      updateTrailDuration();
     }, 100);
   </script>
 </body>

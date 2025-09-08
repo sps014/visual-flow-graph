@@ -216,13 +216,13 @@ export class FlowGraphElement extends LitElement {
   }
   
   handleViewportRightClick(e) {
-    // Only show context menu if clicking on empty space (not on nodes)
-    // Check if the target is a node or inside a node, but allow clicks on the nodes-root container
+    // Check if clicking on a node
     if (e.target.classList.contains('node') || e.target.closest('.node')) {
+      this.handleNodeRightClick(e);
       return;
     }
     
-    // Also check if clicking on sockets
+    // Check if clicking on sockets
     if (e.target.classList.contains('socket')) {
       return;
     }
@@ -248,6 +248,117 @@ export class FlowGraphElement extends LitElement {
     }
   }
   
+  handleNodeRightClick(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Find the node element
+    const nodeElement = e.target.classList.contains('node') ? e.target : e.target.closest('.node');
+    if (!nodeElement) return;
+    
+    // Get the node ID
+    const nodeId = nodeElement.getAttribute('data-id');
+    if (!nodeId) return;
+    
+    // Create node context menu items
+    const nodeContextItems = [
+      {
+        label: 'Delete Node',
+        icon: '🗑️',
+        action: () => this.deleteNode(nodeId)
+      }
+    ];
+    
+    // Show node context menu
+    this.showNodeContextMenu(e.clientX, e.clientY, nodeContextItems);
+  }
+  
+  showNodeContextMenu(x, y, items) {
+    // Create a simple context menu for nodes
+    const existingMenu = document.querySelector('.node-context-menu');
+    if (existingMenu) {
+      existingMenu.remove();
+    }
+    
+    const menu = document.createElement('div');
+    menu.className = 'node-context-menu';
+    menu.style.cssText = `
+      position: fixed;
+      left: ${x}px;
+      top: ${y}px;
+      background: var(--fg-panel, #0b1220);
+      border: 1px solid var(--fg-muted, #94a3b8);
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      min-width: 150px;
+      font-family: inherit;
+      user-select: none;
+      overflow-x: hidden;
+    `;
+    
+    items.forEach(item => {
+      const itemEl = document.createElement('div');
+      itemEl.className = 'context-menu-item';
+      itemEl.style.cssText = `
+        padding: 8px 12px;
+        cursor: pointer;
+        color: var(--fg-text, #ffffff);
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+      `;
+      
+      itemEl.innerHTML = `
+        <span>${item.icon}</span>
+        <span>${item.label}</span>
+      `;
+      
+      itemEl.addEventListener('click', () => {
+        item.action();
+        menu.remove();
+      });
+      
+      itemEl.addEventListener('mouseenter', () => {
+        itemEl.style.background = 'var(--fg-accent, #7c3aed)';
+        itemEl.style.color = 'white';
+      });
+      
+      itemEl.addEventListener('mouseleave', () => {
+        itemEl.style.background = 'transparent';
+        itemEl.style.color = 'var(--fg-text, #ffffff)';
+      });
+      
+      menu.appendChild(itemEl);
+    });
+    
+    document.body.appendChild(menu);
+    
+    // Close menu when clicking outside
+    const closeMenu = (e) => {
+      if (!menu.contains(e.target)) {
+        menu.remove();
+        document.removeEventListener('click', closeMenu);
+      }
+    };
+    
+    setTimeout(() => {
+      document.addEventListener('click', closeMenu);
+    }, 0);
+  }
+  
+  deleteNode(nodeId) {
+    // Remove the node
+    this.removeNode(nodeId);
+    
+    // Dispatch event
+    this.dispatchEvent(new CustomEvent('node:remove', { 
+      detail: { nodeId } 
+    }));
+  }
+
   addNodeFromContextMenu(nodeDef) {
     // Get the context menu element to get its position
     const contextMenu = this.shadowRoot.getElementById('context-menu');

@@ -12,7 +12,7 @@ A modern, declarative, HTML-based visual scripting library built with Lit web co
 - **Theme Support**: Built-in dark and light themes with CSS custom properties
 - **Event System**: Comprehensive event handling for graph interactions
 - **Modular Design**: Clean separation of concerns with pluggable components
-- **Context Menus**: Right-click menus for adding nodes and managing connections
+- **Context Menus**: Right-click menus for adding/deleting nodes and managing connections
 - **Search Functionality**: Real-time search in node creation context menu
 - **Multi-selection**: Select and drag multiple nodes simultaneously
 - **Color Patches**: Flexible node title styling defined in node definitions
@@ -41,28 +41,16 @@ A modern, declarative, HTML-based visual scripting library built with Lit web co
 
 ## 📦 Installation
 
-### CDN Usage (Recommended for Quick Start)
+### Bundled Distribution (Recommended)
+
+FlowGraph is distributed as a single bundled ES6 module with all dependencies included. Simply include the bundled files in your HTML:
+
 ```html
 <!DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" href="src/styles/theme.css">
-  
-  <!-- Import map for Lit dependencies -->
-  <script type="importmap">
-    {
-      "imports": {
-        "lit": "https://cdn.jsdelivr.net/npm/lit@3.1.0/index.js",
-        "lit/": "https://cdn.jsdelivr.net/npm/lit@3.1.0/",
-        "@lit/reactive-element": "https://cdn.jsdelivr.net/npm/@lit/reactive-element@2.0.4/reactive-element.js",
-        "@lit/reactive-element/": "https://cdn.jsdelivr.net/npm/@lit/reactive-element@2.0.4/",
-        "lit-html": "https://cdn.jsdelivr.net/npm/lit-html@3.1.0/lit-html.js",
-        "lit-html/": "https://cdn.jsdelivr.net/npm/lit-html@3.1.0/"
-      }
-    }
-  </script>
-  
-  <script type="module" src="src/index.js"></script>
+  <link rel="stylesheet" href="dist/flowgraph.css">
+  <script type="module" src="dist/flowgraph.es.js"></script>
 </head>
 <body>
   <!-- Your FlowGraph content here -->
@@ -70,10 +58,11 @@ A modern, declarative, HTML-based visual scripting library built with Lit web co
 </html>
 ```
 
-### NPM Installation
-```bash
-npm install flowgraph lit
-```
+**Files included:**
+- `dist/flowgraph.es.js` - Complete ES6 module with Lit bundled
+- `dist/flowgraph.css` - All theme styles and component CSS
+
+**No additional dependencies required** - everything is bundled and ready to use!
 
 ## 🎯 Quick Start
 
@@ -286,10 +275,37 @@ FlowGraph supports flexible color patches defined directly in node definitions u
 ```
 
 #### Context Menu Styling
+
+FlowGraph provides two types of context menus with consistent styling:
+
+**Viewport Context Menu** (Right-click empty space):
+- Defined in `flow-context-menu` component using Shadow DOM
+- Uses theme variables for consistent styling
+- Includes search functionality and categorized node creation
+
+**Node Context Menu** (Right-click on nodes):
+- Dynamically created for node operations
+- Uses theme variables: `--fg-panel`, `--fg-muted`, `--fg-text`, `--fg-accent`
+- Includes delete functionality with confirmation
+
 ```css
-/* Note: Context menu styles are defined in their respective components due to Shadow DOM */
-/* The flow-context-menu component handles its own styling using theme variables */
+/* Context menu styling uses theme variables */
+.node-context-menu {
+  background: var(--fg-panel);
+  border: 1px solid var(--fg-muted);
+  color: var(--fg-text);
+}
+
+.context-menu-item:hover {
+  background: var(--fg-accent);
+  color: white;
+}
 ```
+
+**Available Context Menu Actions:**
+- **Viewport**: Add new nodes from categorized menu
+- **Nodes**: Delete selected node
+- **Sockets**: Delete connected edges (existing functionality)
 
 ### Interactive Elements Styling
 
@@ -437,6 +453,7 @@ Create connections between node sockets.
 ### Context Menus
 - **Add Nodes**: Right-click on empty space to show node creation menu
 - **Search**: Type in the context menu to filter available nodes
+- **Delete Nodes**: Right-click on any node to delete it
 - **Delete Connections**: Right-click on sockets to manage connections
 
 ## 🎯 Event System

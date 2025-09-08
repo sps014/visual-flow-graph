@@ -7,7 +7,9 @@ export class FlowContextMenu extends LitElement {
     y: { type: Number },
     nodeDefinitions: { type: Array },
     onNodeAdd: { type: Function },
-    searchTerm: { type: String }
+    searchTerm: { type: String },
+    minWidth: { type: Number },
+    maxWidth: { type: Number }
   };
 
   static styles = css`
@@ -26,8 +28,8 @@ export class FlowContextMenu extends LitElement {
       border: 1px solid var(--fg-muted, #94a3b8);
       border-radius: 8px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-      min-width: 200px;
-      max-width: 300px;
+      min-width: var(--context-menu-min-width, 200px);
+      max-width: var(--context-menu-max-width, 300px);
       max-height: 400px;
       overflow-y: auto;
       padding: 8px 0;
@@ -178,15 +180,23 @@ export class FlowContextMenu extends LitElement {
     this.nodeDefinitions = [];
     this.onNodeAdd = null;
     this.searchTerm = '';
+    this.minWidth = 200;
+    this.maxWidth = 300;
   }
 
-  show(x, y, nodeDefinitions, onNodeAdd) {
+  show(x, y, nodeDefinitions, onNodeAdd, minWidth = 200, maxWidth = 300) {
     this.x = x;
     this.y = y;
     this.nodeDefinitions = nodeDefinitions;
     this.onNodeAdd = onNodeAdd;
+    this.minWidth = minWidth;
+    this.maxWidth = maxWidth;
     this.visible = true;
     this.searchTerm = ''; // Clear search when showing menu
+    
+    // Set CSS custom properties for width
+    this.style.setProperty('--context-menu-min-width', `${minWidth}px`);
+    this.style.setProperty('--context-menu-max-width', `${maxWidth}px`);
     
     // Set the visible attribute on the host element
     this.setAttribute('visible', '');

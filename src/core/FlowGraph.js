@@ -12,6 +12,18 @@ export class FlowGraph extends EventTarget {
     this.templates = new Map();
     this.selection = new Set();
     
+    // Animation configuration
+    this.animationConfig = {
+      enabled: true,
+      style: 'flowing', // 'flowing', 'pulsing', 'data-flow'
+      speed: 'normal', // 'slow', 'normal', 'fast'
+      duration: 1000 // Base duration for animations
+    };
+    
+    // Branch tracking system for conditional execution
+    this.activeOutputs = new Map(); // nodeId -> Set of active output indices
+    this.activeInputs = new Map(); // nodeId -> Set of active input indices
+    
     // Create surface elements
     this.surface = document.createElement('div');
     this.surface.className = 'surface';
@@ -308,6 +320,13 @@ export class FlowGraph extends EventTarget {
     }));
     
     return edge;
+  }
+  
+  /**
+   * Get edge by ID
+   */
+  getEdge(edgeId) {
+    return this.edges.get(edgeId);
   }
   
   removeEdge(edgeId) {
@@ -628,6 +647,10 @@ export class FlowGraph extends EventTarget {
       detail: { timestamp: Date.now() }
     }));
     
+    // Clear previous execution trail
+    this.clearExecutionTrail();
+    this.clearBranchTracking();
+    
     // Get execution order based on dependencies
     const executionOrder = this.getExecutionOrder();
     
@@ -639,6 +662,7 @@ export class FlowGraph extends EventTarget {
     }
     
     let executedCount = 0;
+    const activeAnimations = new Set();
     
     // Execute nodes in order
     let executionError = null;
@@ -646,16 +670,58 @@ export class FlowGraph extends EventTarget {
     for (const nodeId of executionOrder) {
       const node = this.nodes.get(nodeId);
       if (node && node.template && node.template.onExecute) {
+        // Check if node should execute based on active branches
+        const shouldExecute = this.shouldNodeExecute(nodeId);
+        if (!shouldExecute) {
+          console.log(`⏭️ Skipping node ${nodeId} - no active input branches`);
+          continue;
+        }
+        
         try {
+          // Highlight the executing node
+          this.highlightExecutingNode(node, true);
+          
+          // Start animations for edges connected to this node's outputs
+          if (this.animationConfig.enabled) {
+            this.startNodeAnimations(node, activeAnimations);
+          }
+          
           await node.execute();
           executedCount++;
+          
+          // Stop animations for this node's edges after execution
+          if (this.animationConfig.enabled) {
+            this.stopNodeAnimations(node, activeAnimations);
+          }
+          
+          // Remove highlighting from the executed node
+          this.highlightExecutingNode(node, false);
         } catch (error) {
           console.error(`Error executing node ${nodeId}:`, error);
           executionError = error;
+          
+          // Remove highlighting from failed node
+          this.highlightExecutingNode(node, false);
+          
+          // Stop all animations on error
+          if (this.animationConfig.enabled) {
+            this.stopAllAnimations(activeAnimations);
+          }
           break; // Stop execution on first failure
         }
       }
     }
+    
+    // Stop any remaining animations and clear all highlighting
+    if (this.animationConfig.enabled) {
+      this.stopAllAnimations(activeAnimations);
+    }
+    
+    // Clear any remaining node highlighting
+    this.clearAllNodeHighlighting();
+    
+    // Reset all edge colors to default after execution completes
+    this.resetAllEdgeColors();
     
     // Fire complete event
     this.container.dispatchEvent(new CustomEvent('graph:execute:complete', {
@@ -671,6 +737,275 @@ export class FlowGraph extends EventTarget {
     if (executionError) {
       throw executionError;
     }
+  }
+  
+  /**
+   * Configure edge animations during execution
+   */
+  setAnimationConfig(config) {
+    this.animationConfig = { ...this.animationConfig, ...config };
+  }
+  
+  /**
+   * Highlight or unhighlight a node during execution
+   */
+  highlightExecutingNode(node, isExecuting) {
+    if (!node.element) return;
+    
+    if (isExecuting) {
+      node.element.classList.add('executing');
+      // Add animation style class for color coordination
+      const { style } = this.animationConfig;
+      if (style) {
+        node.element.classList.add(style);
+      }
+      console.log(`🎯 Highlighting executing node ${node.id} with style ${style}`);
+    } else {
+      node.element.classList.remove('executing', 'flowing', 'pulsing', 'data-flow');
+      console.log(`🎯 Removing highlight from node ${node.id}`);
+    }
+  }
+  
+  /**
+   * Clear all node highlighting
+   */
+  clearAllNodeHighlighting() {
+    this.nodes.forEach(node => {
+      if (node.element) {
+        node.element.classList.remove('executing', 'flowing', 'pulsing', 'data-flow');
+      }
+    });
+    console.log('🎯 Cleared all node highlighting');
+  }
+  
+  /**
+   * Add edge to execution trail
+   */
+  addToExecutionTrail(edge) {
+    if (!edge.element) return;
+    
+    const { style } = this.animationConfig;
+    
+    // Remove all animation classes first
+    edge.element.classList.remove('flowing', 'flowing-fast', 'flowing-slow', 'pulsing', 'data-flow');
+    
+    // Add trail and color classes (no animations)
+    edge.element.classList.add('trail');
+    if (style) {
+      edge.element.classList.add(style);
+    }
+    console.log(`🛤️ Added edge ${edge.id} to execution trail with style ${style} (no animation)`);
+  }
+  
+  /**
+   * Clear execution trail
+   */
+  clearExecutionTrail() {
+    this.edges.forEach(edge => {
+      if (edge.element) {
+        edge.element.classList.remove('trail', 'flowing', 'flowing-fast', 'flowing-slow', 'pulsing', 'data-flow');
+      }
+    });
+    console.log('🛤️ Cleared execution trail');
+  }
+  
+  /**
+   * Reset all edge colors to default
+   */
+  resetAllEdgeColors() {
+    this.edges.forEach(edge => {
+      if (edge.element) {
+        // Remove all animation and trail classes
+        edge.element.classList.remove('trail', 'flowing', 'flowing-fast', 'flowing-slow', 'pulsing', 'data-flow');
+        
+        // Reset to default edge styling
+        edge.element.setAttribute('stroke', '#10b981'); // Default green color
+        edge.element.setAttribute('stroke-width', '2.5'); // Default stroke width
+        edge.element.style.filter = 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'; // Default shadow
+        edge.element.style.opacity = '1'; // Reset opacity
+      }
+    });
+    console.log('🎨 Reset all edge colors to default');
+  }
+  
+  /**
+   * Activate an output socket (called when setOutput is used)
+   */
+  activateOutputSocket(nodeId, outputIndex) {
+    if (!this.activeOutputs.has(nodeId)) {
+      this.activeOutputs.set(nodeId, new Set());
+    }
+    this.activeOutputs.get(nodeId).add(outputIndex);
+    // Mark connected input sockets as active
+    this.markConnectedInputsAsActive(nodeId, outputIndex);
+  }
+  
+  /**
+   * Mark input sockets connected to an active output as active
+   */
+  markConnectedInputsAsActive(nodeId, outputIndex) {
+    const node = this.nodes.get(nodeId);
+    if (!node) return;
+    
+    const outputArray = Array.from(node.outputs.values());
+    const outputSocket = outputArray[outputIndex];
+    if (!outputSocket) return;
+    
+    // Find all edges connected to this output
+    outputSocket.connections.forEach(edge => {
+      if (edge.toSocket) {
+        const targetNodeId = edge.toSocket.node.id;
+        const inputIndex = this.getInputSocketIndex(edge.toSocket);
+        
+        if (!this.activeInputs.has(targetNodeId)) {
+          this.activeInputs.set(targetNodeId, new Set());
+        }
+        this.activeInputs.get(targetNodeId).add(inputIndex);
+      }
+    });
+  }
+  
+  /**
+   * Get the index of an input socket within its node
+   */
+  getInputSocketIndex(socket) {
+    const inputArray = Array.from(socket.node.inputs.values());
+    return inputArray.indexOf(socket);
+  }
+  
+  /**
+   * Get the index of an output socket within its node
+   */
+  getOutputSocketIndex(socket) {
+    const outputArray = Array.from(socket.node.outputs.values());
+    return outputArray.indexOf(socket);
+  }
+  
+  /**
+   * Check if a node should execute based on active branches
+   */
+  shouldNodeExecute(nodeId) {
+    const node = this.nodes.get(nodeId);
+    if (!node) return false;
+    
+    // If node has no input sockets, it can execute
+    if (node.inputs.size === 0) {
+      return true;
+    }
+    
+    // Check if any input socket is active
+    const activeInputs = this.activeInputs.get(nodeId) || new Set();
+    return activeInputs.size > 0;
+  }
+  
+  /**
+   * Clear all branch tracking (called at start of execution)
+   */
+  clearBranchTracking() {
+    this.activeOutputs.clear();
+    this.activeInputs.clear();
+  }
+  
+  /**
+   * Check if a node has received any input values (legacy method - keeping for compatibility)
+   */
+  nodeHasInputValues(node) {
+    return this.shouldNodeExecute(node.id);
+  }
+  
+  /**
+   * Start animations for edges connected to a node's outputs
+   */
+  startNodeAnimations(node, activeAnimations) {
+    console.log(`🎬 Starting animations for node ${node.id}`);
+    node.outputs.forEach(outputSocket => {
+      outputSocket.connections.forEach(edge => {
+        if (!activeAnimations.has(edge.id)) {
+          console.log(`🎬 Starting animation for edge ${edge.id}`);
+          this.startEdgeAnimation(edge);
+          activeAnimations.add(edge.id);
+        }
+      });
+    });
+  }
+  
+  /**
+   * Stop animations for edges connected to a node's outputs
+   */
+  stopNodeAnimations(node, activeAnimations) {
+    console.log(`🎬 Stopping animations for node ${node.id}`);
+    
+    // Only stop animations for edges connected to active output sockets
+    const activeOutputs = this.activeOutputs.get(node.id) || new Set();
+    
+    node.outputs.forEach(outputSocket => {
+      const outputIndex = this.getOutputSocketIndex(outputSocket);
+      
+      // Only stop animations for active output sockets
+      if (activeOutputs.has(outputIndex)) {
+        outputSocket.connections.forEach(edge => {
+          if (activeAnimations.has(edge.id)) {
+            console.log(`🎬 Stopping animation for edge ${edge.id}`);
+            this.stopEdgeAnimation(edge);
+            // Mark edge as part of execution trail
+            this.addToExecutionTrail(edge);
+            activeAnimations.delete(edge.id);
+          }
+        });
+      } else {
+        // Stop animations for inactive branches immediately
+        outputSocket.connections.forEach(edge => {
+          if (activeAnimations.has(edge.id)) {
+            console.log(`🎬 Stopping animation for inactive edge ${edge.id}`);
+            this.stopEdgeAnimation(edge);
+            activeAnimations.delete(edge.id);
+          }
+        });
+      }
+    });
+  }
+  
+  /**
+   * Start animation for a specific edge
+   */
+  startEdgeAnimation(edge) {
+    const { style, speed } = this.animationConfig;
+    console.log(`🎬 Starting ${style} animation for edge ${edge.id} with speed ${speed}`);
+    
+    switch (style) {
+      case 'flowing':
+        edge.startFlow(speed);
+        break;
+      case 'pulsing':
+        edge.startPulse();
+        break;
+      case 'data-flow':
+        edge.startDataFlow();
+        break;
+      default:
+        edge.startFlow(speed);
+    }
+  }
+  
+  /**
+   * Stop animation for a specific edge
+   */
+  stopEdgeAnimation(edge) {
+    console.log(`🎬 Stopping animation for edge ${edge.id}`);
+    edge.stopAnimation();
+  }
+  
+  /**
+   * Stop all active animations
+   */
+  stopAllAnimations(activeAnimations) {
+    activeAnimations.forEach(edgeId => {
+      const edge = this.edges.get(edgeId);
+      if (edge) {
+        edge.stopAnimation();
+      }
+    });
+    activeAnimations.clear();
   }
   
   /**

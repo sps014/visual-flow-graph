@@ -33,6 +33,9 @@ export class FlowGraphElement extends LitElement {
     this.flowGraph = new FlowGraph(this);
     this.processChildren();
     
+    // Expose the FlowGraph instance for external access
+    this.flowGraphInstance = this.flowGraph;
+    
     // Forward events
     this.flowGraph.addEventListener('node:create', (e) => {
       this.dispatchEvent(new CustomEvent('node:create', { detail: e.detail }));

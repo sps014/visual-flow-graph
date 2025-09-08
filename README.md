@@ -9,7 +9,7 @@ A modern, declarative, HTML-based visual scripting library built with Lit web co
 - **Customizable UI**: Support custom styling through CSS and HTML templates
 - **Interactive**: Drag-to-connect sockets, pan/zoom viewport, node manipulation
 - **Performance Optimized**: Smooth interactions with RAF-based animations
-- **Theme Support**: Built-in dark and light themes with CSS custom properties
+- **Theme Support**: Built-in dark and light themes with comprehensive CSS customization
 - **Event System**: Comprehensive event handling for graph interactions
 - **Modular Design**: Clean separation of concerns with pluggable components
 - **Context Menus**: Right-click menus for adding/deleting nodes and managing connections
@@ -28,6 +28,9 @@ A modern, declarative, HTML-based visual scripting library built with Lit web co
 - **Execution Events**: Comprehensive event system for monitoring graph execution
 - **Multiple Triggers**: Double-click nodes, keyboard shortcuts, or execute button
 - **Clean API**: Direct element access and helper methods for socket value management
+- **Edge Animations**: Visual feedback during execution with customizable animation styles
+- **Conditional Branching**: Smart execution system that only runs active branches in conditional logic
+- **CSS Customization**: Complete animation theming system with orange default theme
 
 ### v1.3.0 - CSS Cleanup & Optimization
 - **Consolidated CSS Variables**: All CSS custom properties now centralized in `theme.css`
@@ -256,6 +259,82 @@ flowGraph.addEventListener('graph:execute:complete', (e) => {
 });
 ```
 
+## ✨ Edge Animations
+
+FlowGraph provides visual feedback during graph execution through animated edges that show data flow between nodes.
+
+### Animation Styles
+
+Three different animation styles are available:
+
+- **Flowing**: Dashed line animation that flows along the edge path
+- **Pulsing**: Pulsing effect that changes stroke width and opacity
+- **Data Flow**: Moving dots animation that travels along the edge
+
+### Animation Configuration
+
+Configure animations programmatically:
+
+```javascript
+// Set animation configuration
+flowGraph.setAnimationConfig({
+  enabled: true,           // Enable/disable animations
+  style: 'flowing',       // 'flowing', 'pulsing', 'data-flow'
+  speed: 'normal',        // 'slow', 'normal', 'fast'
+  duration: 1000          // Base duration in milliseconds
+});
+
+// Disable animations
+flowGraph.setAnimationConfig({ enabled: false });
+```
+
+### Animation Behavior
+
+- **Automatic Triggering**: Animations start automatically when nodes execute
+- **Dependency-Based**: Only edges connected to executing nodes are animated
+- **Node Highlighting**: Executing nodes are highlighted with coordinated colors
+- **Error Handling**: All animations stop immediately if execution fails
+- **Performance**: Animations are lightweight and don't impact execution speed
+
+### Node Highlighting
+
+During execution, nodes are highlighted with colors that match their animation style:
+
+- **Flowing**: Red highlighting (#ff6b6b) with glowing border
+- **Pulsing**: Orange highlighting (#f59e0b) with pulsing effect
+- **Data Flow**: Purple highlighting (#7c3aed) with gradient background
+
+The highlighting includes:
+- Glowing box shadow around the node
+- Colored border matching the animation style
+- Subtle background gradient
+- Bold title text in the highlight color
+
+### Custom Animation Classes
+
+You can also create custom animations by adding CSS classes:
+
+```css
+.edge.my-custom-animation {
+  stroke: #ff6b6b !important;
+  stroke-width: 3px !important;
+  animation: myCustomAnimation 2s ease-in-out infinite;
+}
+
+@keyframes myCustomAnimation {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+```
+
+Then apply it to edges:
+
+```javascript
+// Apply custom animation to specific edge
+const edge = flowGraph.getEdge('edge_id');
+edge.setAnimation('my-custom-animation');
+```
+
 ## 🎨 Color Customization & Theming
 
 ### CSS Custom Properties
@@ -295,6 +374,73 @@ flow-graph[theme="light"] {
   --fg-success: #10b981;
   --fg-warning: #f59e0b;
   --fg-error: #ef4444;
+}
+```
+
+### ✨ Animation Customization
+
+FlowGraph provides comprehensive customization for all animation styles, colors, and effects through CSS custom properties. The default theme uses a warm orange color scheme for all animations.
+
+#### Animation Colors
+```css
+flow-graph {
+  /* Animation colors - all default to orange theme */
+  --fg-animation-flowing-color: #f59e0b;     /* Flowing animation color */
+  --fg-animation-pulsing-color: #f59e0b;     /* Pulsing animation color */
+  --fg-animation-data-flow-color: #f59e0b;   /* Data-flow animation color */
+}
+```
+
+#### Animation Speeds
+```css
+flow-graph {
+  /* Animation durations */
+  --fg-animation-speed-slow: 2.5s;           /* Slow animation duration */
+  --fg-animation-speed-normal: 1.5s;         /* Normal animation duration */
+  --fg-animation-speed-fast: 0.8s;           /* Fast animation duration */
+}
+```
+
+#### Execution Highlighting
+```css
+flow-graph {
+  /* Node highlighting during execution */
+  --fg-executing-border: #f59e0b;            /* Node border when executing */
+  --fg-executing-shadow: rgba(245, 158, 11, 0.8); /* Node shadow when executing */
+  --fg-executing-bg: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05)); /* Node background */
+  --fg-executing-text: #f59e0b;              /* Node title color when executing */
+}
+```
+
+#### Trail Highlighting
+```css
+flow-graph {
+  /* Execution trail appearance */
+  --fg-trail-opacity: 0.8;                   /* Opacity of execution trail */
+  --fg-trail-stroke-width: 3px;              /* Stroke width of execution trail */
+}
+```
+
+#### Animation Effects
+```css
+flow-graph {
+  /* Animation visual effects */
+  --fg-animation-stroke-width: 4px;          /* Stroke width during animation */
+  --fg-animation-stroke-width-hover: 6px;    /* Stroke width on hover */
+  --fg-animation-glow-intensity: 8px;        /* Glow effect intensity */
+  --fg-animation-trail-glow-intensity: 6px;  /* Glow effect for trail */
+}
+```
+
+#### Example: Custom Color Scheme
+```css
+/* Custom blue theme for animations */
+flow-graph {
+  --fg-animation-flowing-color: #3b82f6;     /* Blue flowing */
+  --fg-animation-pulsing-color: #8b5cf6;     /* Purple pulsing */
+  --fg-animation-data-flow-color: #06b6d4;   /* Cyan data-flow */
+  --fg-animation-speed-normal: 1s;           /* Faster animations */
+  --fg-trail-opacity: 0.9;                   /* More visible trail */
 }
 ```
 

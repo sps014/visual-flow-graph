@@ -321,6 +321,9 @@ export class Node {
     if (socket) {
       socket.value = value;
       
+      // Activate this output socket for branch tracking
+      this.flowGraph.activateOutputSocket(this.id, index);
+      
       // Propagate value to connected input sockets
       socket.connections.forEach(edge => {
         if (edge.toSocket) {

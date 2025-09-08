@@ -24,7 +24,7 @@ export class Edge {
     this.element.setAttribute('stroke-width', '2.5'); // Reduced stroke width
     this.element.setAttribute('fill', 'none');
     this.element.setAttribute('stroke-linecap', 'round');
-    this.element.classList.add('connection');
+    this.element.classList.add('connection', 'edge');
     this.element.style.pointerEvents = 'stroke';
     this.element.style.cursor = 'pointer';
     
@@ -46,6 +46,42 @@ export class Edge {
     
     const path = this.flowGraph.createCubicPath(fromPos, toPos, this.fromSocket, this.toSocket);
     this.element.setAttribute('d', path);
+  }
+  
+  setAnimation(animationType, speed = 'normal') {
+    console.log(`🎬 Edge ${this.id}: Setting animation ${animationType} with speed ${speed}`);
+    
+    // Remove all animation classes
+    this.element.classList.remove('flowing', 'flowing-fast', 'flowing-slow', 'pulsing', 'data-flow');
+    
+    if (animationType) {
+      this.element.classList.add(animationType);
+      console.log(`🎬 Edge ${this.id}: Added class ${animationType}`);
+      
+      // Add speed modifier if applicable
+      if (animationType === 'flowing' && speed !== 'normal') {
+        this.element.classList.add(`flowing-${speed}`);
+        console.log(`🎬 Edge ${this.id}: Added speed class flowing-${speed}`);
+      }
+    }
+    
+    console.log(`🎬 Edge ${this.id}: Current classes:`, this.element.className);
+  }
+  
+  startFlow(speed = 'normal') {
+    this.setAnimation('flowing', speed);
+  }
+  
+  startPulse() {
+    this.setAnimation('pulsing');
+  }
+  
+  startDataFlow() {
+    this.setAnimation('data-flow');
+  }
+  
+  stopAnimation() {
+    this.setAnimation(null);
   }
   
   serialize() {

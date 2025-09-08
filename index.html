@@ -26,6 +26,17 @@
     --context-menu-min-width: 300px;
     --context-menu-max-width: 450px;
   }
+  
+  /* Example: Custom animation colors and speeds (commented out to show default orange theme) */
+  /*
+  flow-graph {
+    --fg-animation-flowing-color: #00ff88;
+    --fg-animation-pulsing-color: #ff6b00;
+    --fg-animation-data-flow-color: #8b5cf6;
+    --fg-animation-speed-normal: 1s;
+    --fg-trail-opacity: 0.9;
+  }
+  */
   </style>
   <!-- Use bundled FlowGraph with CSS -->
   <link rel="stylesheet" href="dist/flowgraph.css">
@@ -49,6 +60,70 @@
       " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
         🚀 Execute Graph
       </button>
+      
+      <!-- Animation Controls -->
+      <div style="
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding: 8px 12px;
+        background: rgba(0,0,0,0.7);
+        border-radius: 6px;
+        border: 1px solid rgba(124,58,237,0.3);
+      ">
+        <label style="font-size: 12px; color: #94a3b8;">Animation:</label>
+        <select id="animation-style" style="
+          padding: 4px 8px;
+          background: rgba(15,23,36,0.8);
+          color: white;
+          border: 1px solid rgba(124,58,237,0.5);
+          border-radius: 4px;
+          font-size: 12px;
+        ">
+          <option value="flowing">Flowing</option>
+          <option value="pulsing">Pulsing</option>
+          <option value="data-flow">Data Flow</option>
+        </select>
+        <select id="animation-speed" style="
+          padding: 4px 8px;
+          background: rgba(15,23,36,0.8);
+          color: white;
+          border: 1px solid rgba(124,58,237,0.5);
+          border-radius: 4px;
+          font-size: 12px;
+        ">
+          <option value="slow">Slow</option>
+          <option value="normal" selected>Normal</option>
+          <option value="fast">Fast</option>
+        </select>
+        <button id="toggle-animations" style="
+          padding: 4px 8px;
+          background: linear-gradient(135deg, #7c3aed, #5b21b6);
+          color: white;
+          border: none;
+          border-radius: 4px;
+          font-size: 12px;
+          cursor: pointer;
+        ">Enable</button>
+        <button id="clear-trail" style="
+          padding: 4px 8px;
+          background: linear-gradient(135deg, #6b7280, #4b5563);
+          color: white;
+          border: none;
+          border-radius: 4px;
+          font-size: 12px;
+          cursor: pointer;
+        ">Clear Trail</button>
+        <button id="reset-colors" style="
+          padding: 4px 8px;
+          background: linear-gradient(135deg, #10b981, #059669);
+          color: white;
+          border: none;
+          border-radius: 4px;
+          font-size: 12px;
+          cursor: pointer;
+        ">Reset Colors</button>
+      </div>
       <div style="
         padding: 8px 12px;
         background: rgba(0,0,0,0.7);
@@ -284,27 +359,22 @@
       </flow-definitions>
       
       <flow-nodes>
-        <!-- Create some example nodes -->
+        <!-- Create 6 example nodes: 2 numbers, 1 sum, 1 if-branch, 2 watch nodes -->
         <flow-node type="data.number" id="n1" x="100" y="100"></flow-node>
         <flow-node type="data.number" id="n2" x="100" y="250"></flow-node>
         <flow-node type="math.add" id="n3" x="350" y="175"></flow-node>
-        <flow-node type="math.multiply" id="n4" x="600" y="100"></flow-node>
-        <flow-node type="util.split" id="n5" x="850" y="150"></flow-node>
-        <flow-node type="data.watch" id="n6" x="1100" y="100"></flow-node>
-        <flow-node type="data.watch" id="n7" x="1100" y="200"></flow-node>
-        <!-- Advanced 3D Renderer Node with arbitrary HTML content -->
-        <flow-node type="render.3d" id="n8" x="400" y="350"></flow-node>
+        <flow-node type="logic.if" id="n4" x="600" y="175"></flow-node>
+        <flow-node type="data.watch" id="n5" x="850" y="100"></flow-node>
+        <flow-node type="data.watch" id="n6" x="850" y="250"></flow-node>
       </flow-nodes>
       
       <flow-edges>
-        <!-- Create some example connections -->
+        <!-- Connect the 6 nodes: 2 numbers -> sum -> if-branch -> 2 watch nodes -->
         <flow-edge from="n1:value" to="n3:a"></flow-edge>
         <flow-edge from="n2:value" to="n3:b"></flow-edge>
-        <flow-edge from="n3:sum" to="n4:a"></flow-edge>
-        <flow-edge from="n1:value" to="n4:b"></flow-edge>
-        <flow-edge from="n4:product" to="n5:input"></flow-edge>
-        <flow-edge from="n5:out1" to="n6:value"></flow-edge>
-        <flow-edge from="n5:out2" to="n7:value"></flow-edge>
+        <flow-edge from="n3:sum" to="n4:condition"></flow-edge>
+        <flow-edge from="n4:true" to="n5:value"></flow-edge>
+        <flow-edge from="n4:false" to="n6:value"></flow-edge>
       </flow-edges>
     </flow-graph>
   </div>
@@ -441,7 +511,7 @@
       const value = inputElement ? parseFloat(inputElement.value) || 0 : 0;
       
       // Simulate async data loading
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 5000));
       
       console.log('Number value:', value);
       
@@ -457,7 +527,7 @@
       const b = context.getInput(1) || 0;
       
       // Simulate async calculation
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 5000));
       
       const sum = a + b;
       console.log(`Adding ${a} + ${b} = ${sum}`);
@@ -473,7 +543,7 @@
       const value = context.getInput(0);
       
       // Simulate async value processing
-      await new Promise(resolve => setTimeout(resolve, 30));
+      await new Promise(resolve => setTimeout(resolve, 5000));
       
       console.log('Watched value:', value);
     };
@@ -486,7 +556,7 @@
       const b = context.getInput(1) || 1;
       
       // Simulate async calculation
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 5000));
       
       const product = a * b;
       console.log(`Multiplying ${a} * ${b} = ${product}`);
@@ -502,7 +572,7 @@
       const input = context.getInput(0);
       
       // Simulate async value splitting
-      await new Promise(resolve => setTimeout(resolve, 40));
+      await new Promise(resolve => setTimeout(resolve, 5000));
       
       // Set multiple output values (out1=0, out2=1, out3=2)
       context.setOutput(0, input); // out1
@@ -518,7 +588,7 @@
       const camera = context.getInput(1);
       
       // Simulate async 3D rendering
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 5000));
       
       // Set output values
       context.setOutput(0, '3D rendered content'); // render
@@ -528,15 +598,27 @@
     window.conditionalLogic = async function(context) {
       console.log('⚡ Processing conditional logic:', context);
       
-      // Get input value
-      const condition = Boolean(context.getInput(0));
+      // Get input value (sum from previous node)
+      const sum = context.getInput(0);
+      const condition = sum > 10; // True if sum is greater than 10
+      
+      console.log(`⚡ Condition: ${sum} > 10 = ${condition}`);
       
       // Simulate async condition evaluation
-      await new Promise(resolve => setTimeout(resolve, 60));
+      await new Promise(resolve => setTimeout(resolve, 5000));
       
-      // Set output values
-      context.setOutput(0, condition ? context.getInput(0) : null); // true
-      context.setOutput(1, !condition ? context.getInput(0) : null); // false
+      // Only set the active branch output, leave the other branch unset
+      if (condition) {
+        console.log('⚡ Taking TRUE branch - sum is greater than 10');
+        context.setOutput(0, `TRUE: ${sum} > 10`); // true branch only
+        console.log('⚡ Set TRUE branch output, FALSE branch left unset');
+        // Don't set false branch - leave it unexecuted
+      } else {
+        console.log('⚡ Taking FALSE branch - sum is 10 or less');
+        // Don't set true branch - leave it unexecuted
+        context.setOutput(1, `FALSE: ${sum} <= 10`); // false branch only
+        console.log('⚡ Set FALSE branch output, TRUE branch left unset');
+      }
     };
     
     window.processString = async function(context) {
@@ -547,7 +629,7 @@
       const text = inputElement ? inputElement.value : '';
       
       // Simulate async string processing
-      await new Promise(resolve => setTimeout(resolve, 30));
+      await new Promise(resolve => setTimeout(resolve, 5000));
       
       console.log('Processed text:', text);
       
@@ -559,11 +641,65 @@
       console.log('🎨 Rendering canvas:', context);
       
       // Simulate async canvas rendering
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 5000));
       
       // Set output value
       context.setOutput(0, 'canvas rendered image data');
     };
+    
+    // Animation Controls
+    let animationsEnabled = true;
+    const animationStyleSelect = document.getElementById('animation-style');
+    const animationSpeedSelect = document.getElementById('animation-speed');
+    const toggleAnimationsBtn = document.getElementById('toggle-animations');
+    const clearTrailBtn = document.getElementById('clear-trail');
+    const resetColorsBtn = document.getElementById('reset-colors');
+    
+    // Update animation configuration
+    function updateAnimationConfig() {
+      if (flowGraph.flowGraphInstance) {
+        flowGraph.flowGraphInstance.setAnimationConfig({
+          enabled: animationsEnabled,
+          style: animationStyleSelect.value,
+          speed: animationSpeedSelect.value
+        });
+      } else {
+        console.warn('FlowGraph instance not available yet');
+      }
+    }
+    
+    // Toggle animations
+    toggleAnimationsBtn.addEventListener('click', () => {
+      animationsEnabled = !animationsEnabled;
+      toggleAnimationsBtn.textContent = animationsEnabled ? 'Disable' : 'Enable';
+      toggleAnimationsBtn.style.background = animationsEnabled 
+        ? 'linear-gradient(135deg, #7c3aed, #5b21b6)' 
+        : 'linear-gradient(135deg, #6b7280, #4b5563)';
+      updateAnimationConfig();
+    });
+    
+    // Update config when style or speed changes
+    animationStyleSelect.addEventListener('change', updateAnimationConfig);
+    animationSpeedSelect.addEventListener('change', updateAnimationConfig);
+    
+    // Clear trail button
+    clearTrailBtn.addEventListener('click', () => {
+      if (flowGraph.flowGraphInstance) {
+        flowGraph.flowGraphInstance.clearExecutionTrail();
+      }
+    });
+    
+    // Reset colors button
+    resetColorsBtn.addEventListener('click', () => {
+      if (flowGraph.flowGraphInstance) {
+        flowGraph.flowGraphInstance.resetAllEdgeColors();
+      }
+    });
+    
+    // Initialize animation config after a short delay to ensure FlowGraph is ready
+    setTimeout(() => {
+      updateAnimationConfig();
+    }, 100);
   </script>
 </body>
 </html>

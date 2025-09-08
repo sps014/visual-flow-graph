@@ -1,4 +1,4 @@
-/* FlowGraph Theme - Based on original POC */
+/* FlowGraph Theme */
 :root { 
   --fg-bg: #111827; 
   --fg-panel: #0b1220; 
@@ -10,6 +10,34 @@
   --fg-success: #10b981;
   --fg-warning: #f59e0b;
   --fg-error: #ef4444;
+  
+  /* Animation customization */
+  --fg-animation-flowing-color: #f59e0b;
+  --fg-animation-pulsing-color: #f59e0b;
+  --fg-animation-data-flow-color: #f59e0b;
+  
+  /* Animation speeds */
+  --fg-animation-speed-slow: 2.5s;
+  --fg-animation-speed-normal: 1.5s;
+  --fg-animation-speed-fast: 0.8s;
+  
+  /* Execution highlighting */
+  --fg-executing-border: #ff6b6b;
+  --fg-executing-shadow: rgba(255, 107, 107, 0.8);
+  --fg-executing-bg: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(255, 107, 107, 0.05));
+  --fg-executing-text: #ff6b6b;
+  
+  /* Trail highlighting */
+  --fg-trail-opacity: 0.8;
+  --fg-trail-stroke-width: 3px;
+  
+  /* Animation stroke widths */
+  --fg-animation-stroke-width: 4px;
+  --fg-animation-stroke-width-hover: 6px;
+  
+  /* Animation effects */
+  --fg-animation-glow-intensity: 8px;
+  --fg-animation-trail-glow-intensity: 6px;
 }
 
 /* Theme variants */
@@ -286,6 +314,7 @@ flow-graph {
 
 .interactive:hover {
   /* Ensure interactive elements show proper hover states */
+  opacity: 0.8;
 }
 
 canvas.interactive {
@@ -311,6 +340,149 @@ button.interactive:hover {
   stroke: var(--fg-accent) !important;
   stroke-width: 3px !important;
   filter: drop-shadow(0 0 4px var(--fg-accent));
+}
+
+/* ===== NODE EXECUTION HIGHLIGHTING ===== */
+.node.executing {
+  box-shadow: 0 0 20px var(--fg-executing-shadow) !important;
+  border: 2px solid var(--fg-executing-border) !important;
+  background: var(--fg-executing-bg) !important;
+}
+
+.node.executing .title {
+  color: var(--fg-executing-text) !important;
+  font-weight: bold;
+}
+
+/* Different highlighting colors for different animation styles */
+.node.executing.flowing {
+  box-shadow: 0 0 20px var(--fg-animation-flowing-color, 0.8) !important;
+  border: 2px solid var(--fg-animation-flowing-color) !important;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--fg-animation-flowing-color) 10%, transparent), color-mix(in srgb, var(--fg-animation-flowing-color) 5%, transparent)) !important;
+}
+
+.node.executing.flowing .title {
+  color: var(--fg-animation-flowing-color) !important;
+}
+
+.node.executing.pulsing {
+  box-shadow: 0 0 20px color-mix(in srgb, var(--fg-animation-pulsing-color) 80%, transparent) !important;
+  border: 2px solid var(--fg-animation-pulsing-color) !important;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--fg-animation-pulsing-color) 10%, transparent), color-mix(in srgb, var(--fg-animation-pulsing-color) 5%, transparent)) !important;
+}
+
+.node.executing.pulsing .title {
+  color: var(--fg-animation-pulsing-color) !important;
+}
+
+.node.executing.data-flow {
+  box-shadow: 0 0 20px color-mix(in srgb, var(--fg-animation-data-flow-color) 80%, transparent) !important;
+  border: 2px solid var(--fg-animation-data-flow-color) !important;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--fg-animation-data-flow-color) 10%, transparent), color-mix(in srgb, var(--fg-animation-data-flow-color) 5%, transparent)) !important;
+}
+
+.node.executing.data-flow .title {
+  color: var(--fg-animation-data-flow-color) !important;
+}
+
+/* ===== EDGE ANIMATIONS ===== */
+.edge.flowing {
+  stroke: var(--fg-animation-flowing-color) !important;
+  stroke-width: var(--fg-animation-stroke-width) !important;
+  filter: drop-shadow(0 0 var(--fg-animation-glow-intensity) var(--fg-animation-flowing-color));
+  animation: edgeFlow var(--fg-animation-speed-normal) ease-in-out infinite;
+}
+
+/* ===== EXECUTION TRAIL HIGHLIGHTING ===== */
+.edge.trail.flowing {
+  stroke: var(--fg-animation-flowing-color) !important;
+  stroke-width: var(--fg-trail-stroke-width) !important;
+  filter: drop-shadow(0 0 var(--fg-animation-trail-glow-intensity) var(--fg-animation-flowing-color));
+  opacity: var(--fg-trail-opacity);
+  /* Remove any animations for trail edges */
+  animation: none !important;
+}
+
+.edge.trail.pulsing {
+  stroke: var(--fg-animation-pulsing-color) !important;
+  stroke-width: var(--fg-trail-stroke-width) !important;
+  filter: drop-shadow(0 0 var(--fg-animation-trail-glow-intensity) var(--fg-animation-pulsing-color));
+  opacity: var(--fg-trail-opacity);
+  /* Remove any animations for trail edges */
+  animation: none !important;
+}
+
+.edge.trail.data-flow {
+  stroke: var(--fg-animation-data-flow-color) !important;
+  stroke-width: var(--fg-trail-stroke-width) !important;
+  filter: drop-shadow(0 0 var(--fg-animation-trail-glow-intensity) var(--fg-animation-data-flow-color));
+  opacity: var(--fg-trail-opacity);
+  /* Remove any animations for trail edges */
+  animation: none !important;
+}
+
+.edge.flowing-fast {
+  animation: edgeFlow var(--fg-animation-speed-fast) ease-in-out infinite;
+}
+
+.edge.flowing-slow {
+  animation: edgeFlow var(--fg-animation-speed-slow) ease-in-out infinite;
+}
+
+@keyframes edgeFlow {
+  0% {
+    stroke-dasharray: 0 20;
+    stroke-dashoffset: 0;
+    opacity: 0.6;
+  }
+  50% {
+    stroke-dasharray: 10 10;
+    stroke-dashoffset: -10;
+    opacity: 1;
+  }
+  100% {
+    stroke-dasharray: 0 20;
+    stroke-dashoffset: -20;
+    opacity: 0.6;
+  }
+}
+
+/* Alternative pulse animation */
+.edge.pulsing {
+  stroke: var(--fg-animation-pulsing-color) !important;
+  stroke-width: var(--fg-animation-stroke-width) !important;
+  filter: drop-shadow(0 0 var(--fg-animation-glow-intensity) var(--fg-animation-pulsing-color));
+  animation: edgePulse var(--fg-animation-speed-normal) ease-in-out infinite;
+}
+
+@keyframes edgePulse {
+  0%, 100% {
+    stroke-width: 2px;
+    opacity: 0.7;
+  }
+  50% {
+    stroke-width: 4px;
+    opacity: 1;
+  }
+}
+
+/* Data flow animation with moving dots */
+.edge.data-flow {
+  stroke: var(--fg-animation-data-flow-color) !important;
+  stroke-width: var(--fg-animation-stroke-width) !important;
+  filter: drop-shadow(0 0 var(--fg-animation-glow-intensity) var(--fg-animation-data-flow-color));
+  animation: dataFlow var(--fg-animation-speed-slow) linear infinite;
+}
+
+@keyframes dataFlow {
+  0% {
+    stroke-dasharray: 0 30;
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dasharray: 0 30;
+    stroke-dashoffset: -30;
+  }
 }
 
 /* ===== DRAGGING STYLES ===== */

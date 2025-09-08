@@ -19,6 +19,13 @@ A modern, declarative, HTML-based visual scripting library built with Lit web co
 
 ## 🆕 Recent Updates
 
+### v1.3.0 - CSS Cleanup & Optimization
+- **Consolidated CSS Variables**: All CSS custom properties now centralized in `theme.css`
+- **Removed Duplicates**: Eliminated duplicate CSS across components
+- **Improved Architecture**: Clear separation between global styles and component-specific styles
+- **Better Maintainability**: Single source of truth for all theming variables
+- **Optimized Bundle**: Reduced CSS duplication for smaller bundle size
+
 ### v1.2.0 - Color Patch System
 - **Flexible Color Patches**: Define node title colors directly in `flow-node-def` using `color-bg` and `color-text` attributes
 - **No Hardcoded CSS**: Each node type can have unique styling without global CSS changes
@@ -143,7 +150,6 @@ flow-graph[theme="dark"] {
   --fg-bg: #111827;                    /* Main background */
   --fg-panel: #0b1220;                 /* Panel backgrounds */
   --fg-node: #0f1724;                  /* Node backgrounds */
-  --fg-surface: #1e293b;               /* Surface elements */
   
   /* Text colors */
   --fg-text: #ffffff;                  /* Primary text */
@@ -151,39 +157,26 @@ flow-graph[theme="dark"] {
   --fg-accent: #7c3aed;                /* Accent color */
   
   /* Edge colors */
-  --fg-edge: #10b981;                  /* Connection lines */
-  --fg-edge-hover: #059669;            /* Hover state */
-  --fg-edge-selected: #7c3aed;         /* Selected edges */
+  --fg-edge: rgba(124,58,237,0.95);    /* Connection lines */
   
   /* Status colors */
   --fg-success: #10b981;               /* Success states */
   --fg-warning: #f59e0b;               /* Warning states */
   --fg-error: #ef4444;                 /* Error states */
-  
-  /* Interactive states */
-  --fg-hover: rgba(124, 58, 237, 0.1); /* Hover backgrounds */
-  --fg-active: rgba(124, 58, 237, 0.2); /* Active backgrounds */
-  --fg-selected: rgba(124, 58, 237, 0.3); /* Selection backgrounds */
 }
 
 /* Light theme example */
 flow-graph[theme="light"] {
-  --fg-bg: #ffffff;
-  --fg-panel: #f8fafc;
+  --fg-bg: #f8fafc;
+  --fg-panel: #ffffff;
   --fg-node: #ffffff;
-  --fg-surface: #e2e8f0;
-  --fg-text: #1e293b;
+  --fg-text: #1f2937;
   --fg-muted: #64748b;
-  --fg-accent: #3b82f6;
-  --fg-edge: #10b981;
-  --fg-edge-hover: #059669;
-  --fg-edge-selected: #3b82f6;
+  --fg-accent: #7c3aed;
+  --fg-edge: rgba(124,58,237,0.95);
   --fg-success: #10b981;
   --fg-warning: #f59e0b;
   --fg-error: #ef4444;
-  --fg-hover: rgba(59, 130, 246, 0.1);
-  --fg-active: rgba(59, 130, 246, 0.2);
-  --fg-selected: rgba(59, 130, 246, 0.3);
 }
 ```
 
@@ -281,12 +274,12 @@ FlowGraph supports flexible color patches defined directly in node definitions u
 }
 
 .connection:hover {
-  stroke: var(--fg-edge-hover);
+  stroke: var(--fg-accent);
   stroke-width: 3;
 }
 
 .connection.selected {
-  stroke: var(--fg-edge-selected);
+  stroke: var(--fg-accent);
   stroke-width: 3;
   filter: drop-shadow(0 0 4px currentColor);
 }
@@ -294,25 +287,8 @@ FlowGraph supports flexible color patches defined directly in node definitions u
 
 #### Context Menu Styling
 ```css
-/* Socket context menu (regular DOM) */
-.socket-context-menu {
-  background: var(--fg-panel);
-  border: 1px solid var(--fg-muted);
-  border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.context-menu-item {
-  color: var(--fg-text);
-  transition: all 0.2s ease;
-}
-
-.context-menu-item:hover {
-  background: var(--fg-accent);
-  color: white;
-}
-
-/* Viewport context menu uses Shadow DOM - styles defined in component */
+/* Note: Context menu styles are defined in their respective components due to Shadow DOM */
+/* The flow-context-menu component handles its own styling using theme variables */
 ```
 
 ### Interactive Elements Styling

@@ -14,53 +14,7 @@ export class FlowGraphElement extends LitElement {
   
   static styles = css`
     :host {
-      display: block;
-      position: relative;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: 
-        /* Main grid lines */
-        linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px),
-        /* Minor grid lines */
-        linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px);
-      background-size: 
-        50px 50px,  /* Main grid */
-        50px 50px,  /* Main grid */
-        10px 10px,  /* Minor grid */
-        10px 10px;  /* Minor grid */
-      background-position: 
-        0 0,        /* Main grid */
-        0 0,        /* Main grid */
-        0 0,        /* Minor grid */
-        0 0;        /* Minor grid */
-      transform-origin: 0px 0px;
-    }
-    
-    :host([theme="dark"]) {
-      --fg-bg: #111827;
-      --fg-panel: #0b1220;
-      --fg-node: #0f1724;
-      --fg-accent: #7c3aed;
-      --fg-muted: #94a3b8;
-      --fg-edge: rgba(124,58,237,0.95);
-      --fg-success: #10b981;
-      --fg-warning: #f59e0b;
-      --fg-error: #ef4444;
-    }
-    
-    :host([theme="light"]) {
-      --fg-bg: #f8fafc;
-      --fg-panel: #ffffff;
-      --fg-node: #ffffff;
-      --fg-accent: #7c3aed;
-      --fg-muted: #64748b;
-      --fg-edge: rgba(124,58,237,0.95);
-      --fg-success: #10b981;
-      --fg-warning: #f59e0b;
-      --fg-error: #ef4444;
+      /* All styles are now handled by theme.css */
     }
   `;
   

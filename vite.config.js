@@ -5,13 +5,14 @@ export default defineConfig({
     lib: {
       entry: 'src/index.js',
       name: 'FlowGraph',
-      fileName: 'flowgraph',
+      fileName: 'flowgraph.es',
       formats: ['es']
     },
     rollupOptions: {
       // Don't externalize Lit - bundle it all together
       external: [],
       output: {
+        assetFileNames: 'flowgraph.css',
         globals: {
           'lit': 'Lit',
           'lit/': 'Lit',

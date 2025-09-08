@@ -1,6 +1,11 @@
 import { Node } from './Node.js';
 import { Edge } from './Edge.js';
 import { Viewport } from './Viewport.js';
+import { FlowGraphAnimations } from './FlowGraphAnimations.js';
+import { FlowGraphExecution } from './FlowGraphExecution.js';
+import { FlowGraphSelection } from './FlowGraphSelection.js';
+import { FlowGraphConnections } from './FlowGraphConnections.js';
+import { FlowGraphDrag } from './FlowGraphDrag.js';
 
 export class FlowGraph extends EventTarget {
   constructor(container) {
@@ -10,19 +15,6 @@ export class FlowGraph extends EventTarget {
     this.nodes = new Map();
     this.edges = new Map();
     this.templates = new Map();
-    this.selection = new Set();
-    
-    // Animation configuration
-    this.animationConfig = {
-      enabled: true,
-      style: 'flowing', // 'flowing', 'pulsing', 'data-flow'
-      speed: 'normal', // 'slow', 'normal', 'fast'
-      duration: 1000 // Base duration for animations
-    };
-    
-    // Branch tracking system for conditional execution
-    this.activeOutputs = new Map(); // nodeId -> Set of active output indices
-    this.activeInputs = new Map(); // nodeId -> Set of active input indices
     
     // Create surface elements
     this.surface = document.createElement('div');
@@ -81,12 +73,12 @@ export class FlowGraph extends EventTarget {
     // Initialize viewport with content container
     this.viewport = new Viewport(this.surface, this.contentContainer, this);
     
-    // Connection state
-    this.connectionState = {
-      active: false,
-      fromSocket: null,
-      toSocket: null
-    };
+    // Initialize modular components
+    this.animations = new FlowGraphAnimations(this);
+    this.execution = new FlowGraphExecution(this);
+    this.selection = new FlowGraphSelection(this);
+    this.connections = new FlowGraphConnections(this);
+    this.drag = new FlowGraphDrag(this);
     
     this.init();
   }
@@ -96,16 +88,14 @@ export class FlowGraph extends EventTarget {
   }
   
   setupEventListeners() {
-    // Socket connection handling
-    this.container.addEventListener('pointerdown', this.handleSocketPointerDown.bind(this));
-    this.container.addEventListener('pointermove', this.handleSocketPointerMove.bind(this));
-    this.container.addEventListener('pointerup', this.handleSocketPointerUp.bind(this));
+    // Delegate to modular components
+    this.connections.setupEventListeners();
     
     // Clear selection when clicking on empty space
     this.surface.addEventListener('click', (e) => {
       // Only clear if clicking directly on surface (not on nodes)
       if (e.target === this.surface) {
-        this.clearSelection();
+        this.selection.clearSelection();
       }
     });
     
@@ -113,158 +103,19 @@ export class FlowGraph extends EventTarget {
     this.container.addEventListener('contextmenu', (e) => e.preventDefault());
   }
   
-  handleSocketPointerDown(e) {
-    const socket = e.target.closest('.socket');
-    if (!socket) return;
-    
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const nodeElement = socket.closest('.node');
-    const nodeId = nodeElement?.dataset.id;
-    const socketId = socket.dataset.sock;
-    
-    if (!nodeId || !socketId) return;
-    
-    const node = this.nodes.get(nodeId);
-    const socketObj = node?.getSocket(socketId);
-    
-    if (!socketObj) return;
-    
-    this.connectionState.active = true;
-    this.connectionState.fromSocket = socketObj;
-    
-    // Add visual feedback
-    socket.classList.add('socket-active');
-    
-    // Show temp path
-    this.tempPath.style.display = 'block';
-    this.updateTempPath(e.clientX, e.clientY);
-  }
+  // ===== DELEGATION METHODS =====
   
-  handleSocketPointerMove(e) {
-    if (!this.connectionState.active) return;
-    
-    this.updateTempPath(e.clientX, e.clientY);
-    
-    // Check for socket hover
-    const socket = e.target.closest('.socket');
-    if (socket && socket !== this.connectionState.fromSocket?.element) {
-      const nodeElement = socket.closest('.node');
-      const nodeId = nodeElement?.dataset.id;
-      const socketId = socket.dataset.sock;
-      
-      if (nodeId && socketId) {
-        const node = this.nodes.get(nodeId);
-        const socketObj = node?.getSocket(socketId);
-        
-        if (socketObj && this.canConnect(this.connectionState.fromSocket, socketObj)) {
-          socket.classList.add('socket-hover');
-          this.connectionState.toSocket = socketObj;
-        } else {
-          socket.classList.remove('socket-hover');
-          this.connectionState.toSocket = null;
-        }
-      }
-    } else {
-      // Remove hover from all sockets
-      this.container.querySelectorAll('.socket-hover').forEach(s => {
-        s.classList.remove('socket-hover');
-      });
-      this.connectionState.toSocket = null;
-    }
-  }
-  
-  handleSocketPointerUp(e) {
-    if (!this.connectionState.active) return;
-    
-    // Clean up visual feedback
-    this.container.querySelectorAll('.socket-active').forEach(s => {
-      s.classList.remove('socket-active');
-    });
-    this.container.querySelectorAll('.socket-hover').forEach(s => {
-      s.classList.remove('socket-hover');
-    });
-    
-    this.tempPath.style.display = 'none';
-    
-    // Create connection if valid
-    if (this.connectionState.fromSocket && this.connectionState.toSocket) {
-      this.createEdge(this.connectionState.fromSocket, this.connectionState.toSocket);
-    }
-    
-    // Reset state
-    this.connectionState.active = false;
-    this.connectionState.fromSocket = null;
-    this.connectionState.toSocket = null;
-  }
-  
-  updateTempPath(clientX, clientY) {
-    if (!this.connectionState.fromSocket) return;
-    
-    const fromSocket = this.connectionState.fromSocket;
-    const fromPos = this.getSocketPosition(fromSocket);
-    
-    // Convert client coordinates to surface coordinates
-    const surfaceRect = this.surface.getBoundingClientRect();
-    const toX = (clientX - surfaceRect.left - this.viewport.x) / this.viewport.scale;
-    const toY = (clientY - surfaceRect.top - this.viewport.y) / this.viewport.scale;
-    
-    const path = this.createCubicPath(fromPos, { x: toX, y: toY }, fromSocket);
-    this.tempPath.setAttribute('d', path);
+  // Connection methods
+  canConnect(fromSocket, toSocket) {
+    return this.connections.canConnect(fromSocket, toSocket);
   }
   
   getSocketPosition(socket) {
-    const element = socket.element;
-    const rect = element.getBoundingClientRect();
-    const surfaceRect = this.surface.getBoundingClientRect();
-    
-    const x = (rect.left + rect.width / 2 - surfaceRect.left - this.viewport.x) / this.viewport.scale;
-    const y = (rect.top + rect.height / 2 - surfaceRect.top - this.viewport.y) / this.viewport.scale;
-    
-    return { x, y };
+    return this.connections.getSocketPosition(socket);
   }
   
-  createCubicPath(from, to, fromSocket = null, toSocket = null) {
-    const dx = to.x - from.x;
-    const dy = to.y - from.y;
-    const dist = Math.hypot(dx, dy);
-    const offset = Math.min(200, dist * 0.5);
-    
-    let c1, c2;
-    
-    if (fromSocket) {
-      const isOutput = fromSocket.type === 'output';
-      if (isOutput) {
-        c1 = { x: from.x + offset, y: from.y };
-        c2 = { x: to.x - offset, y: to.y };
-      } else {
-        c1 = { x: from.x - offset, y: from.y };
-        c2 = { x: to.x + offset, y: to.y };
-      }
-    } else {
-      c1 = { x: from.x + offset, y: from.y };
-      c2 = { x: to.x - offset, y: to.y };
-    }
-    
-    return `M ${from.x} ${from.y} C ${c1.x} ${c1.y}, ${c2.x} ${c2.y}, ${to.x} ${to.y}`;
-  }
-  
-  canConnect(fromSocket, toSocket) {
-    if (!fromSocket || !toSocket) return false;
-    if (fromSocket === toSocket) return false;
-    if (fromSocket.node === toSocket.node) return false;
-    if (fromSocket.type === toSocket.type) return false;
-    
-    // Check if connection already exists
-    for (const edge of this.edges.values()) {
-      if ((edge.fromSocket === fromSocket && edge.toSocket === toSocket) ||
-          (edge.fromSocket === toSocket && edge.toSocket === fromSocket)) {
-        return false;
-      }
-    }
-    
-    return true;
+  createCubicPath(from, to, fromSocket, toSocket) {
+    return this.connections.createCubicPath(from, to, fromSocket, toSocket);
   }
   
   addNodeTemplate(name, template) {
@@ -405,159 +256,6 @@ export class FlowGraph extends EventTarget {
     }
   }
   
-  // ===== MULTI-DRAG SYSTEM =====
-  
-  /**
-   * Start multi-drag operation
-   */
-  startMultiDrag(e, draggedNode) {
-    this.multiDragState = {
-      active: true,
-      draggedNode: draggedNode,
-      startX: e.clientX,
-      startY: e.clientY,
-      initialPositions: new Map()
-    };
-    
-    // Store initial positions of all selected nodes and add dragging class
-    for (const nodeId of this.selection) {
-      const node = this.nodes.get(nodeId);
-      if (node) {
-        this.multiDragState.initialPositions.set(nodeId, {
-          x: node.x,
-          y: node.y
-        });
-        // Add dragging class to all selected nodes
-        node.element.classList.add('dragging');
-      }
-    }
-  }
-  
-  /**
-   * Update multi-drag operation
-   */
-  updateMultiDrag(e) {
-    if (!this.multiDragState || !this.multiDragState.active) return;
-    
-    const deltaX = e.clientX - this.multiDragState.startX;
-    const deltaY = e.clientY - this.multiDragState.startY;
-    
-    // Convert screen delta to world delta
-    const worldDeltaX = deltaX / this.viewport.scale;
-    const worldDeltaY = deltaY / this.viewport.scale;
-    
-    // Update all selected nodes
-    for (const nodeId of this.selection) {
-      const node = this.nodes.get(nodeId);
-      if (node) {
-        const initialPos = this.multiDragState.initialPositions.get(nodeId);
-        const newX = initialPos.x + worldDeltaX;
-        const newY = initialPos.y + worldDeltaY;
-        
-        // Update position without firing events (we'll fire one batch event)
-        node.x = newX;
-        node.y = newY;
-        node.element.style.left = newX + 'px';
-        node.element.style.top = newY + 'px';
-      }
-    }
-    
-    // Update edges for all moved nodes
-    requestAnimationFrame(() => {
-      for (const nodeId of this.selection) {
-        const node = this.nodes.get(nodeId);
-        if (node) {
-          this.updateEdgesForNode(node);
-        }
-      }
-    });
-  }
-  
-  /**
-   * End multi-drag operation
-   */
-  endMultiDrag() {
-    if (!this.multiDragState || !this.multiDragState.active) return;
-    
-    // Fire move events for all moved nodes and remove dragging class
-    for (const nodeId of this.selection) {
-      const node = this.nodes.get(nodeId);
-      if (node) {
-        const initialPos = this.multiDragState.initialPositions.get(nodeId);
-        this.container.dispatchEvent(new CustomEvent('node:move', {
-          detail: { 
-            nodeId: node.id, 
-            node: node, 
-            oldPosition: initialPos,
-            newPosition: { x: node.x, y: node.y }
-          }
-        }));
-        // Remove dragging class
-        node.element.classList.remove('dragging');
-      }
-    }
-    
-    this.multiDragState = null;
-  }
-  
-  /**
-   * Select a node
-   */
-  selectNode(nodeId, addToSelection = false) {
-    const node = this.nodes.get(nodeId);
-    if (!node) return;
-    
-    if (!addToSelection) {
-      this.clearSelection();
-    }
-    
-    this.selection.add(nodeId);
-    node.setSelected(true);
-    
-    this.container.dispatchEvent(new CustomEvent('node:select', {
-      detail: { nodeId, node, selection: Array.from(this.selection) }
-    }));
-  }
-  
-  /**
-   * Deselect a node
-   */
-  deselectNode(nodeId) {
-    const node = this.nodes.get(nodeId);
-    if (!node) return;
-    
-    this.selection.delete(nodeId);
-    node.setSelected(false);
-    
-    this.container.dispatchEvent(new CustomEvent('node:deselect', {
-      detail: { nodeId, node, selection: Array.from(this.selection) }
-    }));
-  }
-  
-  /**
-   * Clear all selections
-   */
-  clearSelection() {
-    const previousSelection = Array.from(this.selection);
-    
-    this.selection.forEach(nodeId => {
-      const node = this.nodes.get(nodeId);
-      if (node) node.setSelected(false);
-    });
-    
-    this.selection.clear();
-    
-    this.container.dispatchEvent(new CustomEvent('selection:clear', {
-      detail: { previousSelection }
-    }));
-  }
-  
-  /**
-   * Get current selection
-   */
-  getSelection() {
-    return Array.from(this.selection);
-  }
   
   /**
    * Move a node and fire event
@@ -638,585 +336,112 @@ export class FlowGraph extends EventTarget {
   }
   
   
-  /**
-   * Execute all nodes in the graph in dependency order
-   */
+  // Execution methods
   async execute() {
-    // Fire start event
-    this.container.dispatchEvent(new CustomEvent('graph:execute:start', {
-      detail: { timestamp: Date.now() }
-    }));
-    
-    // Clear previous execution trail
-    this.clearExecutionTrail();
-    this.clearBranchTracking();
-    
-    // Get execution order based on dependencies
-    const executionOrder = this.getExecutionOrder();
-    
-    if (executionOrder.length === 0) {
-      this.container.dispatchEvent(new CustomEvent('graph:execute:complete', {
-        detail: { executedNodes: 0, timestamp: Date.now() }
-      }));
-      return;
-    }
-    
-    let executedCount = 0;
-    const activeAnimations = new Set();
-    
-    // Execute nodes in order
-    let executionError = null;
-    
-    for (const nodeId of executionOrder) {
-      const node = this.nodes.get(nodeId);
-      if (node && node.template && node.template.onExecute) {
-        // Check if node should execute based on active branches
-        const shouldExecute = this.shouldNodeExecute(nodeId);
-        if (!shouldExecute) {
-          continue;
-        }
-        
-        try {
-          // Highlight the executing node
-          this.highlightExecutingNode(node, true);
-          
-          // Start animations for edges connected to this node's inputs
-          if (this.animationConfig.enabled) {
-            this.startNodeAnimations(node, activeAnimations);
-          }
-          
-          await node.execute();
-          executedCount++;
-          
-          // Stop animations for this node's incoming edges after execution
-          if (this.animationConfig.enabled) {
-            this.stopNodeAnimations(node, activeAnimations);
-          }
-          
-          // Remove highlighting from the executed node
-          this.highlightExecutingNode(node, false);
-        } catch (error) {
-          console.error(`Error executing node ${nodeId}:`, error);
-          executionError = error;
-          
-          // Remove highlighting from failed node
-          this.highlightExecutingNode(node, false);
-          
-          // Stop all animations on error
-          if (this.animationConfig.enabled) {
-            this.stopAllAnimations(activeAnimations);
-          }
-          break; // Stop execution on first failure
-        }
-      }
-    }
-    
-    // Stop any remaining animations and clear all highlighting
-    if (this.animationConfig.enabled) {
-      this.stopAllAnimations(activeAnimations);
-    }
-    
-    // Clear any remaining node highlighting
-    this.clearAllNodeHighlighting();
-    
-    // Reset all edge colors to default after execution completes
-    this.resetAllEdgeColors();
-    
-    // Fire complete event
-    this.container.dispatchEvent(new CustomEvent('graph:execute:complete', {
-      detail: { 
-        executedNodes: executedCount,
-        totalNodes: executionOrder.length,
-        error: executionError,
-        timestamp: Date.now()
-      }
-    }));
-    
-    // Re-throw error if execution failed
-    if (executionError) {
-      throw executionError;
-    }
+    return this.execution.execute();
   }
   
-  /**
-   * Configure edge animations during execution
-   */
-  setAnimationConfig(config) {
-    this.animationConfig = { ...this.animationConfig, ...config };
-  }
-  
-  /**
-   * Highlight or unhighlight a node during execution
-   */
-  highlightExecutingNode(node, isExecuting) {
-    if (!node.element) return;
-    
-    if (isExecuting) {
-      node.element.classList.add('executing');
-      // Add animation style class for color coordination
-      const { style } = this.animationConfig;
-      if (style) {
-        node.element.classList.add(style);
-      }
-    } else {
-      node.element.classList.remove('executing', 'flowing', 'pulsing', 'data-flow');
-    }
-  }
-  
-  /**
-   * Clear all node highlighting
-   */
-  clearAllNodeHighlighting() {
-    this.nodes.forEach(node => {
-      if (node.element) {
-        node.element.classList.remove('executing', 'flowing', 'pulsing', 'data-flow');
-      }
-    });
-  }
-  
-  /**
-   * Add edge to execution trail
-   */
-  addToExecutionTrail(edge) {
-    if (!edge.element) return;
-    
-    const { style } = this.animationConfig;
-    
-    // Remove all animation classes first
-    edge.element.classList.remove('flowing', 'flowing-fast', 'flowing-slow', 'pulsing', 'data-flow');
-    
-    // Add trail and color classes (no animations)
-    edge.element.classList.add('trail');
-    if (style) {
-      edge.element.classList.add(style);
-    }
-  }
-  
-  /**
-   * Clear execution trail
-   */
-  clearExecutionTrail() {
-    this.edges.forEach(edge => {
-      if (edge.element) {
-        edge.element.classList.remove('trail', 'flowing', 'flowing-fast', 'flowing-slow', 'pulsing', 'data-flow');
-      }
-    });
-  }
-  
-  /**
-   * Reset all edge colors to default
-   */
-  resetAllEdgeColors() {
-    this.edges.forEach(edge => {
-      if (edge.element) {
-        // Remove all animation and trail classes
-        edge.element.classList.remove('trail', 'flowing', 'flowing-fast', 'flowing-slow', 'pulsing', 'data-flow');
-        
-        // Reset to default edge styling
-        edge.element.setAttribute('stroke', '#10b981'); // Default green color
-        edge.element.setAttribute('stroke-width', '2.5'); // Default stroke width
-        edge.element.style.filter = 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'; // Default shadow
-        edge.element.style.opacity = '1'; // Reset opacity
-      }
-    });
-  }
-  
-  /**
-   * Activate an output socket (called when setOutput is used)
-   */
-  activateOutputSocket(nodeId, outputIndex) {
-    if (!this.activeOutputs.has(nodeId)) {
-      this.activeOutputs.set(nodeId, new Set());
-    }
-    this.activeOutputs.get(nodeId).add(outputIndex);
-    // Mark connected input sockets as active
-    this.markConnectedInputsAsActive(nodeId, outputIndex);
-  }
-  
-  /**
-   * Mark input sockets connected to an active output as active
-   */
-  markConnectedInputsAsActive(nodeId, outputIndex) {
-    const node = this.nodes.get(nodeId);
-    if (!node) return;
-    
-    const outputArray = Array.from(node.outputs.values());
-    const outputSocket = outputArray[outputIndex];
-    if (!outputSocket) return;
-    
-    // Find all edges connected to this output
-    outputSocket.connections.forEach(edge => {
-      if (edge.toSocket) {
-        const targetNodeId = edge.toSocket.node.id;
-        const inputIndex = this.getInputSocketIndex(edge.toSocket);
-        
-        if (!this.activeInputs.has(targetNodeId)) {
-          this.activeInputs.set(targetNodeId, new Set());
-        }
-        this.activeInputs.get(targetNodeId).add(inputIndex);
-      }
-    });
-  }
-  
-  /**
-   * Get the index of an input socket within its node
-   */
-  getInputSocketIndex(socket) {
-    const inputArray = Array.from(socket.node.inputs.values());
-    return inputArray.indexOf(socket);
-  }
-  
-  /**
-   * Get the index of an output socket within its node
-   */
-  getOutputSocketIndex(socket) {
-    const outputArray = Array.from(socket.node.outputs.values());
-    return outputArray.indexOf(socket);
-  }
-  
-  /**
-   * Check if a node should execute based on active branches
-   */
-  shouldNodeExecute(nodeId) {
-    const node = this.nodes.get(nodeId);
-    if (!node) return false;
-    
-    // If node has no input sockets, it can execute
-    if (node.inputs.size === 0) {
-      return true;
-    }
-    
-    // Check if any input socket is active
-    const activeInputs = this.activeInputs.get(nodeId) || new Set();
-    return activeInputs.size > 0;
-  }
-  
-  /**
-   * Clear all branch tracking (called at start of execution)
-   */
-  clearBranchTracking() {
-    this.activeOutputs.clear();
-    this.activeInputs.clear();
-  }
-  
-  /**
-   * Check if a node has received any input values (legacy method - keeping for compatibility)
-   */
-  nodeHasInputValues(node) {
-    return this.shouldNodeExecute(node.id);
-  }
-  
-  /**
-   * Start animations for edges connected to a node's inputs
-   */
-  startNodeAnimations(node, activeAnimations) {
-    node.inputs.forEach(inputSocket => {
-      inputSocket.connections.forEach(edge => {
-        if (!activeAnimations.has(edge.id)) {
-          this.startEdgeAnimation(edge);
-          activeAnimations.add(edge.id);
-        }
-      });
-    });
-  }
-  
-  /**
-   * Stop animations for edges connected to a node's inputs
-   */
-  stopNodeAnimations(node, activeAnimations) {
-    // Stop animations for all incoming edges that were animated
-    node.inputs.forEach(inputSocket => {
-      inputSocket.connections.forEach(edge => {
-        if (activeAnimations.has(edge.id)) {
-          this.stopEdgeAnimation(edge);
-          // Mark edge as part of execution trail
-          this.addToExecutionTrail(edge);
-          activeAnimations.delete(edge.id);
-        }
-      });
-    });
-  }
-  
-  /**
-   * Start animation for a specific edge
-   */
-  startEdgeAnimation(edge) {
-    const { style, speed } = this.animationConfig;
-    
-    switch (style) {
-      case 'flowing':
-        edge.startFlow(speed);
-        break;
-      case 'pulsing':
-        edge.startPulse();
-        break;
-      case 'data-flow':
-        edge.startDataFlow();
-        break;
-      default:
-        edge.startFlow(speed);
-    }
-  }
-  
-  /**
-   * Stop animation for a specific edge
-   */
-  stopEdgeAnimation(edge) {
-    edge.stopAnimation();
-  }
-  
-  /**
-   * Stop all active animations
-   */
-  stopAllAnimations(activeAnimations) {
-    activeAnimations.forEach(edgeId => {
-      const edge = this.edges.get(edgeId);
-      if (edge) {
-        edge.stopAnimation();
-      }
-    });
-    activeAnimations.clear();
-  }
-  
-  /**
-   * Get execution order using topological sort
-   */
-  getExecutionOrder() {
-    const visited = new Set();
-    const visiting = new Set();
-    const result = [];
-    
-    // Build dependency graph
-    const dependencies = new Map();
-    
-    // Initialize dependencies for all nodes
-    this.nodes.forEach((node, nodeId) => {
-      dependencies.set(nodeId, new Set());
-    });
-    
-    // Add dependencies based on edges
-    this.edges.forEach(edge => {
-      const fromNodeId = edge.fromSocket.node.id;
-      const toNodeId = edge.toSocket.node.id;
-      dependencies.get(toNodeId).add(fromNodeId);
-    });
-    
-    // Topological sort
-    const visit = (nodeId) => {
-      if (visiting.has(nodeId)) {
-        console.warn(`Circular dependency detected involving node ${nodeId}`);
-        return;
-      }
-      
-      if (visited.has(nodeId)) {
-        return;
-      }
-      
-      visiting.add(nodeId);
-      
-      // Visit all dependencies first
-      const deps = dependencies.get(nodeId) || new Set();
-      for (const depId of deps) {
-        visit(depId);
-      }
-      
-      visiting.delete(nodeId);
-      visited.add(nodeId);
-      
-      // Only add nodes that have onExecute methods
-      const node = this.nodes.get(nodeId);
-      if (node && node.template && node.template.onExecute) {
-        result.push(nodeId);
-      }
-    };
-    
-    // Visit all nodes
-    this.nodes.forEach((node, nodeId) => {
-      if (!visited.has(nodeId)) {
-        visit(nodeId);
-      }
-    });
-    
-    return result;
-  }
-  
-  /**
-   * Execute all selected nodes
-   */
   async executeSelectedNodes() {
-    if (this.selection.size === 0) {
-      return;
-    }
-    
-    const selectedNodes = Array.from(this.selection);
-    
-    // Execute nodes in parallel
-    const executionPromises = selectedNodes.map(nodeId => {
-      const node = this.nodes.get(nodeId);
-      if (node) {
-        return node.execute();
-      }
-      return Promise.resolve();
-    });
-    
-    try {
-      await Promise.all(executionPromises);
-    } catch (error) {
-      console.error('Error executing selected nodes:', error);
-    }
+    return this.execution.executeSelectedNodes();
   }
   
-  // Keyboard shortcut methods
+  activateOutputSocket(nodeId, outputIndex) {
+    return this.execution.activateOutputSocket(nodeId, outputIndex);
+  }
+  
+  shouldNodeExecute(nodeId) {
+    return this.execution.shouldNodeExecute(nodeId);
+  }
+  
+  clearBranchTracking() {
+    return this.execution.clearBranchTracking();
+  }
+  
+  nodeHasInputValues(node) {
+    return this.execution.nodeHasInputValues(node);
+  }
+  
+  // Animation methods
+  setAnimationConfig(config) {
+    return this.animations.setAnimationConfig(config);
+  }
+  
+  highlightExecutingNode(node, isExecuting) {
+    return this.animations.highlightExecutingNode(node, isExecuting);
+  }
+  
+  clearAllNodeHighlighting() {
+    return this.animations.clearAllNodeHighlighting();
+  }
+  
+  addToExecutionTrail(edge) {
+    return this.animations.addToExecutionTrail(edge);
+  }
+  
+  clearExecutionTrail() {
+    return this.animations.clearExecutionTrail();
+  }
+  
+  resetAllEdgeColors() {
+    return this.animations.resetAllEdgeColors();
+  }
+
+  animateOutputEdges(node, outputSocketNames, activeAnimations) {
+    return this.animations.animateOutputEdges(node, outputSocketNames, activeAnimations);
+  }
+  
+  setTrailDuration(duration) {
+    return this.animations.setTrailDuration(duration);
+  }
+  
+  getTrailDuration() {
+    return this.animations.getTrailDuration();
+  }
+  
+  // Selection methods
+  selectNode(nodeId, addToSelection = false) {
+    return this.selection.selectNode(nodeId, addToSelection);
+  }
+  
+  deselectNode(nodeId) {
+    return this.selection.deselectNode(nodeId);
+  }
+  
+  clearSelection() {
+    return this.selection.clearSelection();
+  }
+  
+  getSelection() {
+    return this.selection.getSelection();
+  }
+  
   selectAllNodes() {
-    this.clearSelection();
-    this.nodes.forEach((node, nodeId) => {
-      this.selection.add(nodeId);
-      node.setSelected(true);
-    });
-    
-    this.container.dispatchEvent(new CustomEvent('selection:change', {
-      detail: { selectedNodes: Array.from(this.selection) }
-    }));
+    return this.selection.selectAllNodes();
   }
   
   deleteSelectedNodes() {
-    if (this.selection.size === 0) return;
-    
-    const selectedNodes = Array.from(this.selection);
-    
-    // Delete edges connected to selected nodes first
-    const edgesToDelete = [];
-    this.edges.forEach((edge, edgeId) => {
-      if (selectedNodes.includes(edge.fromNodeId) || selectedNodes.includes(edge.toNodeId)) {
-        edgesToDelete.push(edgeId);
-      }
-    });
-    
-    edgesToDelete.forEach(edgeId => {
-      this.removeEdge(edgeId);
-    });
-    
-    // Delete selected nodes
-    selectedNodes.forEach(nodeId => {
-      this.removeNode(nodeId);
-    });
-    
-    this.clearSelection();
-    
-    // Dispatch bulk delete event
-    this.container.dispatchEvent(new CustomEvent('nodes:delete', {
-      detail: { deletedNodes: selectedNodes, deletedEdges: edgesToDelete }
-    }));
+    return this.selection.deleteSelectedNodes();
   }
   
   copySelectedNodes() {
-    if (this.selection.size === 0) return;
-    
-    const selectedNodes = Array.from(this.selection);
-    const copyData = {
-      nodes: [],
-      edges: [],
-      timestamp: Date.now()
-    };
-    
-    // Collect node data (just type and position)
-    selectedNodes.forEach(nodeId => {
-      const node = this.nodes.get(nodeId);
-      if (node) {
-        copyData.nodes.push({
-          id: node.id,
-          type: node.type,
-          x: node.x,
-          y: node.y
-        });
-      }
-    });
-    
-    // Collect edge data for connections between selected nodes
-    this.edges.forEach((edge, edgeId) => {
-      if (selectedNodes.includes(edge.fromNodeId) && selectedNodes.includes(edge.toNodeId)) {
-        copyData.edges.push({
-          id: edgeId,
-          fromNodeId: edge.fromNodeId,
-          fromSocketId: edge.fromSocketId,
-          toNodeId: edge.toNodeId,
-          toSocketId: edge.toSocketId
-        });
-      }
-    });
-    
-    // Store in clipboard
-    this.clipboard = copyData;
-    
-    this.container.dispatchEvent(new CustomEvent('nodes:copy', {
-      detail: { copiedNodes: selectedNodes, copyData }
-    }));
-    
+    return this.selection.copySelectedNodes();
   }
   
   pasteNodes() {
-    if (!this.clipboard || !this.clipboard.nodes.length) {
-      return;
-    }
-    
-    const pasteOffset = { x: 20, y: 20 }; // Offset for pasted nodes
-    const newNodes = [];
-    const nodeIdMap = new Map(); // Map old IDs to new IDs
-    
-    // Clear current selection
-    this.clearSelection();
-    
-    // Create new nodes
-    this.clipboard.nodes.forEach(nodeData => {
-      const newNodeId = `node_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      nodeIdMap.set(nodeData.id, newNodeId);
-      
-      try {
-        const newNode = this.addNode(nodeData.type, {
-          id: newNodeId,
-          x: nodeData.x + pasteOffset.x,
-          y: nodeData.y + pasteOffset.y
-        });
-        
-        if (newNode) {
-          newNodes.push(newNode);
-          this.selection.add(newNodeId);
-          newNode.setSelected(true);
-        }
-      } catch (error) {
-        console.warn(`Could not paste node of type ${nodeData.type}:`, error.message);
-      }
-    });
-    
-    // Create new edges with updated node IDs
-    this.clipboard.edges.forEach(edgeData => {
-      const newFromNodeId = nodeIdMap.get(edgeData.fromNodeId);
-      const newToNodeId = nodeIdMap.get(edgeData.toNodeId);
-      
-      if (newFromNodeId && newToNodeId) {
-        const fromNode = this.nodes.get(newFromNodeId);
-        const toNode = this.nodes.get(newToNodeId);
-        
-        if (fromNode && toNode) {
-          const fromSocket = fromNode.outputs.get(edgeData.fromSocketId);
-          const toSocket = toNode.inputs.get(edgeData.toSocketId);
-          
-          if (fromSocket && toSocket && fromSocket.canConnect(toSocket)) {
-            this.createEdge({
-              fromNodeId: newFromNodeId,
-              fromSocketId: edgeData.fromSocketId,
-              toNodeId: newToNodeId,
-              toSocketId: edgeData.toSocketId
-            });
-          }
-        }
-      }
-    });
-    
-    this.container.dispatchEvent(new CustomEvent('nodes:paste', {
-      detail: { pastedNodes: newNodes.map(n => n.id), nodeIdMap: Object.fromEntries(nodeIdMap) }
-    }));
-    
+    return this.selection.pasteNodes();
+  }
+  
+  // Drag methods
+  startMultiDrag(e, draggedNode) {
+    return this.drag.startMultiDrag(e, draggedNode);
+  }
+  
+  updateMultiDrag(e) {
+    return this.drag.updateMultiDrag(e);
+  }
+  
+  endMultiDrag() {
+    return this.drag.endMultiDrag();
   }
   
   

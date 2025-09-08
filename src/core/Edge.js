@@ -49,23 +49,17 @@ export class Edge {
   }
   
   setAnimation(animationType, speed = 'normal') {
-    console.log(`🎬 Edge ${this.id}: Setting animation ${animationType} with speed ${speed}`);
-    
     // Remove all animation classes
     this.element.classList.remove('flowing', 'flowing-fast', 'flowing-slow', 'pulsing', 'data-flow');
     
     if (animationType) {
       this.element.classList.add(animationType);
-      console.log(`🎬 Edge ${this.id}: Added class ${animationType}`);
       
       // Add speed modifier if applicable
       if (animationType === 'flowing' && speed !== 'normal') {
         this.element.classList.add(`flowing-${speed}`);
-        console.log(`🎬 Edge ${this.id}: Added speed class flowing-${speed}`);
       }
     }
-    
-    console.log(`🎬 Edge ${this.id}: Current classes:`, this.element.className);
   }
   
   startFlow(speed = 'normal') {

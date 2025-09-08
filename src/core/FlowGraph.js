@@ -673,7 +673,6 @@ export class FlowGraph extends EventTarget {
         // Check if node should execute based on active branches
         const shouldExecute = this.shouldNodeExecute(nodeId);
         if (!shouldExecute) {
-          console.log(`⏭️ Skipping node ${nodeId} - no active input branches`);
           continue;
         }
         
@@ -681,7 +680,7 @@ export class FlowGraph extends EventTarget {
           // Highlight the executing node
           this.highlightExecutingNode(node, true);
           
-          // Start animations for edges connected to this node's outputs
+          // Start animations for edges connected to this node's inputs
           if (this.animationConfig.enabled) {
             this.startNodeAnimations(node, activeAnimations);
           }
@@ -689,7 +688,7 @@ export class FlowGraph extends EventTarget {
           await node.execute();
           executedCount++;
           
-          // Stop animations for this node's edges after execution
+          // Stop animations for this node's incoming edges after execution
           if (this.animationConfig.enabled) {
             this.stopNodeAnimations(node, activeAnimations);
           }
@@ -759,10 +758,8 @@ export class FlowGraph extends EventTarget {
       if (style) {
         node.element.classList.add(style);
       }
-      console.log(`🎯 Highlighting executing node ${node.id} with style ${style}`);
     } else {
       node.element.classList.remove('executing', 'flowing', 'pulsing', 'data-flow');
-      console.log(`🎯 Removing highlight from node ${node.id}`);
     }
   }
   
@@ -775,7 +772,6 @@ export class FlowGraph extends EventTarget {
         node.element.classList.remove('executing', 'flowing', 'pulsing', 'data-flow');
       }
     });
-    console.log('🎯 Cleared all node highlighting');
   }
   
   /**
@@ -794,7 +790,6 @@ export class FlowGraph extends EventTarget {
     if (style) {
       edge.element.classList.add(style);
     }
-    console.log(`🛤️ Added edge ${edge.id} to execution trail with style ${style} (no animation)`);
   }
   
   /**
@@ -806,7 +801,6 @@ export class FlowGraph extends EventTarget {
         edge.element.classList.remove('trail', 'flowing', 'flowing-fast', 'flowing-slow', 'pulsing', 'data-flow');
       }
     });
-    console.log('🛤️ Cleared execution trail');
   }
   
   /**
@@ -825,7 +819,6 @@ export class FlowGraph extends EventTarget {
         edge.element.style.opacity = '1'; // Reset opacity
       }
     });
-    console.log('🎨 Reset all edge colors to default');
   }
   
   /**
@@ -914,14 +907,12 @@ export class FlowGraph extends EventTarget {
   }
   
   /**
-   * Start animations for edges connected to a node's outputs
+   * Start animations for edges connected to a node's inputs
    */
   startNodeAnimations(node, activeAnimations) {
-    console.log(`🎬 Starting animations for node ${node.id}`);
-    node.outputs.forEach(outputSocket => {
-      outputSocket.connections.forEach(edge => {
+    node.inputs.forEach(inputSocket => {
+      inputSocket.connections.forEach(edge => {
         if (!activeAnimations.has(edge.id)) {
-          console.log(`🎬 Starting animation for edge ${edge.id}`);
           this.startEdgeAnimation(edge);
           activeAnimations.add(edge.id);
         }
@@ -930,38 +921,19 @@ export class FlowGraph extends EventTarget {
   }
   
   /**
-   * Stop animations for edges connected to a node's outputs
+   * Stop animations for edges connected to a node's inputs
    */
   stopNodeAnimations(node, activeAnimations) {
-    console.log(`🎬 Stopping animations for node ${node.id}`);
-    
-    // Only stop animations for edges connected to active output sockets
-    const activeOutputs = this.activeOutputs.get(node.id) || new Set();
-    
-    node.outputs.forEach(outputSocket => {
-      const outputIndex = this.getOutputSocketIndex(outputSocket);
-      
-      // Only stop animations for active output sockets
-      if (activeOutputs.has(outputIndex)) {
-        outputSocket.connections.forEach(edge => {
-          if (activeAnimations.has(edge.id)) {
-            console.log(`🎬 Stopping animation for edge ${edge.id}`);
-            this.stopEdgeAnimation(edge);
-            // Mark edge as part of execution trail
-            this.addToExecutionTrail(edge);
-            activeAnimations.delete(edge.id);
-          }
-        });
-      } else {
-        // Stop animations for inactive branches immediately
-        outputSocket.connections.forEach(edge => {
-          if (activeAnimations.has(edge.id)) {
-            console.log(`🎬 Stopping animation for inactive edge ${edge.id}`);
-            this.stopEdgeAnimation(edge);
-            activeAnimations.delete(edge.id);
-          }
-        });
-      }
+    // Stop animations for all incoming edges that were animated
+    node.inputs.forEach(inputSocket => {
+      inputSocket.connections.forEach(edge => {
+        if (activeAnimations.has(edge.id)) {
+          this.stopEdgeAnimation(edge);
+          // Mark edge as part of execution trail
+          this.addToExecutionTrail(edge);
+          activeAnimations.delete(edge.id);
+        }
+      });
     });
   }
   
@@ -970,7 +942,6 @@ export class FlowGraph extends EventTarget {
    */
   startEdgeAnimation(edge) {
     const { style, speed } = this.animationConfig;
-    console.log(`🎬 Starting ${style} animation for edge ${edge.id} with speed ${speed}`);
     
     switch (style) {
       case 'flowing':
@@ -991,7 +962,6 @@ export class FlowGraph extends EventTarget {
    * Stop animation for a specific edge
    */
   stopEdgeAnimation(edge) {
-    console.log(`🎬 Stopping animation for edge ${edge.id}`);
     edge.stopAnimation();
   }
   
@@ -1182,12 +1152,10 @@ export class FlowGraph extends EventTarget {
       detail: { copiedNodes: selectedNodes, copyData }
     }));
     
-    console.log(`Copied ${selectedNodes.length} nodes and ${copyData.edges.length} edges`);
   }
   
   pasteNodes() {
     if (!this.clipboard || !this.clipboard.nodes.length) {
-      console.log('No nodes in clipboard to paste');
       return;
     }
     
@@ -1249,7 +1217,6 @@ export class FlowGraph extends EventTarget {
       detail: { pastedNodes: newNodes.map(n => n.id), nodeIdMap: Object.fromEntries(nodeIdMap) }
     }));
     
-    console.log(`Pasted ${newNodes.length} nodes and ${this.clipboard.edges.length} edges`);
   }
   
   

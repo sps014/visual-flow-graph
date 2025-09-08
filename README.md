@@ -456,6 +456,33 @@ Create connections between node sockets.
 - **Delete Nodes**: Right-click on any node to delete it
 - **Delete Connections**: Right-click on sockets to manage connections
 
+### Keyboard Shortcuts
+- **`Ctrl+A` / `Cmd+A`**: Select all nodes
+- **`Ctrl+C` / `Cmd+C`**: Copy selected nodes
+- **`Ctrl+V` / `Cmd+V`**: Paste nodes
+- **`Delete`**: Delete selected nodes
+- **`Escape`**: Clear selection
+
+#### Keyboard Shortcut Events
+```javascript
+// Listen to keyboard shortcut events
+flowGraph.addEventListener('selection:change', (e) => {
+  console.log('Selection changed:', e.detail.selectedNodes.length, 'nodes selected');
+});
+
+flowGraph.addEventListener('nodes:copy', (e) => {
+  console.log('Nodes copied:', e.detail.copiedNodes.length, 'nodes');
+});
+
+flowGraph.addEventListener('nodes:paste', (e) => {
+  console.log('Nodes pasted:', e.detail.pastedNodes.length, 'nodes');
+});
+
+flowGraph.addEventListener('nodes:delete', (e) => {
+  console.log('Nodes deleted:', e.detail.deletedNodes.length, 'nodes');
+});
+```
+
 ## 🎯 Event System
 
 FlowGraph provides a comprehensive event system for monitoring and responding to user interactions and programmatic changes.

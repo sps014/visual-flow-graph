@@ -337,6 +337,23 @@
       console.log('👆 Panned to:', e.detail.x, e.detail.y);
     });
     
+    // Keyboard shortcut events
+    flowGraph.addEventListener('selection:change', (e) => {
+      console.log('📋 Selection changed:', e.detail.selectedNodes.length, 'nodes selected');
+    });
+    
+    flowGraph.addEventListener('nodes:copy', (e) => {
+      console.log('📋 Nodes copied:', e.detail.copiedNodes.length, 'nodes,', e.detail.copyData.edges.length, 'edges');
+    });
+    
+    flowGraph.addEventListener('nodes:paste', (e) => {
+      console.log('📋 Nodes pasted:', e.detail.pastedNodes.length, 'nodes');
+    });
+    
+    flowGraph.addEventListener('nodes:delete', (e) => {
+      console.log('🗑️ Nodes deleted:', e.detail.deletedNodes.length, 'nodes,', e.detail.deletedEdges.length, 'edges');
+    });
+    
     
     // Wait for the component to be fully initialized
     const waitForFlowGraph = () => {

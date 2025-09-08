@@ -618,6 +618,163 @@ export class FlowGraph extends EventTarget {
     }));
   }
   
+  // Keyboard shortcut methods
+  selectAllNodes() {
+    this.clearSelection();
+    this.nodes.forEach((node, nodeId) => {
+      this.selection.add(nodeId);
+      node.setSelected(true);
+    });
+    
+    this.container.dispatchEvent(new CustomEvent('selection:change', {
+      detail: { selectedNodes: Array.from(this.selection) }
+    }));
+  }
+  
+  deleteSelectedNodes() {
+    if (this.selection.size === 0) return;
+    
+    const selectedNodes = Array.from(this.selection);
+    
+    // Delete edges connected to selected nodes first
+    const edgesToDelete = [];
+    this.edges.forEach((edge, edgeId) => {
+      if (selectedNodes.includes(edge.fromNodeId) || selectedNodes.includes(edge.toNodeId)) {
+        edgesToDelete.push(edgeId);
+      }
+    });
+    
+    edgesToDelete.forEach(edgeId => {
+      this.removeEdge(edgeId);
+    });
+    
+    // Delete selected nodes
+    selectedNodes.forEach(nodeId => {
+      this.removeNode(nodeId);
+    });
+    
+    this.clearSelection();
+    
+    // Dispatch bulk delete event
+    this.container.dispatchEvent(new CustomEvent('nodes:delete', {
+      detail: { deletedNodes: selectedNodes, deletedEdges: edgesToDelete }
+    }));
+  }
+  
+  copySelectedNodes() {
+    if (this.selection.size === 0) return;
+    
+    const selectedNodes = Array.from(this.selection);
+    const copyData = {
+      nodes: [],
+      edges: [],
+      timestamp: Date.now()
+    };
+    
+    // Collect node data (just type and position)
+    selectedNodes.forEach(nodeId => {
+      const node = this.nodes.get(nodeId);
+      if (node) {
+        copyData.nodes.push({
+          id: node.id,
+          type: node.type,
+          x: node.x,
+          y: node.y
+        });
+      }
+    });
+    
+    // Collect edge data for connections between selected nodes
+    this.edges.forEach((edge, edgeId) => {
+      if (selectedNodes.includes(edge.fromNodeId) && selectedNodes.includes(edge.toNodeId)) {
+        copyData.edges.push({
+          id: edgeId,
+          fromNodeId: edge.fromNodeId,
+          fromSocketId: edge.fromSocketId,
+          toNodeId: edge.toNodeId,
+          toSocketId: edge.toSocketId
+        });
+      }
+    });
+    
+    // Store in clipboard
+    this.clipboard = copyData;
+    
+    this.container.dispatchEvent(new CustomEvent('nodes:copy', {
+      detail: { copiedNodes: selectedNodes, copyData }
+    }));
+    
+    console.log(`Copied ${selectedNodes.length} nodes and ${copyData.edges.length} edges`);
+  }
+  
+  pasteNodes() {
+    if (!this.clipboard || !this.clipboard.nodes.length) {
+      console.log('No nodes in clipboard to paste');
+      return;
+    }
+    
+    const pasteOffset = { x: 20, y: 20 }; // Offset for pasted nodes
+    const newNodes = [];
+    const nodeIdMap = new Map(); // Map old IDs to new IDs
+    
+    // Clear current selection
+    this.clearSelection();
+    
+    // Create new nodes
+    this.clipboard.nodes.forEach(nodeData => {
+      const newNodeId = `node_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      nodeIdMap.set(nodeData.id, newNodeId);
+      
+      try {
+        const newNode = this.addNode(nodeData.type, {
+          id: newNodeId,
+          x: nodeData.x + pasteOffset.x,
+          y: nodeData.y + pasteOffset.y
+        });
+        
+        if (newNode) {
+          newNodes.push(newNode);
+          this.selection.add(newNodeId);
+          newNode.setSelected(true);
+        }
+      } catch (error) {
+        console.warn(`Could not paste node of type ${nodeData.type}:`, error.message);
+      }
+    });
+    
+    // Create new edges with updated node IDs
+    this.clipboard.edges.forEach(edgeData => {
+      const newFromNodeId = nodeIdMap.get(edgeData.fromNodeId);
+      const newToNodeId = nodeIdMap.get(edgeData.toNodeId);
+      
+      if (newFromNodeId && newToNodeId) {
+        const fromNode = this.nodes.get(newFromNodeId);
+        const toNode = this.nodes.get(newToNodeId);
+        
+        if (fromNode && toNode) {
+          const fromSocket = fromNode.outputs.get(edgeData.fromSocketId);
+          const toSocket = toNode.inputs.get(edgeData.toSocketId);
+          
+          if (fromSocket && toSocket && fromSocket.canConnect(toSocket)) {
+            this.createEdge({
+              fromNodeId: newFromNodeId,
+              fromSocketId: edgeData.fromSocketId,
+              toNodeId: newToNodeId,
+              toSocketId: edgeData.toSocketId
+            });
+          }
+        }
+      }
+    });
+    
+    this.container.dispatchEvent(new CustomEvent('nodes:paste', {
+      detail: { pastedNodes: newNodes.map(n => n.id), nodeIdMap: Object.fromEntries(nodeIdMap) }
+    }));
+    
+    console.log(`Pasted ${newNodes.length} nodes and ${this.clipboard.edges.length} edges`);
+  }
+  
+  
   destroy() {
     this.clear();
     this.surface.remove();

@@ -111,6 +111,37 @@ export class Viewport {
       this.spacePressed = true;
       e.preventDefault();
     }
+    
+    // Only handle if we have a flowGraph
+    if (!this.flowGraph) return;
+    
+    if (e.ctrlKey || e.metaKey) {
+      switch (e.key) {
+        case 'a':
+          e.preventDefault();
+          this.flowGraph.selectAllNodes();
+          break;
+        case 'c':
+          e.preventDefault();
+          this.flowGraph.copySelectedNodes();
+          break;
+        case 'v':
+          e.preventDefault();
+          this.flowGraph.pasteNodes();
+          break;
+      }
+    }
+    
+    switch (e.key) {
+      case 'Delete':
+        e.preventDefault();
+        this.flowGraph.deleteSelectedNodes();
+        break;
+      case 'Escape':
+        e.preventDefault();
+        this.flowGraph.clearSelection();
+        break;
+    }
   }
   
   handleKeyUp(e) {

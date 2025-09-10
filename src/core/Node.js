@@ -170,6 +170,38 @@ export class Node {
     });
   }
   
+  /**
+   * Disable all form controls in the node for readonly mode.
+   * 
+   * @private
+   */
+  disableFormControls() {
+    this.dataKeyMap.forEach(({ el }) => {
+      // Disable if it's a form control
+      if ('disabled' in el) {
+        el.disabled = true;
+      }
+      el.style.opacity = '0.6';
+      el.style.cursor = 'not-allowed';
+    });
+  }
+  
+  /**
+   * Enable all form controls in the node for edit mode.
+   * 
+   * @private
+   */
+  enableFormControls() {
+    this.dataKeyMap.forEach(({ el }) => {
+      // Enable if it's a form control
+      if ('disabled' in el) {
+        el.disabled = false;
+      }
+      el.style.opacity = '1';
+      el.style.cursor = '';
+    });
+  }
+  
 
   
   /**

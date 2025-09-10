@@ -143,15 +143,24 @@
           font-size: 12px;
           cursor: pointer;
         ">Save Graph</button>
-        <button id="load-graph" style="
-          padding: 4px 8px;
-          background: linear-gradient(135deg, #f59e0b, #d97706);
-          color: white;
-          border: none;
-          border-radius: 4px;
-          font-size: 12px;
-          cursor: pointer;
-        ">Load Graph</button>
+      <button id="load-graph" style="
+        padding: 4px 8px;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+      ">Load Graph</button>
+      <button id="toggle-readonly" style="
+        padding: 4px 8px;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+      ">Readonly Mode</button>
       </div>
       
       <!-- Trail Duration Control -->
@@ -831,6 +840,32 @@
         }
       };
       input.click();
+    });
+    
+    // Readonly toggle button
+    const readonlyBtn = document.getElementById('toggle-readonly');
+    let isReadonly = false;
+    
+    readonlyBtn.addEventListener('click', () => {
+      // Wait for FlowGraph to be ready
+      if (!flowGraph.flowGraph) {
+        console.warn('FlowGraph not ready yet, please wait...');
+        return;
+      }
+      
+      isReadonly = !isReadonly;
+      flowGraph.setReadonly(isReadonly);
+      
+      // Update button appearance
+      if (isReadonly) {
+        readonlyBtn.textContent = 'Exit Readonly';
+        readonlyBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        console.log('🔒 Readonly mode enabled - editing is disabled');
+      } else {
+        readonlyBtn.textContent = 'Readonly Mode';
+        readonlyBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+        console.log('🔓 Readonly mode disabled - editing is enabled');
+      }
     });
     
     // Initialize animation config after a short delay to ensure FlowGraph is ready

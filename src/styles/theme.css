@@ -546,3 +546,19 @@ button.interactive:hover {
 flow-definitions {
   display: none !important;
 }
+
+/* ===== READONLY MODE ===== */
+
+/* Disable interactions in readonly mode */
+.surface.readonly .socket {
+  cursor: not-allowed !important;
+  opacity: 0.7;
+}
+
+.surface.readonly .node {
+  cursor: default !important;
+}
+
+.surface.readonly .node:hover {
+  transform: none !important;
+}

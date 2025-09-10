@@ -47,6 +47,11 @@ export class FlowGraphDrag {
    * ```
    */
   startMultiDrag(e, draggedNode) {
+    // Check if in readonly mode
+    if (this.flowGraph.readonly) {
+      return;
+    }
+    
     this.multiDragState = {
       active: true,
       draggedNode: draggedNode,

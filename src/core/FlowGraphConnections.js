@@ -57,6 +57,13 @@ export class FlowGraphConnections {
     const socket = e.target.closest('.socket');
     if (!socket) return;
     
+    // Check if in readonly mode
+    if (this.flowGraph.readonly) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    
     e.preventDefault();
     e.stopPropagation();
     

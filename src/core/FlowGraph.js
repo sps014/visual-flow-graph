@@ -60,6 +60,9 @@ export class FlowGraph extends EventTarget {
     /** @type {Map<string, Object>} Map of node type names to node templates */
     this.templates = new Map();
     
+    /** @type {boolean} Whether the flow graph is in readonly mode */
+    this.readonly = false;
+    
     // Create surface elements
     /** @type {HTMLDivElement} The main surface element containing all flow graph content */
     this.surface = document.createElement('div');
@@ -258,6 +261,7 @@ export class FlowGraph extends EventTarget {
    * @param {Object} [config.data] - Initial data values for data-bound elements
    * @returns {Node} The created node instance
    * @throws {Error} If the node type is not recognized
+   * @throws {Error} If the flow graph is in readonly mode
    * 
    * @example
    * ```javascript
@@ -269,6 +273,10 @@ export class FlowGraph extends EventTarget {
    * ```
    */
   addNode(type, config = {}) {
+    if (this.readonly) {
+      throw new Error('Cannot add nodes in readonly mode');
+    }
+    
     const template = this.templates.get(type);
     if (!template) {
       throw new Error(`Unknown node type: ${type}`);
@@ -281,6 +289,11 @@ export class FlowGraph extends EventTarget {
       initialData: config.data || {} // Pass initial data
     });
     this.nodes.set(node.id, node);
+    
+    // If in readonly mode, disable form controls for the new node
+    if (this.readonly) {
+      node.disableFormControls();
+    }
     
     this.container.dispatchEvent(new CustomEvent('node:create', { 
       detail: { node } 
@@ -295,6 +308,7 @@ export class FlowGraph extends EventTarget {
    * 
    * @param {string} nodeId - The ID of the node to remove
    * @returns {boolean} True if the node was found and removed, false otherwise
+   * @throws {Error} If the flow graph is in readonly mode
    * 
    * @example
    * ```javascript
@@ -302,6 +316,10 @@ export class FlowGraph extends EventTarget {
    * ```
    */
   removeNode(nodeId) {
+    if (this.readonly) {
+      throw new Error('Cannot remove nodes in readonly mode');
+    }
+    
     const node = this.nodes.get(nodeId);
     if (!node) return;
     
@@ -329,6 +347,7 @@ export class FlowGraph extends EventTarget {
    * @param {Socket} fromSocket - The source socket
    * @param {Socket} toSocket - The target socket
    * @returns {Edge|null} The created edge instance, or null if connection is not allowed
+   * @throws {Error} If the flow graph is in readonly mode
    * 
    * @example
    * ```javascript
@@ -339,6 +358,10 @@ export class FlowGraph extends EventTarget {
    * ```
    */
   createEdge(fromSocket, toSocket) {
+    if (this.readonly) {
+      throw new Error('Cannot create edges in readonly mode');
+    }
+    
     if (!this.canConnect(fromSocket, toSocket)) return null;
     
     const edge = new Edge(this, fromSocket, toSocket);
@@ -366,6 +389,7 @@ export class FlowGraph extends EventTarget {
    * 
    * @param {string} edgeId - The ID of the edge to remove
    * @returns {boolean} True if the edge was found and removed, false otherwise
+   * @throws {Error} If the flow graph is in readonly mode
    * 
    * @example
    * ```javascript
@@ -373,6 +397,10 @@ export class FlowGraph extends EventTarget {
    * ```
    */
   removeEdge(edgeId) {
+    if (this.readonly) {
+      throw new Error('Cannot remove edges in readonly mode');
+    }
+    
     const edge = this.edges.get(edgeId);
     if (!edge) return;
     
@@ -403,12 +431,18 @@ export class FlowGraph extends EventTarget {
    * Clear all nodes and edges from the flow graph.
    * This removes all visual elements and resets the graph to an empty state.
    * 
+   * @throws {Error} If the flow graph is in readonly mode
+   * 
    * @example
    * ```javascript
    * flowGraph.clear(); // Remove all nodes and edges
    * ```
    */
   clear() {
+    if (this.readonly) {
+      throw new Error('Cannot clear graph in readonly mode');
+    }
+    
     // Remove all edges
     for (const edgeId of this.edges.keys()) {
       this.removeEdge(edgeId);
@@ -422,12 +456,13 @@ export class FlowGraph extends EventTarget {
   
   /**
    * Serialize the current state of the flow graph to a JSON object.
-   * This includes all nodes, edges, and viewport state for saving/loading.
+   * This includes all nodes, edges, viewport state, and readonly mode for saving/loading.
    * 
    * @returns {Object} Serialized flow graph data
    * @returns {Array} returns.nodes - Array of serialized node data
    * @returns {Array} returns.edges - Array of serialized edge data
    * @returns {Object} returns.viewport - Serialized viewport state
+   * @returns {boolean} returns.readonly - Current readonly state
    * 
    * @example
    * ```javascript
@@ -442,18 +477,20 @@ export class FlowGraph extends EventTarget {
     return {
       nodes,
       edges,
-      viewport: this.viewport.serialize()
+      viewport: this.viewport.serialize(),
+      readonly: this.readonly
     };
   }
   
   /**
    * Deserialize flow graph data and restore the graph state.
-   * This recreates all nodes, edges, and viewport from saved data.
+   * This recreates all nodes, edges, viewport, and readonly mode from saved data.
    * 
    * @param {Object} data - Serialized flow graph data
    * @param {Array} data.nodes - Array of node data to restore
    * @param {Array} data.edges - Array of edge data to restore
    * @param {Object} [data.viewport] - Viewport state to restore
+   * @param {boolean} [data.readonly] - Readonly state to restore
    * 
    * @example
    * ```javascript
@@ -497,13 +534,24 @@ export class FlowGraph extends EventTarget {
     if (data.viewport) {
       this.viewport.deserialize(data.viewport);
     }
+    
+    // Restore readonly state
+    if (data.readonly !== undefined) {
+      this.setReadonly(data.readonly);
+    }
   }
   
   
   /**
    * Move a node and fire event
+   * 
+   * @throws {Error} If the flow graph is in readonly mode
    */
   moveNode(nodeId, x, y) {
+    if (this.readonly) {
+      throw new Error('Cannot move nodes in readonly mode');
+    }
+    
     const node = this.nodes.get(nodeId);
     if (!node) return;
     
@@ -687,6 +735,72 @@ export class FlowGraph extends EventTarget {
     return this.drag.endMultiDrag();
   }
   
+  // ===== READONLY MODE METHODS =====
+  
+  /**
+   * Set the readonly mode of the flow graph.
+   * 
+   * @param {boolean} readonly - Whether to enable readonly mode
+   * 
+   * @example
+   * ```javascript
+   * flowGraph.setReadonly(true);  // Enable readonly mode
+   * flowGraph.setReadonly(false); // Disable readonly mode
+   * ```
+   */
+  setReadonly(readonly) {
+    this.readonly = readonly;
+    
+    // Update visual indicators
+    if (readonly) {
+      this.surface.classList.add('readonly');
+      // Disable form controls in all nodes
+      this.nodes.forEach(node => {
+        node.disableFormControls();
+      });
+    } else {
+      this.surface.classList.remove('readonly');
+      // Enable form controls in all nodes
+      this.nodes.forEach(node => {
+        node.enableFormControls();
+      });
+    }
+    
+    this.container.dispatchEvent(new CustomEvent('readonly:change', {
+      detail: { readonly }
+    }));
+  }
+  
+  /**
+   * Get the current readonly state of the flow graph.
+   * 
+   * @returns {boolean} True if in readonly mode, false otherwise
+   * 
+   * @example
+   * ```javascript
+   * const isReadonly = flowGraph.isReadonly();
+   * console.log('Readonly mode:', isReadonly);
+   * ```
+   */
+  isReadonly() {
+    return this.readonly;
+  }
+  
+  /**
+   * Toggle readonly mode on/off.
+   * 
+   * @returns {boolean} The new readonly state
+   * 
+   * @example
+   * ```javascript
+   * const newState = flowGraph.toggleReadonly();
+   * console.log('Readonly mode is now:', newState);
+   * ```
+   */
+  toggleReadonly() {
+    this.setReadonly(!this.readonly);
+    return this.readonly;
+  }
   
   destroy() {
     this.clear();

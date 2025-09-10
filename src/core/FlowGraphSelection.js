@@ -149,6 +149,11 @@ export class FlowGraphSelection {
   deleteSelectedNodes() {
     if (this.selection.size === 0) return;
     
+    // Check if in readonly mode
+    if (this.flowGraph.readonly) {
+      return;
+    }
+    
     const selectedNodes = Array.from(this.selection);
     
     // Delete edges connected to selected nodes first
@@ -228,6 +233,11 @@ export class FlowGraphSelection {
    */
   pasteNodes() {
     if (!this.clipboard || !this.clipboard.nodes.length) {
+      return;
+    }
+    
+    // Check if in readonly mode
+    if (this.flowGraph.readonly) {
       return;
     }
     

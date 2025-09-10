@@ -59,7 +59,10 @@ export class FlowGraphElement extends LitElement {
     zoomMax: { type: Number, attribute: 'zoom-max' },
     
     /** @type {Number} Default zoom level */
-    defaultZoom: { type: Number, attribute: 'default-zoom' }
+    defaultZoom: { type: Number, attribute: 'default-zoom' },
+    
+    /** @type {Boolean} Whether the flow graph is in readonly mode */
+    readonly: { type: Boolean }
   };
   
   /**
@@ -98,6 +101,9 @@ export class FlowGraphElement extends LitElement {
     /** @type {number} Default zoom level */
     this.defaultZoom = 1;
     
+    /** @type {boolean} Whether the flow graph is in readonly mode */
+    this.readonly = false;
+    
     /** @type {FlowGraph|null} The core FlowGraph instance */
     this.flowGraph = null;
   }
@@ -132,7 +138,12 @@ export class FlowGraphElement extends LitElement {
       if (this.flowGraph && this.flowGraph.viewport && this.flowGraph.viewport.surface) {
         this.flowGraph.viewport.surface.addEventListener('contextmenu', this.handleViewportRightClick.bind(this));
       }
-    }, 100);
+      
+      // Set initial readonly state AFTER nodes are processed and rendered
+      if (this.readonly) {
+        this.flowGraph.setReadonly(true);
+      }
+    }, 200); // Increased timeout to ensure nodes are fully rendered
   }
   
   processChildren() {
@@ -300,6 +311,13 @@ export class FlowGraphElement extends LitElement {
   }
   
   handleViewportRightClick(e) {
+    // Don't show context menu in readonly mode
+    if (this.readonly) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    
     // Check if clicking on a node
     if (e.target.classList.contains('node') || e.target.closest('.node')) {
       this.handleNodeRightClick(e);
@@ -335,6 +353,11 @@ export class FlowGraphElement extends LitElement {
   handleNodeRightClick(e) {
     e.preventDefault();
     e.stopPropagation();
+    
+    // Don't show context menu in readonly mode
+    if (this.readonly) {
+      return;
+    }
     
     // Find the node element
     const nodeElement = e.target.classList.contains('node') ? e.target : e.target.closest('.node');
@@ -469,6 +492,42 @@ export class FlowGraphElement extends LitElement {
     if (this.flowGraph) {
       this.flowGraph.setTrailDuration(duration);
     }
+  }
+  
+  // Property change handler
+  updated(changedProperties) {
+    super.updated(changedProperties);
+    
+    if (changedProperties.has('readonly') && this.flowGraph) {
+      // Use a small delay to ensure the flowGraph is fully initialized
+      setTimeout(() => {
+        if (this.flowGraph) {
+          this.flowGraph.setReadonly(this.readonly);
+        }
+      }, 50);
+    }
+  }
+  
+  // Readonly control methods
+  setReadonly(readonly) {
+    this.readonly = readonly;
+    if (this.flowGraph) {
+      // Use a small delay to ensure the flowGraph is fully initialized
+      setTimeout(() => {
+        if (this.flowGraph) {
+          this.flowGraph.setReadonly(readonly);
+        }
+      }, 50);
+    }
+  }
+  
+  isReadonly() {
+    return this.readonly;
+  }
+  
+  toggleReadonly() {
+    this.setReadonly(!this.readonly);
+    return this.readonly;
   }
   
   render() {

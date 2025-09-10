@@ -16,14 +16,23 @@ export class Node {
     this.inputs = new Map();
     this.outputs = new Map();
     this.element = null;
+
+    this.dataKeyMap = new Map();
     
     this.init();
+    
+    // Populate DOM with initial data after element is created
+    if (config.initialData) {
+      this.setDataObject(config.initialData);
+    }
+    console.log(`Node ${this.id} initialized with data:`, config.initialData);
   }
   
   init() {
     this.createElement();
     this.createSockets();
     this.setupDragging();
+    this.createDataKeyMap();
   }
   
   createElement() {
@@ -57,41 +66,29 @@ export class Node {
     if (this.template && this.template.html) {
       this.element.innerHTML = this.template.html;
     } else {
-      this.element.innerHTML = this.generateDefaultHTML();
+      console.warn(`No HTML template found for node ${this.id}`);
     }
     
     
     // Add to DOM
     this.flowGraph.nodesRoot.appendChild(this.element);
   }
-  
-  generateDefaultHTML() {
-    let inputsHTML = '';
-    let outputsHTML = '';
-    
-    if (this.template) {
-      // Generate inputs
-      this.template.inputs.forEach(input => {
-        inputsHTML += `<div class="line"><span class="socket in" data-sock="${input.id}"></span> ${input.label}</div>`;
-      });
-      
-      // Generate outputs  
-      this.template.outputs.forEach(output => {
-        outputsHTML += `<div class="line" style="text-align:right"><span class="socket out" data-sock="${output.id}"></span> ${output.label}</div>`;
-      });
-    }
-    
-    const separator = inputsHTML && outputsHTML ? '<div style="height:8px"></div>' : '';
-    
-    return `
-      <div class="title">${this.label}</div>
-      <div class="body">
-        ${inputsHTML}
-        ${separator}
-        ${outputsHTML}
-      </div>
-    `;
+
+
+  createDataKeyMap() {
+    this.element.querySelectorAll('[data-key]').forEach(element => {
+      const dataKey = element.getAttribute('data-key');
+      const parsedDataKey = this.parseDataKey(dataKey);
+      this.dataKeyMap.set(parsedDataKey.key, 
+        {
+          el: element,
+          property: parsedDataKey.property
+        }
+      );
+    });
   }
+  
+
   
   createSockets() {
     if (!this.template) return;
@@ -264,7 +261,7 @@ export class Node {
    */
   async execute() {
     if (!this.template || !this.template.onExecute) {
-      console.log(`Node ${this.id} has no onExecute method defined`);
+      console.warn(`Node ${this.id} has no onExecute method defined`);
       return;
     }
     
@@ -283,7 +280,9 @@ export class Node {
       inputs: this.inputs,
       outputs: this.outputs,
       setOutput: (index, value) => this.setOutputValue(index, value),
-      getInput: (index) => this.getInputValue(index)
+      getInput: (index) => this.getInputValue(index),
+      getData: (key) => this.getData(key),
+      setData: (key, value) => this.setData(key, value)
     };
     
     try {
@@ -344,6 +343,48 @@ export class Node {
     return socket?.value;
   }
   
+  // Data binding methods for DOM elements with data-key attributes
+  parseDataKey(dataKey) {
+    const parts = dataKey.split(':');
+    return {
+      key: parts[0],
+      property: parts[1] || 'value'
+    };
+  }
+  
+  getData(key) {
+    const element = this.dataKeyMap.get(key).el;
+    if (!element) return undefined;
+    
+    const { property } = this.parseDataKey(key);
+    return element[property];
+  }
+  
+  setData(key, value) {
+    const element = this.dataKeyMap.get(key).el;
+    if (!element) return false;
+    
+    const { property } = this.parseDataKey(key);
+    element[property] = value;
+    return true;
+  }
+  
+  getDataObject() {
+    const dataObj = {};
+    const dataValuesStore = this.dataKeyMap.values();
+
+    for(const [k,v] of dataValuesStore) {
+      dataObj[k] = v.el[v.property];
+    }
+
+    return dataObj;
+  }
+  
+  setDataObject(dataObj) {
+    Object.entries(dataObj).forEach(([key, value]) => {
+      this.setData(key, value);
+    });
+  }
   
   serialize() {
     return {
@@ -354,7 +395,8 @@ export class Node {
       y: this.y,
       width: this.width,
       height: this.height,
-      selected: this.selected
+      selected: this.selected,
+      data: this.getDataObject() // Include data binding values
     };
   }
   

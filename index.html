@@ -134,6 +134,24 @@
           font-size: 12px;
           cursor: pointer;
         ">Reset Colors</button>
+        <button id="save-graph" style="
+          padding: 4px 8px;
+          background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+          color: white;
+          border: none;
+          border-radius: 4px;
+          font-size: 12px;
+          cursor: pointer;
+        ">Save Graph</button>
+        <button id="load-graph" style="
+          padding: 4px 8px;
+          background: linear-gradient(135deg, #f59e0b, #d97706);
+          color: white;
+          border: none;
+          border-radius: 4px;
+          font-size: 12px;
+          cursor: pointer;
+        ">Load Graph</button>
       </div>
       
       <!-- Trail Duration Control -->
@@ -183,7 +201,7 @@
           <node-body>
             <div class="title">🔢 Number</div>
             <div class="body">
-              <input type="number" class="input-box" value="0" placeholder="Enter value">
+              <input type="number" class="input-box" value="0" data-key="num:value" placeholder="Enter value">
               <div class="line" style="text-align:right">
                 <span class="socket out" data-sock="value"></span> Value
               </div>
@@ -371,7 +389,7 @@
           <node-body>
             <div class="title">📝 String</div>
             <div class="body">
-              <input type="text" class="input-box" value="Hello" placeholder="Enter text">
+              <input type="text" class="input-box" value="Hello" data-key="text:value" placeholder="Enter text">
               <div class="line" style="text-align:right">
                 <span class="socket out" data-sock="text"></span> Text
               </div>
@@ -554,9 +572,8 @@
     window.loadData = async function(context) {
       console.log('🔢 Loading data for Number node:', context);
       
-      // Access the DOM element directly
-      const inputElement = context.element.querySelector('input[type="number"]');
-      const value = inputElement ? parseFloat(inputElement.value) || 0 : 0;
+      // Use the new data binding system
+      const value = parseInt(context.getData('num')) || 0;
       
       // Simulate async data loading
       await new Promise(resolve => setTimeout(resolve,1000));
@@ -672,9 +689,8 @@
     window.processString = async function(context) {
       console.log('📝 Processing string:', context);
       
-      // Access the DOM element directly
-      const inputElement = context.element.querySelector('input[type="text"]');
-      const text = inputElement ? inputElement.value : '';
+      // Use the new data binding system
+      const text = context.getData('text') || '';
       
       // Simulate async string processing
       await new Promise(resolve => setTimeout(resolve,1000));
@@ -755,6 +771,66 @@
       if (flowGraph.flowGraphInstance) {
         flowGraph.flowGraphInstance.resetAllEdgeColors();
       }
+    });
+    
+    // Save graph button
+    document.getElementById('save-graph').addEventListener('click', () => {
+      if (flowGraph.flowGraph) {
+        try {
+          const graphData = flowGraph.flowGraph.serialize();
+          const dataStr = JSON.stringify(graphData, null, 2);
+          const dataBlob = new Blob([dataStr], { type: 'application/json' });
+          
+          const url = URL.createObjectURL(dataBlob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `flowgraph_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          
+          console.log('💾 Graph saved successfully!');
+        } catch (error) {
+          console.error('❌ Error saving graph:', error);
+        }
+      }
+    });
+    
+    // Load graph button
+    document.getElementById('load-graph').addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            try {
+              const graphData = JSON.parse(e.target.result);
+              if (flowGraph.flowGraph) {
+                flowGraph.flowGraph.deserialize(graphData);
+              } else {
+                // Wait for FlowGraph to be ready
+                const waitForFlowGraph = () => {
+                  if (flowGraph.flowGraph) {
+                    flowGraph.flowGraph.deserialize(graphData);
+                  } else {
+                    setTimeout(waitForFlowGraph, 100);
+                  }
+                };
+                waitForFlowGraph();
+              }
+            } catch (error) {
+              console.error('❌ Error loading graph:', error);
+              alert('Error loading graph file. Please check the file format.');
+            }
+          };
+          reader.readAsText(file);
+        }
+      };
+      input.click();
     });
     
     // Initialize animation config after a short delay to ensure FlowGraph is ready

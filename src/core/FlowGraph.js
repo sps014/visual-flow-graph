@@ -128,7 +128,12 @@ export class FlowGraph extends EventTarget {
       throw new Error(`Unknown node type: ${type}`);
     }
     
-    const node = new Node(this, { ...config, type, template });
+    const node = new Node(this, { 
+      ...config, 
+      type, 
+      template,
+      initialData: config.data || {} // Pass initial data
+    });
     this.nodes.set(node.id, node);
     
     this.container.dispatchEvent(new CustomEvent('node:create', { 
@@ -229,7 +234,12 @@ export class FlowGraph extends EventTarget {
     // Restore nodes
     if (data.nodes) {
       data.nodes.forEach(nodeData => {
-        this.addNode(nodeData.type, nodeData);
+        // Extract data for initial population
+        const { data: nodeData_binding, ...nodeConfig } = nodeData;
+        this.addNode(nodeData.type, {
+          ...nodeConfig,
+          data: nodeData_binding // Pass data for DOM population
+        });
       });
     }
     

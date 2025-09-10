@@ -25,11 +25,11 @@ import './flow-context-menu.js';
  * 
  * @example
  * ```javascript
- * const flowGraph = document.querySelector('flow-graph');
- * const flowGraphInstance = flowGraph.flowGraphInstance;
+ * const flowGraphElement = document.querySelector('flow-graph');
+ * const flowGraph = flowGraphElement.flowGraph;
  * 
  * // Add a node template
- * flowGraphInstance.addNodeTemplate('math-add', {
+ * flowGraph.addNodeTemplate('math-add', {
  *   inputs: [{ id: 'a', type: 'number', label: 'A' }],
  *   outputs: [{ id: 'result', type: 'number', label: 'Result' }],
  *   html: '<div>Add: <input data-key="a" type="number"></div>'
@@ -117,10 +117,7 @@ export class FlowGraphElement extends LitElement {
   firstUpdated() {
     this.flowGraph = new FlowGraph(this);
     this.processChildren();
-    
-    // Expose the FlowGraph instance for external access
-    this.flowGraphInstance = this.flowGraph;
-    
+        
     // Forward events
     this.flowGraph.addEventListener('node:create', (e) => {
       this.dispatchEvent(new CustomEvent('node:create', { detail: e.detail }));

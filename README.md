@@ -18,8 +18,18 @@ A modern, declarative, HTML-based visual scripting library built with Lit web co
 - **Color Patches**: Flexible node title styling defined in node definitions
 - **Async Execution**: Execute nodes and entire graphs with async functions and value propagation
 - **Configurable Trail Duration**: Execution trails remain visible for adjustable duration after completion
+- **Readonly Mode**: Toggle between edit and view-only modes with control disabling
 
 ## 🆕 Recent Updates
+
+### v1.5.0 - Readonly Mode & Form Control Management
+- **Readonly Mode**: Toggle between edit and view-only modes for execution and viewing scenarios
+- **Form Control Disabling**: Automatic disabling of all form controls (inputs, buttons, etc.) in readonly mode
+- **Serialization Support**: Readonly state is preserved when saving and loading graphs
+- **Visual Feedback**: Disabled cursors and reduced opacity for readonly elements
+- **Programmatic Control**: Full API for enabling/disabling readonly mode
+- **HTML Attribute Support**: Set readonly mode via HTML attribute on flow-graph element
+- **Backward Compatibility**: Existing graphs load properly with or without readonly state
 
 ### v1.4.0 - Async Node Execution System
 - **Async Execution**: Full support for async `onExecute` methods in node definitions
@@ -439,6 +449,145 @@ flowGraph.setTrailDuration(1000);
 
 **Default Trail Duration**: 5000ms (5 seconds)
 
+## 🔒 Readonly Mode
+
+FlowGraph supports a readonly mode that disables all editing operations while preserving viewing and execution capabilities. This is perfect for scenarios like executing graphs, viewing saved graphs, or presenting completed workflows.
+
+### HTML Attribute Usage
+
+Set readonly mode directly in HTML:
+
+```html
+<!-- Enable readonly mode -->
+<flow-graph readonly>
+  <!-- Your flow graph content -->
+</flow-graph>
+
+<!-- Normal edit mode (default) -->
+<flow-graph>
+  <!-- Your flow graph content -->
+</flow-graph>
+```
+
+### Programmatic Control
+
+Control readonly mode via JavaScript:
+
+```javascript
+const flowGraph = document.querySelector('flow-graph');
+
+// Enable readonly mode
+flowGraph.setReadonly(true);
+
+// Disable readonly mode
+flowGraph.setReadonly(false);
+
+// Toggle readonly mode
+const newState = flowGraph.toggleReadonly();
+
+// Check current state
+const isReadonly = flowGraph.isReadonly();
+```
+
+### What's Disabled in Readonly Mode
+
+When readonly mode is enabled, the following operations are blocked:
+
+- ❌ **Node Creation**: Cannot add new nodes
+- ❌ **Node Removal**: Cannot delete existing nodes
+- ❌ **Node Movement**: Cannot drag nodes to new positions
+- ❌ **Edge Creation**: Cannot create new connections
+- ❌ **Edge Removal**: Cannot delete existing connections
+- ❌ **Form Controls**: All inputs, buttons, and interactive elements are disabled
+- ❌ **Context Menus**: Right-click menus are disabled
+- ❌ **Copy/Paste**: Clipboard operations are blocked
+- ❌ **Clear Operations**: Cannot clear the entire graph
+
+### What Still Works in Readonly Mode
+
+- ✅ **Node Execution**: Can still execute nodes and entire graphs
+- ✅ **Viewport Navigation**: Pan and zoom still work
+- ✅ **Node Selection**: Can select nodes for viewing
+- ✅ **Value Viewing**: Can see current values in form controls
+- ✅ **Graph Serialization**: Can save/load graphs
+
+### Form Control Management
+
+Readonly mode automatically disables all form controls within nodes:
+
+```javascript
+// Form controls are automatically managed
+// - Input fields become disabled
+// - Buttons become disabled  
+// - Select dropdowns become disabled
+// - Textareas become disabled
+// - Visual feedback: reduced opacity and disabled cursor
+```
+
+### Serialization Support
+
+Readonly state is preserved when saving and loading graphs:
+
+```javascript
+// Save graph with readonly state
+const data = flowGraph.serialize();
+// data.readonly will be true/false based on current state
+
+// Load graph with preserved readonly state
+flowGraph.deserialize(data);
+// Graph will be restored with the same readonly state
+```
+
+### Visual Feedback
+
+Readonly mode provides clear visual indicators:
+
+- **Disabled Cursors**: Sockets show `not-allowed` cursor
+- **Reduced Opacity**: Form controls show at 60% opacity
+- **Disabled Interactions**: Hover effects are disabled on nodes
+- **Form Control State**: All interactive elements are visually disabled
+
+### Use Cases
+
+**Execution Scenarios:**
+```javascript
+// Enable readonly before execution
+flowGraph.setReadonly(true);
+await flowGraph.execute();
+// Graph is protected during execution
+```
+
+**Viewing Saved Graphs:**
+```javascript
+// Load a graph in readonly mode for presentation
+flowGraph.setReadonly(true);
+flowGraph.deserialize(savedGraphData);
+// Users can view but not modify
+```
+
+**Presentation Mode:**
+```html
+<!-- Set readonly in HTML for presentation -->
+<flow-graph readonly>
+  <!-- Completed workflow for viewing only -->
+</flow-graph>
+```
+
+### Events
+
+Listen to readonly mode changes:
+
+```javascript
+flowGraph.addEventListener('readonly:change', (e) => {
+  console.log('Readonly mode changed:', e.detail.readonly);
+  if (e.detail.readonly) {
+    console.log('Graph is now in readonly mode');
+  } else {
+    console.log('Graph is now in edit mode');
+  }
+});
+```
+
 #### Animation Effects
 ```css
 flow-graph {
@@ -726,6 +875,7 @@ The main container element for the visual scripting system.
 | `zoom-min` | Number | `0.1` | Minimum zoom level |
 | `zoom-max` | Number | `3` | Maximum zoom level |
 | `default-zoom` | Number | `1` | Initial zoom level |
+| `readonly` | Boolean | `false` | Enable readonly mode (disables editing) |
 
 #### Properties
 | Property | Type | Description |
@@ -742,6 +892,9 @@ The main container element for the visual scripting system.
 | `clear()` | - | `void` | Clear all nodes and edges |
 | `serialize()` | - | `object` | Export graph data |
 | `deserialize(data)` | `data: object` | `void` | Import graph data |
+| `setReadonly(readonly)` | `readonly: boolean` | `void` | Enable/disable readonly mode |
+| `isReadonly()` | - | `boolean` | Get current readonly state |
+| `toggleReadonly()` | - | `boolean` | Toggle readonly mode and return new state |
 
 ### Node Definition (`<flow-node-def>`)
 
@@ -1094,6 +1247,59 @@ flowGraph.deserialize(savedData);
   <flow-input socket="scene" label="Scene" type="object"></flow-input>
   <flow-output socket="image" label="Image" type="image"></flow-output>
 </flow-node-def>
+```
+
+### Readonly Mode Examples
+
+**Presentation Mode:**
+```html
+<!-- Readonly graph for presentation -->
+<flow-graph readonly>
+  <flow-definitions>
+    <!-- Node definitions -->
+  </flow-definitions>
+  <flow-nodes>
+    <!-- Completed workflow nodes -->
+  </flow-nodes>
+  <flow-edges>
+    <!-- All connections -->
+  </flow-edges>
+</flow-graph>
+```
+
+**Dynamic Readonly Toggle:**
+```javascript
+// Toggle readonly mode with button
+document.getElementById('toggle-readonly').addEventListener('click', () => {
+  const flowGraph = document.querySelector('flow-graph');
+  const isReadonly = flowGraph.toggleReadonly();
+  
+  // Update UI
+  const button = document.getElementById('toggle-readonly');
+  button.textContent = isReadonly ? 'Enable Editing' : 'Enable Readonly';
+  button.style.background = isReadonly ? '#10b981' : '#ef4444';
+});
+```
+
+**Execution Protection:**
+```javascript
+// Protect graph during execution
+async function executeGraphSafely() {
+  const flowGraph = document.querySelector('flow-graph');
+  
+  // Enable readonly before execution
+  flowGraph.setReadonly(true);
+  
+  try {
+    await flowGraph.execute();
+    console.log('Graph executed successfully');
+  } catch (error) {
+    console.error('Execution failed:', error);
+  } finally {
+    // Re-enable editing after execution
+    flowGraph.setReadonly(false);
+  }
+}
 ```
 
 ## 🔧 Development

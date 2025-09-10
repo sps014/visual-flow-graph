@@ -89,7 +89,6 @@ export class Node {
     if (config.initialData) {
       this.setDataObject(config.initialData);
     }
-    console.log(`Node ${this.id} initialized with data:`, config.initialData);
   }
   
   /**
@@ -573,9 +572,8 @@ export class Node {
    */
   getDataObject() {
     const dataObj = {};
-    const dataValuesStore = this.dataKeyMap.values();
 
-    for(const [k,v] of dataValuesStore) {
+    for(const [k,v] of this.dataKeyMap) {
       dataObj[k] = v.el[v.property];
     }
 

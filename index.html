@@ -459,104 +459,104 @@
     await customElements.whenDefined('flow-graph');
     
     // Example of programmatic API usage
-    const flowGraph = document.querySelector('flow-graph');
+    const flowGraphElement = document.querySelector('flow-graph');
     
-    flowGraph.addEventListener('node:create', (e) => {
+    flowGraphElement.addEventListener('node:create', (e) => {
       console.log('Node created:', e.detail.node);
     });
     
-    flowGraph.addEventListener('edge:create', (e) => {
+    flowGraphElement.addEventListener('edge:create', (e) => {
       console.log('Edge created:', e.detail.edge);
     });
     
     
     // Node selection events
-    flowGraph.addEventListener('node:select', (e) => {
+    flowGraphElement.addEventListener('node:select', (e) => {
       console.log('🎯 Node selected:', e.detail.nodeId, 'Selection:', e.detail.selection);
     });
     
-    flowGraph.addEventListener('node:deselect', (e) => {
+    flowGraphElement.addEventListener('node:deselect', (e) => {
       console.log('❌ Node deselected:', e.detail.nodeId, 'Selection:', e.detail.selection);
     });
     
-    flowGraph.addEventListener('selection:clear', (e) => {
+    flowGraphElement.addEventListener('selection:clear', (e) => {
       console.log('🧹 Selection cleared, previous:', e.detail.previousSelection);
     });
     
     // Node movement events
-    flowGraph.addEventListener('node:move', (e) => {
+    flowGraphElement.addEventListener('node:move', (e) => {
       console.log('🚀 Node moved:', e.detail.nodeId, 
         'from', e.detail.oldPosition, 'to', e.detail.newPosition);
     });
     
     // Edge selection events
-    flowGraph.addEventListener('edge:select', (e) => {
+    flowGraphElement.addEventListener('edge:select', (e) => {
       console.log('🔗 Edge selected:', e.detail.edgeId);
     });
     
-    flowGraph.addEventListener('edge:deselect', (e) => {
+    flowGraphElement.addEventListener('edge:deselect', (e) => {
       console.log('🔗 Edge deselected:', e.detail.edgeId);
     });
     
     // Viewport events
-    flowGraph.addEventListener('viewport:change', (e) => {
+    flowGraphElement.addEventListener('viewport:change', (e) => {
       console.log('📐 Viewport changed:', e.detail);
     });
     
-    flowGraph.addEventListener('viewport:zoom', (e) => {
+    flowGraphElement.addEventListener('viewport:zoom', (e) => {
       console.log('🔍 Zoomed to:', e.detail.scale);
     });
     
-    flowGraph.addEventListener('viewport:pan', (e) => {
+    flowGraphElement.addEventListener('viewport:pan', (e) => {
       console.log('👆 Panned to:', e.detail.x, e.detail.y);
     });
     
     // Keyboard shortcut events
-    flowGraph.addEventListener('selection:change', (e) => {
+    flowGraphElement.addEventListener('selection:change', (e) => {
       console.log('📋 Selection changed:', e.detail.selectedNodes.length, 'nodes selected');
     });
     
-    flowGraph.addEventListener('nodes:copy', (e) => {
+    flowGraphElement.addEventListener('nodes:copy', (e) => {
       console.log('📋 Nodes copied:', e.detail.copiedNodes.length, 'nodes,', e.detail.copyData.edges.length, 'edges');
     });
     
-    flowGraph.addEventListener('nodes:paste', (e) => {
+    flowGraphElement.addEventListener('nodes:paste', (e) => {
       console.log('📋 Nodes pasted:', e.detail.pastedNodes.length, 'nodes');
     });
     
-    flowGraph.addEventListener('nodes:delete', (e) => {
+    flowGraphElement.addEventListener('nodes:delete', (e) => {
       console.log('🗑️ Nodes deleted:', e.detail.deletedNodes.length, 'nodes,', e.detail.deletedEdges.length, 'edges');
     });
     
     // Node execution events
-    flowGraph.addEventListener('node:execute', (e) => {
+    flowGraphElement.addEventListener('node:execute', (e) => {
       console.log('⚡ Node executed:', e.detail.nodeId);
     });
     
-    flowGraph.addEventListener('node:execute:error', (e) => {
+    flowGraphElement.addEventListener('node:execute:error', (e) => {
       console.error('❌ Node execution error:', e.detail.nodeId, 'Error:', e.detail.error);
     });
     
     // Graph execution events
-    flowGraph.addEventListener('graph:execute:start', (e) => {
+    flowGraphElement.addEventListener('graph:execute:start', (e) => {
       console.log('🚀 Graph execution started');
     });
     
-    flowGraph.addEventListener('graph:execute:complete', (e) => {
+    flowGraphElement.addEventListener('graph:execute:complete', (e) => {
       console.log('✅ Graph execution completed');
     });
     
     // Execute graph button
     document.getElementById('execute-graph-btn').addEventListener('click', async () => {
       console.log('🚀 Executing entire graph...');
-      await flowGraph.flowGraph.execute();
+      await flowGraphElement.flowGraph.execute();
     });
     
     
     // Wait for the component to be fully initialized
     const waitForFlowGraph = () => {
       return new Promise((resolve) => {
-        if (flowGraph.flowGraph && flowGraph.flowGraph.nodes) {
+        if (flowGraphElement.flowGraph && flowGraphElement.flowGraph.nodes) {
           resolve();
         } else {
           setTimeout(() => waitForFlowGraph().then(resolve), 50);
@@ -565,7 +565,7 @@
     };
     
     await waitForFlowGraph();
-    console.log('FlowGraph loaded with', flowGraph.flowGraph.nodes.size, 'nodes');
+    console.log('FlowGraph loaded with', flowGraphElement.flowGraph.nodes.size, 'nodes');
     
     // Multi-drag instructions
     console.log('💡 Multi-drag: Select multiple nodes with Ctrl/Cmd+click, then drag any selected node to move all together!');
@@ -731,8 +731,8 @@
     
     // Update animation configuration
     function updateAnimationConfig() {
-      if (flowGraph.flowGraphInstance) {
-        flowGraph.flowGraphInstance.setAnimationConfig({
+      if (flowGraphElement.flowGraph) {
+        flowGraphElement.flowGraph.setAnimationConfig({
           enabled: animationsEnabled,
           style: animationStyleSelect.value,
           speed: animationSpeedSelect.value
@@ -744,9 +744,9 @@
     
     // Update trail duration
     function updateTrailDuration() {
-      if (flowGraph.flowGraphInstance) {
+      if (flowGraphElement.flowGraph) {
         const duration = parseInt(trailDurationSelect.value);
-        flowGraph.flowGraphInstance.setTrailDuration(duration);
+        flowGraphElement.flowGraph.setTrailDuration(duration);
         console.log(`⏱️ Trail duration set to ${duration}ms`);
       } else {
         setTimeout(updateTrailDuration, 100);
@@ -770,23 +770,23 @@
     
     // Clear trail button
     clearTrailBtn.addEventListener('click', () => {
-      if (flowGraph.flowGraphInstance) {
-        flowGraph.flowGraphInstance.clearExecutionTrail();
+      if (flowGraphElement.flowGraph) {
+        flowGraphElement.flowGraph.clearExecutionTrail();
       }
     });
     
     // Reset colors button
     resetColorsBtn.addEventListener('click', () => {
-      if (flowGraph.flowGraphInstance) {
-        flowGraph.flowGraphInstance.resetAllEdgeColors();
+      if (flowGraphElement.flowGraph) {
+        flowGraphElement.flowGraph.resetAllEdgeColors();
       }
     });
     
     // Save graph button
     document.getElementById('save-graph').addEventListener('click', () => {
-      if (flowGraph.flowGraph) {
+      if (flowGraphElement.flowGraph) {
         try {
-          const graphData = flowGraph.flowGraph.serialize();
+          const graphData = flowGraphElement.flowGraph.serialize();
           const dataStr = JSON.stringify(graphData, null, 2);
           const dataBlob = new Blob([dataStr], { type: 'application/json' });
           
@@ -818,13 +818,13 @@
           reader.onload = (e) => {
             try {
               const graphData = JSON.parse(e.target.result);
-              if (flowGraph.flowGraph) {
-                flowGraph.flowGraph.deserialize(graphData);
+              if (flowGraphElement.flowGraph) {
+                flowGraphElement.flowGraph.deserialize(graphData);
               } else {
                 // Wait for FlowGraph to be ready
                 const waitForFlowGraph = () => {
-                  if (flowGraph.flowGraph) {
-                    flowGraph.flowGraph.deserialize(graphData);
+                  if (flowGraphElement.flowGraph) {
+                    flowGraphElement.flowGraph.deserialize(graphData);
                   } else {
                     setTimeout(waitForFlowGraph, 100);
                   }
@@ -848,13 +848,13 @@
     
     readonlyBtn.addEventListener('click', () => {
       // Wait for FlowGraph to be ready
-      if (!flowGraph.flowGraph) {
+      if (!flowGraphElement.flowGraph) {
         console.warn('FlowGraph not ready yet, please wait...');
         return;
       }
       
       isReadonly = !isReadonly;
-      flowGraph.setReadonly(isReadonly);
+      flowGraphElement.setReadonly(isReadonly);
       
       // Update button appearance
       if (isReadonly) {

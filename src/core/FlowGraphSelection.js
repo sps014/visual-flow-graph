@@ -1,15 +1,57 @@
 /**
- * Handles selection management and clipboard operations
+ * Handles selection management and clipboard operations for FlowGraph.
+ * 
+ * This class manages node selection, multi-selection, and clipboard operations
+ * including copy, paste, and delete functionality. It provides a comprehensive
+ * selection system that integrates with the FlowGraph interface.
+ * 
+ * @class FlowGraphSelection
+ * 
+ * @example
+ * ```javascript
+ * const selection = new FlowGraphSelection(flowGraph);
+ * 
+ * // Select a node
+ * selection.selectNode('node1');
+ * 
+ * // Multi-select nodes
+ * selection.selectNode('node2', true);
+ * 
+ * // Copy selected nodes
+ * selection.copySelectedNodes();
+ * ```
  */
 export class FlowGraphSelection {
+  /**
+   * Creates a new FlowGraphSelection instance.
+   * 
+   * @param {FlowGraph} flowGraph - The parent FlowGraph instance
+   */
   constructor(flowGraph) {
+    /** @type {FlowGraph} The parent FlowGraph instance */
     this.flowGraph = flowGraph;
+    
+    /** @type {Set<string>} Set of selected node IDs */
     this.selection = new Set();
+    
+    /** @type {Object|null} Clipboard data for copy/paste operations */
     this.clipboard = null;
   }
 
   /**
-   * Select a node
+   * Select a node, optionally adding to existing selection.
+   * 
+   * @param {string} nodeId - The ID of the node to select
+   * @param {boolean} [addToSelection=false] - Whether to add to existing selection
+   * 
+   * @example
+   * ```javascript
+   * // Select single node
+   * selection.selectNode('node1');
+   * 
+   * // Add to existing selection
+   * selection.selectNode('node2', true);
+   * ```
    */
   selectNode(nodeId, addToSelection = false) {
     const node = this.flowGraph.nodes.get(nodeId);
@@ -28,7 +70,14 @@ export class FlowGraphSelection {
   }
 
   /**
-   * Deselect a node
+   * Deselect a node from the current selection.
+   * 
+   * @param {string} nodeId - The ID of the node to deselect
+   * 
+   * @example
+   * ```javascript
+   * selection.deselectNode('node1');
+   * ```
    */
   deselectNode(nodeId) {
     const node = this.flowGraph.nodes.get(nodeId);
@@ -43,7 +92,12 @@ export class FlowGraphSelection {
   }
 
   /**
-   * Clear all selections
+   * Clear all current selections.
+   * 
+   * @example
+   * ```javascript
+   * selection.clearSelection();
+   * ```
    */
   clearSelection() {
     const previousSelection = Array.from(this.selection);

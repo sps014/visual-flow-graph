@@ -1,11 +1,35 @@
 /**
- * Handles socket connections and edge creation
+ * Handles socket connections and edge creation for FlowGraph.
+ * 
+ * This class manages the connection system between nodes, including
+ * socket interaction, edge creation, connection validation, and
+ * visual feedback during connection operations.
+ * 
+ * @class FlowGraphConnections
+ * 
+ * @example
+ * ```javascript
+ * const connections = new FlowGraphConnections(flowGraph);
+ * 
+ * // Check if two sockets can connect
+ * const canConnect = connections.canConnect(socket1, socket2);
+ * 
+ * // Get socket position
+ * const position = connections.getSocketPosition(socket);
+ * ```
  */
 export class FlowGraphConnections {
+  /**
+   * Creates a new FlowGraphConnections instance.
+   * 
+   * @param {FlowGraph} flowGraph - The parent FlowGraph instance
+   */
   constructor(flowGraph) {
+    /** @type {FlowGraph} The parent FlowGraph instance */
     this.flowGraph = flowGraph;
     
     // Connection state
+    /** @type {Object} Current connection operation state */
     this.connectionState = {
       active: false,
       fromSocket: null,
@@ -14,7 +38,10 @@ export class FlowGraphConnections {
   }
 
   /**
-   * Setup event listeners for connections
+   * Setup event listeners for connection operations.
+   * Handles pointer events for socket interactions.
+   * 
+   * @private
    */
   setupEventListeners() {
     // Socket connection handling

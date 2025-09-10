@@ -1,22 +1,86 @@
 import { Socket } from './Socket.js';
 
+/**
+ * Represents a single node in the flow graph.
+ * 
+ * A Node is a visual element that can contain input and output sockets,
+ * execute logic, and maintain data state. Nodes are created from templates
+ * and can be connected to other nodes via edges.
+ * 
+ * @class Node
+ * 
+ * @example
+ * ```javascript
+ * // Create a node from a template
+ * const node = new Node(flowGraph, {
+ *   type: 'math-add',
+ *   x: 100,
+ *   y: 100,
+ *   template: mathAddTemplate
+ * });
+ * 
+ * // Execute the node
+ * await node.execute();
+ * ```
+ */
 export class Node {
+  /**
+   * Creates a new Node instance.
+   * 
+   * @param {FlowGraph} flowGraph - The parent FlowGraph instance
+   * @param {Object} [config={}] - Configuration object for the node
+   * @param {string} [config.id] - Custom ID for the node (auto-generated if not provided)
+   * @param {string} config.type - The node type identifier
+   * @param {string} [config.label] - Display label for the node
+   * @param {number} [config.x=0] - X position of the node
+   * @param {number} [config.y=0] - Y position of the node
+   * @param {number} [config.width=160] - Width of the node
+   * @param {number} [config.height=100] - Height of the node
+   * @param {boolean} [config.selected=false] - Whether the node is initially selected
+   * @param {Object} config.template - Node template defining sockets and HTML
+   * @param {Object} [config.initialData] - Initial data values for data-bound elements
+   */
   constructor(flowGraph, config = {}) {
+    /** @type {FlowGraph} The parent FlowGraph instance */
     this.flowGraph = flowGraph;
+    
+    /** @type {string} Unique identifier for this node */
     this.id = config.id || `node_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    /** @type {string} The node type identifier */
     this.type = config.type;
+    
+    /** @type {string} Display label for the node */
     this.label = config.label || config.type;
+    
+    /** @type {number} X position of the node */
     this.x = config.x || 0;
+    
+    /** @type {number} Y position of the node */
     this.y = config.y || 0;
+    
+    /** @type {number} Width of the node */
     this.width = config.width || 160;
+    
+    /** @type {number} Height of the node */
     this.height = config.height || 100;
+    
+    /** @type {boolean} Whether the node is currently selected */
     this.selected = config.selected || false;
+    
+    /** @type {Object} Node template defining sockets and HTML structure */
     this.template = config.template;
     
+    /** @type {Map<string, Socket>} Map of input socket IDs to Socket instances */
     this.inputs = new Map();
+    
+    /** @type {Map<string, Socket>} Map of output socket IDs to Socket instances */
     this.outputs = new Map();
+    
+    /** @type {HTMLDivElement|null} The DOM element for this node */
     this.element = null;
 
+    /** @type {Map<string, Object>} Map of data keys to DOM elements for data binding */
     this.dataKeyMap = new Map();
     
     this.init();
@@ -28,6 +92,12 @@ export class Node {
     console.log(`Node ${this.id} initialized with data:`, config.initialData);
   }
   
+  /**
+   * Initialize the node after construction.
+   * Creates DOM elements, sockets, and sets up event handlers.
+   * 
+   * @private
+   */
   init() {
     this.createElement();
     this.createSockets();
@@ -35,6 +105,12 @@ export class Node {
     this.createDataKeyMap();
   }
   
+  /**
+   * Create the DOM element for this node.
+   * Applies styling, template HTML, and adds it to the flow graph.
+   * 
+   * @private
+   */
   createElement() {
     this.element = document.createElement('div');
     this.element.className = `node type-${this.type}`;
@@ -75,6 +151,12 @@ export class Node {
   }
 
 
+  /**
+   * Create a mapping of data keys to DOM elements for data binding.
+   * Scans the node's HTML for elements with data-key attributes.
+   * 
+   * @private
+   */
   createDataKeyMap() {
     this.element.querySelectorAll('[data-key]').forEach(element => {
       const dataKey = element.getAttribute('data-key');
@@ -90,6 +172,12 @@ export class Node {
   
 
   
+  /**
+   * Create input and output sockets based on the node template.
+   * Sockets are created and linked to their corresponding DOM elements.
+   * 
+   * @private
+   */
   createSockets() {
     if (!this.template) return;
     
@@ -257,7 +345,26 @@ export class Node {
   }
   
   /**
-   * Execute the node's onExecuteMethod if defined
+   * Execute the node's logic by calling its onExecute function.
+   * The function is looked up in the global scope and called with a context object.
+   * 
+   * @async
+   * @returns {Promise<any>} The result of the execution function
+   * 
+   * @example
+   * ```javascript
+   * // Define a global execution function
+   * window.executeMathAdd = async (context) => {
+   *   const a = context.getInput(0) || 0;
+   *   const b = context.getInput(1) || 0;
+   *   const result = a + b;
+   *   context.setOutput(0, result);
+   *   return result;
+   * };
+   * 
+   * // Execute the node
+   * await node.execute();
+   * ```
    */
   async execute() {
     if (!this.template || !this.template.onExecute) {
@@ -312,7 +419,16 @@ export class Node {
   
   
   /**
-   * Set output socket value by index
+   * Set the value of an output socket by index.
+   * Also propagates the value to connected input sockets.
+   * 
+   * @param {number} index - The index of the output socket
+   * @param {any} value - The value to set
+   * 
+   * @example
+   * ```javascript
+   * node.setOutputValue(0, 42); // Set first output to 42
+   * ```
    */
   setOutputValue(index, value) {
     const outputArray = Array.from(this.outputs.values());
@@ -335,7 +451,15 @@ export class Node {
   }
   
   /**
-   * Get input socket value by index
+   * Get the value of an input socket by index.
+   * 
+   * @param {number} index - The index of the input socket
+   * @returns {any} The value of the input socket, or undefined if not found
+   * 
+   * @example
+   * ```javascript
+   * const value = node.getInputValue(0); // Get first input value
+   * ```
    */
   getInputValue(index) {
     const inputArray = Array.from(this.inputs.values());
@@ -344,6 +468,18 @@ export class Node {
   }
   
   // Data binding methods for DOM elements with data-key attributes
+  
+  /**
+   * Parse a data key string to extract key and property.
+   * Format: "key" or "key:property"
+   * 
+   * @param {string} dataKey - The data key string to parse
+   * @returns {Object} Object with key and property
+   * @returns {string} returns.key - The data key
+   * @returns {string} returns.property - The property name (defaults to 'value')
+   * 
+   * @private
+   */
   parseDataKey(dataKey) {
     const parts = dataKey.split(':');
     return {
@@ -352,6 +488,17 @@ export class Node {
     };
   }
   
+  /**
+   * Get data from a DOM element by its data-key attribute.
+   * 
+   * @param {string} key - The data key to retrieve
+   * @returns {any} The value from the DOM element, or undefined if not found
+   * 
+   * @example
+   * ```javascript
+   * const value = node.getData('myInput'); // Get value from element with data-key="myInput"
+   * ```
+   */
   getData(key) {
     const element = this.dataKeyMap.get(key).el;
     if (!element) return undefined;
@@ -360,6 +507,18 @@ export class Node {
     return element[property];
   }
   
+  /**
+   * Set data on a DOM element by its data-key attribute.
+   * 
+   * @param {string} key - The data key to set
+   * @param {any} value - The value to set
+   * @returns {boolean} True if the element was found and updated, false otherwise
+   * 
+   * @example
+   * ```javascript
+   * node.setData('myInput', 'Hello World'); // Set value on element with data-key="myInput"
+   * ```
+   */
   setData(key, value) {
     const element = this.dataKeyMap.get(key).el;
     if (!element) return false;
@@ -369,6 +528,17 @@ export class Node {
     return true;
   }
   
+  /**
+   * Get all data values from all data-bound elements as an object.
+   * 
+   * @returns {Object} Object with all data key-value pairs
+   * 
+   * @example
+   * ```javascript
+   * const allData = node.getDataObject();
+   * console.log(allData); // { myInput: 'Hello', myNumber: 42 }
+   * ```
+   */
   getDataObject() {
     const dataObj = {};
     const dataValuesStore = this.dataKeyMap.values();
@@ -380,6 +550,16 @@ export class Node {
     return dataObj;
   }
   
+  /**
+   * Set multiple data values from an object.
+   * 
+   * @param {Object} dataObj - Object with key-value pairs to set
+   * 
+   * @example
+   * ```javascript
+   * node.setDataObject({ myInput: 'Hello', myNumber: 42 });
+   * ```
+   */
   setDataObject(dataObj) {
     Object.entries(dataObj).forEach(([key, value]) => {
       this.setData(key, value);

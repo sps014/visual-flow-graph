@@ -1,17 +1,51 @@
 /**
- * Handles node execution and dependency management
+ * Handles node execution and dependency management for FlowGraph.
+ * 
+ * This class manages the execution of nodes in the correct order based on
+ * their dependencies, handles branch tracking for conditional execution,
+ * and provides comprehensive execution control and monitoring.
+ * 
+ * @class FlowGraphExecution
+ * 
+ * @example
+ * ```javascript
+ * const execution = new FlowGraphExecution(flowGraph);
+ * 
+ * // Execute all nodes
+ * await execution.execute();
+ * 
+ * // Execute only selected nodes
+ * await execution.executeSelectedNodes();
+ * ```
  */
 export class FlowGraphExecution {
+  /**
+   * Creates a new FlowGraphExecution instance.
+   * 
+   * @param {FlowGraph} flowGraph - The parent FlowGraph instance
+   */
   constructor(flowGraph) {
+    /** @type {FlowGraph} The parent FlowGraph instance */
     this.flowGraph = flowGraph;
     
     // Branch tracking system for conditional execution
+    /** @type {Map<string, Set<number>>} Map of node IDs to active output indices */
     this.activeOutputs = new Map(); // nodeId -> Set of active output indices
+    
+    /** @type {Map<string, Set<number>>} Map of node IDs to active input indices */
     this.activeInputs = new Map(); // nodeId -> Set of active input indices
   }
 
   /**
-   * Execute all nodes in the graph in dependency order
+   * Execute all nodes in the graph in dependency order.
+   * 
+   * @async
+   * @returns {Promise<void>}
+   * 
+   * @example
+   * ```javascript
+   * await execution.execute();
+   * ```
    */
   async execute() {
     // Fire start event

@@ -1,14 +1,50 @@
 /**
- * Handles drag operations and multi-drag system
+ * Handles drag operations and multi-drag system for FlowGraph.
+ * 
+ * This class manages dragging operations for nodes, including single node
+ * dragging and multi-selection dragging. It provides smooth drag interactions
+ * and maintains proper positioning during drag operations.
+ * 
+ * @class FlowGraphDrag
+ * 
+ * @example
+ * ```javascript
+ * const drag = new FlowGraphDrag(flowGraph);
+ * 
+ * // Start multi-drag operation
+ * drag.startMultiDrag(event, draggedNode);
+ * 
+ * // Update drag position
+ * drag.updateMultiDrag(event);
+ * 
+ * // End drag operation
+ * drag.endMultiDrag();
+ * ```
  */
 export class FlowGraphDrag {
+  /**
+   * Creates a new FlowGraphDrag instance.
+   * 
+   * @param {FlowGraph} flowGraph - The parent FlowGraph instance
+   */
   constructor(flowGraph) {
+    /** @type {FlowGraph} The parent FlowGraph instance */
     this.flowGraph = flowGraph;
+    
+    /** @type {Object|null} Current multi-drag state */
     this.multiDragState = null;
   }
 
   /**
-   * Start multi-drag operation
+   * Start a multi-drag operation for selected nodes.
+   * 
+   * @param {PointerEvent} e - The pointer event that initiated the drag
+   * @param {Node} draggedNode - The node that was initially dragged
+   * 
+   * @example
+   * ```javascript
+   * drag.startMultiDrag(event, node);
+   * ```
    */
   startMultiDrag(e, draggedNode) {
     this.multiDragState = {

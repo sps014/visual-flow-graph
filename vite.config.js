@@ -1,5 +1,20 @@
+/**
+ * @fileoverview Vite configuration for FlowGraph library
+ * 
+ * This configuration builds the FlowGraph library as a standalone ES module
+ * with bundled dependencies and proper CSS handling.
+ * 
+ * @version 1.0.0
+ * @author FlowGraph Team
+ */
+
 import { defineConfig } from 'vite';
 
+/**
+ * Vite configuration for building the FlowGraph library.
+ * 
+ * @type {import('vite').UserConfig}
+ */
 export default defineConfig({
   build: {
     lib: {

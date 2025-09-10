@@ -1,14 +1,55 @@
 import { LitElement, html, css } from 'lit';
 
+/**
+ * FlowContextMenu web component.
+ * 
+ * This component provides a context menu for adding nodes to the flow graph.
+ * It displays a searchable list of available node definitions and allows
+ * users to add new nodes by clicking on them.
+ * 
+ * @class FlowContextMenu
+ * @extends LitElement
+ * 
+ * @example
+ * ```html
+ * <flow-context-menu 
+ *   ?visible="true"
+ *   x="100"
+ *   y="200"
+ *   .nodeDefinitions="${nodeDefs}"
+ *   .onNodeAdd="${handleNodeAdd}">
+ * </flow-context-menu>
+ * ```
+ */
 export class FlowContextMenu extends LitElement {
+  /**
+   * Lit properties configuration for the component.
+   * @static
+   * @type {Object}
+   */
   static properties = {
+    /** @type {Boolean} Whether the context menu is visible */
     visible: { type: Boolean },
+    
+    /** @type {Number} X position of the context menu */
     x: { type: Number },
+    
+    /** @type {Number} Y position of the context menu */
     y: { type: Number },
+    
+    /** @type {Array} Array of available node definitions */
     nodeDefinitions: { type: Array },
+    
+    /** @type {Function} Callback function when a node is added */
     onNodeAdd: { type: Function },
+    
+    /** @type {String} Search term for filtering node definitions */
     searchTerm: { type: String },
+    
+    /** @type {Number} Minimum width of the context menu */
     minWidth: { type: Number },
+    
+    /** @type {Number} Maximum width of the context menu */
     maxWidth: { type: Number }
   };
 

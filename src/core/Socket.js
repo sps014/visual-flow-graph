@@ -1,15 +1,83 @@
+/**
+ * Represents a connection point on a node.
+ * 
+ * Sockets are the connection points that allow nodes to be linked together.
+ * They can be either input or output sockets and handle connection validation,
+ * value propagation, and visual representation.
+ * 
+ * @class Socket
+ * 
+ * @example
+ * ```javascript
+ * // Create an input socket
+ * const inputSocket = new Socket(node, {
+ *   id: 'input1',
+ *   type: 'input',
+ *   dataType: 'number',
+ *   label: 'Value'
+ * });
+ * 
+ * // Create an output socket
+ * const outputSocket = new Socket(node, {
+ *   id: 'output1',
+ *   type: 'output',
+ *   dataType: 'number',
+ *   label: 'Result'
+ * });
+ * ```
+ */
 export class Socket {
+  /**
+   * Creates a new Socket instance.
+   * 
+   * @param {Node} node - The parent node this socket belongs to
+   * @param {Object} [config={}] - Configuration object for the socket
+   * @param {string} config.id - Unique identifier for this socket
+   * @param {string} config.type - Socket type: 'input' or 'output'
+   * @param {string} [config.dataType='any'] - Data type this socket accepts/provides
+   * @param {string} [config.label] - Display label for the socket
+   * @param {number} [config.maxConnections] - Maximum number of connections allowed
+   */
   constructor(node, config = {}) {
+    /** @type {Node} The parent node this socket belongs to */
     this.node = node;
+    
+    /** @type {string} Unique identifier for this socket */
     this.id = config.id;
+    
+    /** @type {string} Socket type: 'input' or 'output' */
     this.type = config.type; // 'input' or 'output'
+    
+    /** @type {string} Data type this socket accepts/provides */
     this.dataType = config.dataType || 'any';
+    
+    /** @type {string} Display label for the socket */
     this.label = config.label || this.id;
+    
+    /** @type {HTMLElement|null} The DOM element for this socket */
     this.element = null;
+    
+    /** @type {Set<Edge>} Set of edges connected to this socket */
     this.connections = new Set();
+    
+    /** @type {number} Maximum number of connections allowed */
     this.maxConnections = config.maxConnections || (this.type === 'output' ? Infinity : 1);
   }
   
+  /**
+   * Check if this socket can connect to another socket.
+   * Validates type compatibility, connection limits, and prevents duplicate connections.
+   * 
+   * @param {Socket} otherSocket - The socket to check connection compatibility with
+   * @returns {boolean} True if the sockets can be connected
+   * 
+   * @example
+   * ```javascript
+   * if (inputSocket.canConnect(outputSocket)) {
+   *   // Create connection
+   * }
+   * ```
+   */
   canConnect(otherSocket) {
     if (!otherSocket) return false;
     if (otherSocket === this) return false;
@@ -30,14 +98,38 @@ export class Socket {
     return true;
   }
   
+  /**
+   * Add an edge connection to this socket.
+   * 
+   * @param {Edge} edge - The edge to add to this socket's connections
+   */
   addConnection(edge) {
     this.connections.add(edge);
   }
   
+  /**
+   * Remove an edge connection from this socket.
+   * 
+   * @param {Edge} edge - The edge to remove from this socket's connections
+   */
   removeConnection(edge) {
     this.connections.delete(edge);
   }
   
+  /**
+   * Get the screen position of this socket.
+   * Returns coordinates relative to the flow graph surface.
+   * 
+   * @returns {Object} Object with x and y coordinates
+   * @returns {number} returns.x - X coordinate
+   * @returns {number} returns.y - Y coordinate
+   * 
+   * @example
+   * ```javascript
+   * const pos = socket.getPosition();
+   * console.log(`Socket at ${pos.x}, ${pos.y}`);
+   * ```
+   */
   getPosition() {
     if (!this.element) return { x: 0, y: 0 };
     

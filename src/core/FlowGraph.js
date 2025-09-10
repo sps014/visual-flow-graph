@@ -7,19 +7,65 @@ import { FlowGraphSelection } from './FlowGraphSelection.js';
 import { FlowGraphConnections } from './FlowGraphConnections.js';
 import { FlowGraphDrag } from './FlowGraphDrag.js';
 
+/**
+ * Main FlowGraph class that manages the visual scripting interface.
+ * 
+ * The FlowGraph is the central orchestrator that manages nodes, edges, viewport,
+ * and all user interactions. It provides a comprehensive API for creating,
+ * manipulating, and executing visual scripts.
+ * 
+ * @class FlowGraph
+ * @extends EventTarget
+ * 
+ * @example
+ * ```javascript
+ * const container = document.getElementById('flow-container');
+ * const flowGraph = new FlowGraph(container);
+ * 
+ * // Add a node template
+ * flowGraph.addNodeTemplate('math-add', {
+ *   inputs: [{ id: 'a', type: 'number', label: 'A' }],
+ *   outputs: [{ id: 'result', type: 'number', label: 'Result' }],
+ *   html: '<div>Add: <input data-key="a" type="number"></div>'
+ * });
+ * 
+ * // Create a node
+ * const node = flowGraph.addNode('math-add', { x: 100, y: 100 });
+ * ```
+ */
 export class FlowGraph extends EventTarget {
+  /**
+   * Creates a new FlowGraph instance.
+   * 
+   * @param {HTMLElement} container - The DOM element that will contain the flow graph interface
+   * 
+   * @example
+   * ```javascript
+   * const container = document.getElementById('my-flow-graph');
+   * const flowGraph = new FlowGraph(container);
+   * ```
+   */
   constructor(container) {
     super();
     
+    /** @type {HTMLElement} The container element for the flow graph */
     this.container = container;
+    
+    /** @type {Map<string, Node>} Map of node IDs to Node instances */
     this.nodes = new Map();
+    
+    /** @type {Map<string, Edge>} Map of edge IDs to Edge instances */
     this.edges = new Map();
+    
+    /** @type {Map<string, Object>} Map of node type names to node templates */
     this.templates = new Map();
     
     // Create surface elements
+    /** @type {HTMLDivElement} The main surface element containing all flow graph content */
     this.surface = document.createElement('div');
     this.surface.className = 'surface';
     
+    /** @type {SVGSVGElement} SVG element for rendering edges and connections */
     this.edgeSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     this.edgeSvg.id = 'edge-svg';
     this.edgeSvg.style.cssText = `
@@ -32,6 +78,7 @@ export class FlowGraph extends EventTarget {
       z-index: 1;
     `;
     
+    /** @type {HTMLDivElement} Container element for all node elements */
     this.nodesRoot = document.createElement('div');
     this.nodesRoot.id = 'nodes-root';
     this.nodesRoot.style.cssText = `
@@ -41,6 +88,7 @@ export class FlowGraph extends EventTarget {
     `;
     
     // Temp path for drawing connections
+    /** @type {SVGPathElement} Temporary path element for drawing new connections */
     this.tempPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     this.tempPath.setAttribute('stroke', '#10b981'); // Green color for better visibility
     this.tempPath.setAttribute('stroke-width', '2.5'); // Reduced stroke width
@@ -51,6 +99,7 @@ export class FlowGraph extends EventTarget {
     this.edgeSvg.appendChild(this.tempPath);
     
     // Create content container that holds both nodes and edges (like original lib.js)
+    /** @type {HTMLDivElement} Container that holds both nodes and edges for viewport transformations */
     this.contentContainer = document.createElement('div');
     this.contentContainer.style.cssText = `
       position: absolute;
@@ -71,22 +120,44 @@ export class FlowGraph extends EventTarget {
     this.container.appendChild(this.surface);
     
     // Initialize viewport with content container
+    /** @type {Viewport} Manages pan, zoom, and viewport transformations */
     this.viewport = new Viewport(this.surface, this.contentContainer, this);
     
     // Initialize modular components
+    /** @type {FlowGraphAnimations} Handles node and edge animations */
     this.animations = new FlowGraphAnimations(this);
+    
+    /** @type {FlowGraphExecution} Manages node execution and data flow */
     this.execution = new FlowGraphExecution(this);
+    
+    /** @type {FlowGraphSelection} Handles node and edge selection */
     this.selection = new FlowGraphSelection(this);
+    
+    /** @type {FlowGraphConnections} Manages socket connections and edge creation */
     this.connections = new FlowGraphConnections(this);
+    
+    /** @type {FlowGraphDrag} Handles dragging operations for nodes and edges */
     this.drag = new FlowGraphDrag(this);
     
     this.init();
   }
   
+  /**
+   * Initialize the FlowGraph after construction.
+   * Sets up event listeners and prepares the interface for interaction.
+   * 
+   * @private
+   */
   init() {
     this.setupEventListeners();
   }
   
+  /**
+   * Set up all event listeners for the FlowGraph interface.
+   * Delegates to modular components and handles global interactions.
+   * 
+   * @private
+   */
   setupEventListeners() {
     // Delegate to modular components
     this.connections.setupEventListeners();
@@ -106,22 +177,97 @@ export class FlowGraph extends EventTarget {
   // ===== DELEGATION METHODS =====
   
   // Connection methods
+  /**
+   * Check if two sockets can be connected.
+   * 
+   * @param {Socket} fromSocket - The source socket
+   * @param {Socket} toSocket - The target socket
+   * @returns {boolean} True if the sockets can be connected
+   */
   canConnect(fromSocket, toSocket) {
     return this.connections.canConnect(fromSocket, toSocket);
   }
   
+  /**
+   * Get the screen position of a socket.
+   * 
+   * @param {Socket} socket - The socket to get position for
+   * @returns {Object} Object with x and y coordinates
+   */
   getSocketPosition(socket) {
     return this.connections.getSocketPosition(socket);
   }
   
+  /**
+   * Create a cubic bezier path between two points.
+   * 
+   * @param {Object} from - Starting position {x, y}
+   * @param {Object} to - Ending position {x, y}
+   * @param {Socket} fromSocket - Source socket
+   * @param {Socket} toSocket - Target socket
+   * @returns {string} SVG path string
+   */
   createCubicPath(from, to, fromSocket, toSocket) {
     return this.connections.createCubicPath(from, to, fromSocket, toSocket);
   }
   
+  /**
+   * Add a node template that defines how nodes of a specific type should be created.
+   * 
+   * @param {string} name - The type name for the node template
+   * @param {Object} template - Template configuration object
+   * @param {Array} template.inputs - Array of input socket configurations
+   * @param {Array} template.outputs - Array of output socket configurations
+   * @param {string} template.html - HTML template for the node's visual representation
+   * @param {string} [template.category] - Optional category for styling
+   * @param {Object} [template.colorPatch] - Optional color theming
+   * @param {string} [template.onExecute] - Optional function name to call on execution
+   * 
+   * @example
+   * ```javascript
+   * flowGraph.addNodeTemplate('math-add', {
+   *   inputs: [
+   *     { id: 'a', type: 'number', label: 'A' },
+   *     { id: 'b', type: 'number', label: 'B' }
+   *   ],
+   *   outputs: [
+   *     { id: 'result', type: 'number', label: 'Result' }
+   *   ],
+   *   html: '<div>Add: <input data-key="a" type="number"> + <input data-key="b" type="number"></div>',
+   *   category: 'math',
+   *   onExecute: 'executeMathAdd'
+   * });
+   * ```
+   */
   addNodeTemplate(name, template) {
     this.templates.set(name, template);
   }
   
+  /**
+   * Create a new node instance and add it to the flow graph.
+   * 
+   * @param {string} type - The node type (must have a registered template)
+   * @param {Object} [config={}] - Configuration object for the node
+   * @param {string} [config.id] - Custom ID for the node (auto-generated if not provided)
+   * @param {number} [config.x=0] - X position of the node
+   * @param {number} [config.y=0] - Y position of the node
+   * @param {number} [config.width=160] - Width of the node
+   * @param {number} [config.height=100] - Height of the node
+   * @param {string} [config.label] - Display label for the node
+   * @param {boolean} [config.selected=false] - Whether the node is initially selected
+   * @param {Object} [config.data] - Initial data values for data-bound elements
+   * @returns {Node} The created node instance
+   * @throws {Error} If the node type is not recognized
+   * 
+   * @example
+   * ```javascript
+   * const node = flowGraph.addNode('math-add', {
+   *   x: 100,
+   *   y: 100,
+   *   data: { a: 5, b: 10 }
+   * });
+   * ```
+   */
   addNode(type, config = {}) {
     const template = this.templates.get(type);
     if (!template) {
@@ -143,6 +289,18 @@ export class FlowGraph extends EventTarget {
     return node;
   }
   
+  /**
+   * Remove a node from the flow graph.
+   * Also removes all edges connected to the node.
+   * 
+   * @param {string} nodeId - The ID of the node to remove
+   * @returns {boolean} True if the node was found and removed, false otherwise
+   * 
+   * @example
+   * ```javascript
+   * flowGraph.removeNode('node_123');
+   * ```
+   */
   removeNode(nodeId) {
     const node = this.nodes.get(nodeId);
     if (!node) return;
@@ -165,6 +323,21 @@ export class FlowGraph extends EventTarget {
     }));
   }
   
+  /**
+   * Create a new edge connecting two sockets.
+   * 
+   * @param {Socket} fromSocket - The source socket
+   * @param {Socket} toSocket - The target socket
+   * @returns {Edge|null} The created edge instance, or null if connection is not allowed
+   * 
+   * @example
+   * ```javascript
+   * const edge = flowGraph.createEdge(node1.getSocket('output'), node2.getSocket('input'));
+   * if (edge) {
+   *   console.log('Edge created successfully');
+   * }
+   * ```
+   */
   createEdge(fromSocket, toSocket) {
     if (!this.canConnect(fromSocket, toSocket)) return null;
     
@@ -179,12 +352,26 @@ export class FlowGraph extends EventTarget {
   }
   
   /**
-   * Get edge by ID
+   * Get an edge by its ID.
+   * 
+   * @param {string} edgeId - The ID of the edge to retrieve
+   * @returns {Edge|undefined} The edge instance, or undefined if not found
    */
   getEdge(edgeId) {
     return this.edges.get(edgeId);
   }
   
+  /**
+   * Remove an edge from the flow graph.
+   * 
+   * @param {string} edgeId - The ID of the edge to remove
+   * @returns {boolean} True if the edge was found and removed, false otherwise
+   * 
+   * @example
+   * ```javascript
+   * flowGraph.removeEdge('edge_123');
+   * ```
+   */
   removeEdge(edgeId) {
     const edge = this.edges.get(edgeId);
     if (!edge) return;
@@ -197,6 +384,13 @@ export class FlowGraph extends EventTarget {
     }));
   }
   
+  /**
+   * Update the visual path of all edges connected to a specific node.
+   * Called when a node is moved or resized.
+   * 
+   * @param {Node} node - The node whose connected edges should be updated
+   * @private
+   */
   updateEdgesForNode(node) {
     for (const edge of this.edges.values()) {
       if (edge.fromSocket.node === node || edge.toSocket.node === node) {
@@ -205,6 +399,15 @@ export class FlowGraph extends EventTarget {
     }
   }
   
+  /**
+   * Clear all nodes and edges from the flow graph.
+   * This removes all visual elements and resets the graph to an empty state.
+   * 
+   * @example
+   * ```javascript
+   * flowGraph.clear(); // Remove all nodes and edges
+   * ```
+   */
   clear() {
     // Remove all edges
     for (const edgeId of this.edges.keys()) {
@@ -217,6 +420,21 @@ export class FlowGraph extends EventTarget {
     }
   }
   
+  /**
+   * Serialize the current state of the flow graph to a JSON object.
+   * This includes all nodes, edges, and viewport state for saving/loading.
+   * 
+   * @returns {Object} Serialized flow graph data
+   * @returns {Array} returns.nodes - Array of serialized node data
+   * @returns {Array} returns.edges - Array of serialized edge data
+   * @returns {Object} returns.viewport - Serialized viewport state
+   * 
+   * @example
+   * ```javascript
+   * const data = flowGraph.serialize();
+   * localStorage.setItem('myFlowGraph', JSON.stringify(data));
+   * ```
+   */
   serialize() {
     const nodes = Array.from(this.nodes.values()).map(node => node.serialize());
     const edges = Array.from(this.edges.values()).map(edge => edge.serialize());
@@ -228,6 +446,21 @@ export class FlowGraph extends EventTarget {
     };
   }
   
+  /**
+   * Deserialize flow graph data and restore the graph state.
+   * This recreates all nodes, edges, and viewport from saved data.
+   * 
+   * @param {Object} data - Serialized flow graph data
+   * @param {Array} data.nodes - Array of node data to restore
+   * @param {Array} data.edges - Array of edge data to restore
+   * @param {Object} [data.viewport] - Viewport state to restore
+   * 
+   * @example
+   * ```javascript
+   * const data = JSON.parse(localStorage.getItem('myFlowGraph'));
+   * flowGraph.deserialize(data);
+   * ```
+   */
   deserialize(data) {
     this.clear();
     

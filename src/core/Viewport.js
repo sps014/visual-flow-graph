@@ -1,15 +1,58 @@
+/**
+ * Manages the viewport transformations for the flow graph.
+ * 
+ * The Viewport handles panning, zooming, and coordinate transformations
+ * for the flow graph interface. It provides smooth user interactions
+ * and maintains the visual state of the graph.
+ * 
+ * @class Viewport
+ * 
+ * @example
+ * ```javascript
+ * const viewport = new Viewport(surface, contentContainer, flowGraph);
+ * 
+ * // Pan to a specific position
+ * viewport.panTo(100, 200);
+ * 
+ * // Zoom to a specific scale
+ * viewport.zoomTo(2.0);
+ * ```
+ */
 export class Viewport {
+  /**
+   * Creates a new Viewport instance.
+   * 
+   * @param {HTMLElement} surface - The surface element for event handling
+   * @param {HTMLElement} contentContainer - The container element to transform
+   * @param {FlowGraph} [flowGraph=null] - The parent FlowGraph instance
+   */
   constructor(surface, contentContainer, flowGraph = null) {
+    /** @type {HTMLElement} The surface element for event handling */
     this.surface = surface;
+    
+    /** @type {HTMLElement} The container element to transform */
     this.contentContainer = contentContainer;
+    
+    /** @type {FlowGraph|null} The parent FlowGraph instance */
     this.flowGraph = flowGraph;
+    
+    /** @type {number} Current X position of the viewport */
     this.x = 0;
+    
+    /** @type {number} Current Y position of the viewport */
     this.y = 0;
+    
+    /** @type {number} Current zoom scale of the viewport */
     this.scale = 1;
+    
+    /** @type {number} Minimum allowed zoom scale */
     this.minScale = 0.1;
+    
+    /** @type {number} Maximum allowed zoom scale */
     this.maxScale = 3;
     
     // Pan state - matching original lib.js
+    /** @type {Object} Internal state for panning operations */
     this.panState = {
       isPanning: false,
       startX: 0,

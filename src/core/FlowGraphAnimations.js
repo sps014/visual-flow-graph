@@ -1,11 +1,40 @@
 /**
- * Handles all animation-related functionality for FlowGraph
+ * Handles all animation-related functionality for FlowGraph.
+ * 
+ * This class manages visual animations during node execution, including
+ * node highlighting, edge animations, and execution trails. It provides
+ * a comprehensive animation system that enhances the visual feedback
+ * during flow graph execution.
+ * 
+ * @class FlowGraphAnimations
+ * 
+ * @example
+ * ```javascript
+ * const animations = new FlowGraphAnimations(flowGraph);
+ * 
+ * // Configure animations
+ * animations.setAnimationConfig({
+ *   style: 'flowing',
+ *   speed: 'fast',
+ *   duration: 2000
+ * });
+ * 
+ * // Highlight a node during execution
+ * animations.highlightExecutingNode(node, true);
+ * ```
  */
 export class FlowGraphAnimations {
+  /**
+   * Creates a new FlowGraphAnimations instance.
+   * 
+   * @param {FlowGraph} flowGraph - The parent FlowGraph instance
+   */
   constructor(flowGraph) {
+    /** @type {FlowGraph} The parent FlowGraph instance */
     this.flowGraph = flowGraph;
     
     // Animation configuration
+    /** @type {Object} Configuration object for animations */
     this.animationConfig = {
       enabled: true,
       style: 'flowing', // 'flowing', 'pulsing', 'data-flow'
@@ -15,28 +44,70 @@ export class FlowGraphAnimations {
   }
 
   /**
-   * Configure edge animations during execution
+   * Configure edge animations during execution.
+   * 
+   * @param {Object} config - Animation configuration object
+   * @param {boolean} [config.enabled] - Whether animations are enabled
+   * @param {string} [config.style] - Animation style: 'flowing', 'pulsing', 'data-flow'
+   * @param {string} [config.speed] - Animation speed: 'slow', 'normal', 'fast'
+   * @param {number} [config.duration] - Base duration for animations in milliseconds
+   * 
+   * @example
+   * ```javascript
+   * animations.setAnimationConfig({
+   *   style: 'flowing',
+   *   speed: 'fast',
+   *   duration: 2000
+   * });
+   * ```
    */
   setAnimationConfig(config) {
     this.animationConfig = { ...this.animationConfig, ...config };
   }
 
   /**
-   * Set trail duration for animations
+   * Set the trail duration for animations.
+   * 
+   * @param {number} duration - Duration in milliseconds
+   * 
+   * @example
+   * ```javascript
+   * animations.setTrailDuration(1500); // 1.5 seconds
+   * ```
    */
   setTrailDuration(duration) {
     this.animationConfig.duration = duration;
   }
 
   /**
-   * Get trail duration for animations
+   * Get the current trail duration for animations.
+   * 
+   * @returns {number} Duration in milliseconds
+   * 
+   * @example
+   * ```javascript
+   * const duration = animations.getTrailDuration();
+   * console.log(`Animation duration: ${duration}ms`);
+   * ```
    */
   getTrailDuration() {
     return this.animationConfig.duration;
   }
 
   /**
-   * Highlight or unhighlight a node during execution
+   * Highlight or unhighlight a node during execution.
+   * 
+   * @param {Node} node - The node to highlight/unhighlight
+   * @param {boolean} isExecuting - Whether the node is currently executing
+   * 
+   * @example
+   * ```javascript
+   * // Highlight node during execution
+   * animations.highlightExecutingNode(node, true);
+   * 
+   * // Remove highlight after execution
+   * animations.highlightExecutingNode(node, false);
+   * ```
    */
   highlightExecutingNode(node, isExecuting) {
     if (!node.element) return;

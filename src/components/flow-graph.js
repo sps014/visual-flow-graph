@@ -2,33 +2,112 @@ import { LitElement, html, css } from 'lit';
 import { FlowGraph } from '../core/FlowGraph.js';
 import './flow-context-menu.js';
 
+/**
+ * Main FlowGraph web component.
+ * 
+ * This is the primary web component that provides the visual scripting interface.
+ * It wraps the core FlowGraph functionality in a Lit-based custom element,
+ * making it easy to use in HTML and providing a declarative API.
+ * 
+ * @class FlowGraphElement
+ * @extends LitElement
+ * 
+ * @example
+ * ```html
+ * <flow-graph 
+ *   theme="dark" 
+ *   snap-to-grid 
+ *   grid-size="20"
+ *   zoom-min="0.1"
+ *   zoom-max="3">
+ * </flow-graph>
+ * ```
+ * 
+ * @example
+ * ```javascript
+ * const flowGraph = document.querySelector('flow-graph');
+ * const flowGraphInstance = flowGraph.flowGraphInstance;
+ * 
+ * // Add a node template
+ * flowGraphInstance.addNodeTemplate('math-add', {
+ *   inputs: [{ id: 'a', type: 'number', label: 'A' }],
+ *   outputs: [{ id: 'result', type: 'number', label: 'Result' }],
+ *   html: '<div>Add: <input data-key="a" type="number"></div>'
+ * });
+ * ```
+ */
 export class FlowGraphElement extends LitElement {
+  /**
+   * Lit properties configuration for the component.
+   * @static
+   * @type {Object}
+   */
   static properties = {
+    /** @type {String} Visual theme for the flow graph */
     theme: { type: String },
+    
+    /** @type {Boolean} Whether to snap nodes to a grid */
     snapToGrid: { type: Boolean, attribute: 'snap-to-grid' },
+    
+    /** @type {Number} Size of the grid for snapping */
     gridSize: { type: Number, attribute: 'grid-size' },
+    
+    /** @type {Number} Minimum zoom level */
     zoomMin: { type: Number, attribute: 'zoom-min' },
+    
+    /** @type {Number} Maximum zoom level */
     zoomMax: { type: Number, attribute: 'zoom-max' },
+    
+    /** @type {Number} Default zoom level */
     defaultZoom: { type: Number, attribute: 'default-zoom' }
   };
   
+  /**
+   * CSS styles for the component.
+   * @static
+   * @type {CSSResult}
+   */
   static styles = css`
     :host {
       /* All styles are now handled by theme.css */
     }
   `;
   
+  /**
+   * Creates a new FlowGraphElement instance.
+   * Initializes default property values and sets up the component.
+   */
   constructor() {
     super();
+    
+    /** @type {string} Visual theme for the flow graph */
     this.theme = 'dark';
+    
+    /** @type {boolean} Whether to snap nodes to a grid */
     this.snapToGrid = false;
+    
+    /** @type {number} Size of the grid for snapping */
     this.gridSize = 20;
+    
+    /** @type {number} Minimum zoom level */
     this.zoomMin = 0.1;
+    
+    /** @type {number} Maximum zoom level */
     this.zoomMax = 3;
+    
+    /** @type {number} Default zoom level */
     this.defaultZoom = 1;
+    
+    /** @type {FlowGraph|null} The core FlowGraph instance */
     this.flowGraph = null;
   }
   
+  /**
+   * Called after the component's DOM has been updated for the first time.
+   * Initializes the FlowGraph instance and sets up event forwarding.
+   * 
+   * @override
+   */
   firstUpdated() {
     this.flowGraph = new FlowGraph(this);
     this.processChildren();

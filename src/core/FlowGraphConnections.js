@@ -35,6 +35,19 @@ export class FlowGraphConnections {
       fromSocket: null,
       toSocket: null
     };
+    
+    // Flag to prevent node dragging during socket interactions
+    this.socketInteractionActive = false;
+    
+    // Long press state for mobile context menu
+    this.longPressState = {
+      timer: null,
+      target: null,
+      startTime: 0,
+      threshold: 500, // 500ms for long press
+      moved: false,
+      connectionDelayed: false
+    };
   }
 
   /**
@@ -44,16 +57,21 @@ export class FlowGraphConnections {
    * @private
    */
   setupEventListeners() {
-    // Socket connection handling
-    this.flowGraph.container.addEventListener('pointerdown', this.handleSocketPointerDown.bind(this));
-    this.flowGraph.container.addEventListener('pointermove', this.handleSocketPointerMove.bind(this));
-    this.flowGraph.container.addEventListener('pointerup', this.handleSocketPointerUp.bind(this));
+    // Socket connection handling with mouse events
+    this.flowGraph.container.addEventListener('mousedown', this.handleSocketMouseDown.bind(this));
+    this.flowGraph.container.addEventListener('mousemove', this.handleSocketMouseMove.bind(this));
+    this.flowGraph.container.addEventListener('mouseup', this.handleSocketMouseUp.bind(this));
+    
+    // Add touch event listeners for better mobile support
+    this.flowGraph.container.addEventListener('touchstart', this.handleSocketTouchStart.bind(this), { passive: false });
+    this.flowGraph.container.addEventListener('touchmove', this.handleSocketTouchMove.bind(this), { passive: false });
+    this.flowGraph.container.addEventListener('touchend', this.handleSocketTouchEnd.bind(this), { passive: false });
   }
 
   /**
-   * Handle socket pointer down
+   * Handle socket mouse down
    */
-  handleSocketPointerDown(e) {
+  handleSocketMouseDown(e) {
     // Check for flow-socket component
     const flowSocket = e.target.closest('flow-socket');
     
@@ -96,17 +114,18 @@ export class FlowGraphConnections {
   }
 
   /**
-   * Handle socket pointer move
+   * Handle socket mouse move
    */
-  handleSocketPointerMove(e) {
+  handleSocketMouseMove(e) {
     if (!this.connectionState.active) return;
     
     this.updateTempPath(e.clientX, e.clientY);
     
-    // Check for socket hover - flow-socket components only
-    const flowSocket = e.target.closest('flow-socket');
+    // Check for hover targets
+    const element = document.elementFromPoint(e.clientX, e.clientY);
+    const flowSocket = element?.closest('flow-socket');
     
-    if (flowSocket && flowSocket !== this.connectionState.fromSocket?.element?.closest('flow-socket')) {
+    if (flowSocket) {
       const nodeElement = flowSocket.closest('.node');
       const nodeId = nodeElement?.dataset.id;
       const socketId = flowSocket.getAttribute('name');
@@ -116,19 +135,25 @@ export class FlowGraphConnections {
         const socketObj = node?.getSocket(socketId);
         
         if (socketObj && this.canConnect(this.connectionState.fromSocket, socketObj)) {
-          // Add visual feedback to the inner socket element
+          // Remove previous hover
+          this.flowGraph.container.querySelectorAll('.socket-hover').forEach(s => {
+            s.classList.remove('socket-hover');
+          });
+          // Also remove hover from flow-socket inner elements
+          this.flowGraph.container.querySelectorAll('flow-socket').forEach(flowSocket => {
+            const innerSocket = flowSocket.shadowRoot?.querySelector('.socket');
+            if (innerSocket) {
+              innerSocket.classList.remove('socket-hover');
+            }
+          });
+          
+          // Add hover to current socket
           const innerSocket = flowSocket.shadowRoot?.querySelector('.socket');
           if (innerSocket) {
             innerSocket.classList.add('socket-hover');
           }
+          
           this.connectionState.toSocket = socketObj;
-        } else {
-          // Remove visual feedback from the inner socket element
-          const innerSocket = flowSocket.shadowRoot?.querySelector('.socket');
-          if (innerSocket) {
-            innerSocket.classList.remove('socket-hover');
-          }
-          this.connectionState.toSocket = null;
         }
       }
     } else {
@@ -148,9 +173,9 @@ export class FlowGraphConnections {
   }
 
   /**
-   * Handle socket pointer up
+   * Handle socket mouse up
    */
-  handleSocketPointerUp(e) {
+  handleSocketMouseUp(e) {
     if (!this.connectionState.active) return;
     
     // Clean up visual feedback - both legacy sockets and flow-socket components
@@ -180,6 +205,104 @@ export class FlowGraphConnections {
     this.connectionState.active = false;
     this.connectionState.fromSocket = null;
     this.connectionState.toSocket = null;
+  }
+
+
+
+
+  /**
+   * Handle socket touch start
+   */
+  handleSocketTouchStart(e) {
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      // Check if this is a socket interaction first
+      const flowSocket = touch.target.closest('flow-socket');
+      
+      if (flowSocket) {
+        // Set flag to prevent node dragging
+        this.socketInteractionActive = true;
+        
+        // Only prevent default for socket interactions
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Start long press detection
+        this.startLongPressDetection(touch.target, touch.clientX, touch.clientY);
+        
+        // Delay connection start to allow long press detection
+        setTimeout(() => {
+          if (!this.longPressState.connectionDelayed) {
+            // Create a synthetic event object that matches pointer event structure
+            const syntheticEvent = {
+              target: touch.target,
+              clientX: touch.clientX,
+              clientY: touch.clientY,
+              preventDefault: () => e.preventDefault(),
+              stopPropagation: () => e.stopPropagation()
+            };
+            this.handleSocketMouseDown(syntheticEvent);
+          }
+        }, 100); // Small delay to allow long press detection
+      }
+    }
+  }
+
+  /**
+   * Handle socket touch move
+   */
+  handleSocketTouchMove(e) {
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      
+      // Mark as moved to cancel long press
+      if (this.longPressState.target) {
+        this.longPressState.moved = true;
+        this.cancelLongPress();
+      }
+      
+      if (this.connectionState.active) {
+        // Only prevent default when actively connecting
+        e.preventDefault();
+        
+        // Create a synthetic event object that matches pointer event structure
+        const syntheticEvent = {
+          target: touch.target,
+          clientX: touch.clientX,
+          clientY: touch.clientY,
+          preventDefault: () => e.preventDefault(),
+          stopPropagation: () => e.stopPropagation()
+        };
+        this.handleSocketMouseMove(syntheticEvent);
+      }
+    }
+  }
+
+  /**
+   * Handle socket touch end
+   */
+  handleSocketTouchEnd(e) {
+    // Always clear the flag when touch ends
+    this.socketInteractionActive = false;
+    
+    // Cancel long press
+    this.cancelLongPress();
+    
+    if (e.changedTouches.length === 1 && this.connectionState.active) {
+      const touch = e.changedTouches[0];
+      // Only prevent default when actively connecting
+      e.preventDefault();
+      
+      // Create a synthetic event object that matches pointer event structure
+      const syntheticEvent = {
+        target: touch.target,
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+        preventDefault: () => e.preventDefault(),
+        stopPropagation: () => e.stopPropagation()
+      };
+      this.handleSocketMouseUp(syntheticEvent);
+    }
   }
 
   /**
@@ -281,5 +404,129 @@ export class FlowGraphConnections {
     }
     
     return true;
+  }
+  
+  /**
+   * Start long press detection for mobile context menu
+   * @param {HTMLElement} target - The target element
+   * @param {number} x - X coordinate
+   * @param {number} y - Y coordinate
+   */
+  startLongPressDetection(target, x, y) {
+    this.cancelLongPress();
+    
+    this.longPressState.target = target;
+    this.longPressState.startTime = Date.now();
+    this.longPressState.moved = false;
+    
+    this.longPressState.timer = setTimeout(() => {
+      if (!this.longPressState.moved) {
+        this.handleLongPress(target, x, y);
+      }
+    }, this.longPressState.threshold);
+  }
+  
+  /**
+   * Cancel long press detection
+   */
+  cancelLongPress() {
+    if (this.longPressState.timer) {
+      clearTimeout(this.longPressState.timer);
+      this.longPressState.timer = null;
+    }
+    
+    // Clean up socket active state if connection was delayed
+    if (this.longPressState.connectionDelayed && this.longPressState.target) {
+      const flowSocket = this.longPressState.target.closest('flow-socket');
+      if (flowSocket) {
+        const innerSocket = flowSocket.shadowRoot?.querySelector('.socket');
+        if (innerSocket) {
+          innerSocket.classList.remove('socket-active');
+        }
+      }
+    }
+    
+    this.longPressState.target = null;
+    this.longPressState.moved = false;
+    this.longPressState.connectionDelayed = false;
+  }
+  
+  /**
+   * Handle long press - show context menu
+   * @param {HTMLElement} target - The target element
+   * @param {number} x - X coordinate
+   * @param {number} y - Y coordinate
+   */
+  handleLongPress(target, x, y) {
+    // Prevent connection start
+    this.longPressState.connectionDelayed = true;
+    
+    // Find the socket element (flow-socket-anchor)
+    let socketElement = target.closest('flow-socket-anchor');
+    if (!socketElement) {
+      // If target is flow-socket, look for flow-socket-anchor inside it
+      if (target.tagName === 'FLOW-SOCKET') {
+        socketElement = target.shadowRoot?.querySelector('flow-socket-anchor');
+      }
+    }
+    if (!socketElement) return;
+    
+    // Get the socket instance from the element reference
+    let socket = socketElement._socket;
+    
+    if (!socket) {
+      // Fallback: find socket by traversing the DOM
+      const nodeElement = target.closest('.node');
+      if (nodeElement) {
+        const nodeId = nodeElement.dataset.id;
+        const flowSocket = target.closest('flow-socket');
+        const socketId = flowSocket?.getAttribute('name');
+        
+        if (nodeId && socketId) {
+          const node = this.flowGraph.nodes.get(nodeId);
+          if (node) {
+            socket = node.getSocket(socketId);
+          }
+        }
+      }
+      
+      if (!socket) return;
+    }
+    
+    // Only show context menu if there are connections
+    if (socket.connections.size === 0) return;
+    
+    // Find the actual .socket element for visual feedback
+    const actualSocketElement = socketElement.querySelector('.socket');
+    if (actualSocketElement) {
+      // Add visual feedback
+      actualSocketElement.classList.add('long-press-active');
+      
+      // Remove visual feedback after a short delay
+      setTimeout(() => {
+        actualSocketElement.classList.remove('long-press-active');
+      }, 500);
+    }
+    
+    
+    // Cancel any active connection
+    this.connectionState.active = false;
+    this.connectionState.fromSocket = null;
+    this.connectionState.toSocket = null;
+    
+    // Hide temp path
+    this.flowGraph.tempPath.style.display = 'none';
+    
+    // Remove socket active state
+    const flowSocket = target.closest('flow-socket');
+    if (flowSocket) {
+      const innerSocket = flowSocket.shadowRoot?.querySelector('.socket');
+      if (innerSocket) {
+        innerSocket.classList.remove('socket-active');
+      }
+    }
+    
+    // Show the context menu
+    socket.showContextMenu(x, y);
   }
 }

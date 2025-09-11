@@ -61,6 +61,22 @@ export class Viewport {
       startViewportY: 0
     };
     
+    // Touch gesture state for mobile support
+    /** @type {Object} Internal state for touch gestures */
+    this.touchState = {
+      isPinching: false,
+      initialDistance: 0,
+      initialScale: 1,
+      initialCenterX: 0,
+      initialCenterY: 0,
+      initialViewportX: 0,
+      initialViewportY: 0,
+      lastTouches: [],
+      lastTapTime: 0,
+      lastTapX: 0,
+      lastTapY: 0
+    };
+    
     this.init();
   }
   
@@ -70,7 +86,7 @@ export class Viewport {
   
   setupEventListeners() {
     // Pan controls - similar to original lib.js implementation
-    this.surface.addEventListener('pointerdown', (e) => {
+    this.surface.addEventListener('mousedown', (e) => {
       // Only start panning if not clicking on a node or socket
       const isNode = e.target.closest('.node');
       const isSocket = e.target.classList.contains('socket');
@@ -88,6 +104,11 @@ export class Viewport {
     // Zoom with wheel
     this.surface.addEventListener('wheel', this.handleWheel.bind(this), { passive: false });
     
+    // Add touch event listeners for better mobile support
+    this.surface.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
+    this.surface.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
+    this.surface.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: true });
+    
     // Keyboard shortcuts
     document.addEventListener('keydown', this.handleKeyDown.bind(this));
     document.addEventListener('keyup', this.handleKeyUp.bind(this));
@@ -103,10 +124,9 @@ export class Viewport {
     this.panState.startViewportX = this.x;
     this.panState.startViewportY = this.y;
     
-    this.surface.setPointerCapture(e.pointerId);
     this.surface.style.cursor = 'grabbing';
     
-    const onPointerMove = (e) => {
+    const onMouseMove = (e) => {
       if (this.panState.isPanning) {
         const deltaX = e.clientX - this.panState.startX;
         const deltaY = e.clientY - this.panState.startY;
@@ -118,12 +138,11 @@ export class Viewport {
       }
     };
     
-    const onPointerUp = (e) => {
+    const onMouseUp = (e) => {
       this.panState.isPanning = false;
       this.surface.style.cursor = '';
-      this.surface.releasePointerCapture(e.pointerId);
-      this.surface.removeEventListener('pointermove', onPointerMove);
-      this.surface.removeEventListener('pointerup', onPointerUp);
+      this.surface.removeEventListener('mousemove', onMouseMove);
+      this.surface.removeEventListener('mouseup', onMouseUp);
       
       // Fire pan event at the end of panning
       if (this.flowGraph) {
@@ -134,8 +153,8 @@ export class Viewport {
       }
     };
     
-    this.surface.addEventListener('pointermove', onPointerMove);
-    this.surface.addEventListener('pointerup', onPointerUp);
+    this.surface.addEventListener('mousemove', onMouseMove);
+    this.surface.addEventListener('mouseup', onMouseUp);
   }
   
   handleWheel(e) {
@@ -147,6 +166,219 @@ export class Viewport {
     
     const scaleFactor = e.deltaY > 0 ? 0.9 : 1.1;
     this.zoomAt(centerX, centerY, scaleFactor);
+  }
+  
+  /**
+   * Handle touch start for panning and gestures
+   */
+  handleTouchStart(e) {
+    this.touchState.lastTouches = Array.from(e.touches);
+    
+    if (e.touches.length === 1) {
+      // Single touch - check for double tap or start panning
+      const touch = e.touches[0];
+      const isNode = touch.target.closest('.node');
+      const isSocket = touch.target.classList.contains('socket');
+      
+      if (!isNode && !isSocket) {
+        // Check for double tap
+        const currentTime = Date.now();
+        const timeDiff = currentTime - this.touchState.lastTapTime;
+        const distance = Math.sqrt(
+          Math.pow(touch.clientX - this.touchState.lastTapX, 2) + 
+          Math.pow(touch.clientY - this.touchState.lastTapY, 2)
+        );
+        
+        if (timeDiff < 300 && distance < 50) {
+          // Double tap detected - zoom in/out
+          this.handleDoubleTap(touch);
+        } else {
+          // Single tap - start panning
+          this.startPan(touch);
+        }
+        
+        // Update tap tracking
+        this.touchState.lastTapTime = currentTime;
+        this.touchState.lastTapX = touch.clientX;
+        this.touchState.lastTapY = touch.clientY;
+      }
+    } else if (e.touches.length === 2) {
+      // Two touches - start pinch zoom
+      this.startPinchZoom(e);
+    }
+  }
+  
+  /**
+   * Handle touch move for panning and gestures
+   */
+  handleTouchMove(e) {
+    this.touchState.lastTouches = Array.from(e.touches);
+    
+    if (e.touches.length === 1 && this.panState.isPanning) {
+      // Single touch panning
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - this.panState.startX;
+      const deltaY = touch.clientY - this.panState.startY;
+      const newX = this.panState.startViewportX + deltaX;
+      const newY = this.panState.startViewportY + deltaY;
+      
+      this.panBy(newX - this.x, newY - this.y);
+      e.preventDefault();
+    } else if (e.touches.length === 2 && this.touchState.isPinching) {
+      // Two finger pinch zoom
+      this.updatePinchZoom(e);
+      e.preventDefault();
+    }
+  }
+  
+  /**
+   * Handle touch end for panning and gestures
+   */
+  handleTouchEnd(e) {
+    if (e.touches.length === 0) {
+      // All touches ended
+      if (this.panState.isPanning) {
+        this.panState.isPanning = false;
+        this.surface.style.cursor = '';
+        
+        // Fire pan event at the end of panning
+        if (this.flowGraph) {
+          this.flowGraph.container.dispatchEvent(new CustomEvent('viewport:pan', {
+            detail: { x: this.x, y: this.y, scale: this.scale }
+          }));
+        }
+      }
+      
+      if (this.touchState.isPinching) {
+        this.touchState.isPinching = false;
+        
+        // Fire zoom event at the end of pinch zoom
+        if (this.flowGraph) {
+          this.flowGraph.container.dispatchEvent(new CustomEvent('viewport:zoom', {
+            detail: { x: this.x, y: this.y, scale: this.scale }
+          }));
+        }
+      }
+    } else if (e.touches.length === 1 && this.touchState.isPinching) {
+      // Pinch zoom ended, switch to single touch panning
+      this.touchState.isPinching = false;
+      const touch = e.touches[0];
+      const isNode = touch.target.closest('.node');
+      const isSocket = touch.target.classList.contains('socket');
+      
+      if (!isNode && !isSocket) {
+        this.startPan(touch);
+      }
+    }
+  }
+  
+  /**
+   * Handle double tap gesture
+   */
+  handleDoubleTap(touch) {
+    const rect = this.surface.getBoundingClientRect();
+    const centerX = touch.clientX - rect.left;
+    const centerY = touch.clientY - rect.top;
+    
+    // Toggle between zoomed in and zoomed out
+    if (this.scale > 1.5) {
+      // Zoom out to fit
+      this.zoomTo(1, centerX, centerY);
+    } else {
+      // Zoom in
+      this.zoomTo(2, centerX, centerY);
+    }
+  }
+  
+  /**
+   * Start pinch zoom gesture
+   */
+  startPinchZoom(e) {
+    if (e.touches.length !== 2) return;
+    
+    const touch1 = e.touches[0];
+    const touch2 = e.touches[1];
+    
+    // Calculate initial distance between touches
+    const distance = Math.sqrt(
+      Math.pow(touch2.clientX - touch1.clientX, 2) + 
+      Math.pow(touch2.clientY - touch1.clientY, 2)
+    );
+    
+    // Calculate center point
+    const centerX = (touch1.clientX + touch2.clientX) / 2;
+    const centerY = (touch1.clientY + touch2.clientY) / 2;
+    
+    // Store initial state
+    this.touchState.isPinching = true;
+    this.touchState.initialDistance = distance;
+    this.touchState.initialScale = this.scale;
+    this.touchState.initialCenterX = centerX;
+    this.touchState.initialCenterY = centerY;
+    this.touchState.initialViewportX = this.x;
+    this.touchState.initialViewportY = this.y;
+    
+    // Stop any ongoing panning
+    this.panState.isPanning = false;
+  }
+  
+  /**
+   * Update pinch zoom gesture
+   */
+  updatePinchZoom(e) {
+    if (e.touches.length !== 2 || !this.touchState.isPinching) return;
+    
+    const touch1 = e.touches[0];
+    const touch2 = e.touches[1];
+    
+    // Calculate current distance between touches
+    const currentDistance = Math.sqrt(
+      Math.pow(touch2.clientX - touch1.clientX, 2) + 
+      Math.pow(touch2.clientY - touch1.clientY, 2)
+    );
+    
+    // Calculate scale factor
+    const scaleFactor = currentDistance / this.touchState.initialDistance;
+    const newScale = this.touchState.initialScale * scaleFactor;
+    
+    // Clamp scale to limits
+    const clampedScale = Math.max(this.minScale, Math.min(this.maxScale, newScale));
+    
+    // Calculate center point
+    const centerX = (touch1.clientX + touch2.clientX) / 2;
+    const centerY = (touch1.clientY + touch2.clientY) / 2;
+    
+    // Convert screen coordinates to world coordinates
+    const rect = this.surface.getBoundingClientRect();
+    const worldX = (centerX - rect.left - this.touchState.initialViewportX) / this.touchState.initialScale;
+    const worldY = (centerY - rect.top - this.touchState.initialViewportY) / this.touchState.initialScale;
+    
+    // Calculate new viewport position to keep the pinch center point stable
+    const newX = centerX - rect.left - worldX * clampedScale;
+    const newY = centerY - rect.top - worldY * clampedScale;
+    
+    // Apply the zoom
+    this.zoomTo(clampedScale, centerX - rect.left, centerY - rect.top);
+  }
+  
+  /**
+   * Calculate distance between two touch points
+   */
+  getTouchDistance(touch1, touch2) {
+    return Math.sqrt(
+      Math.pow(touch2.clientX - touch1.clientX, 2) + 
+      Math.pow(touch2.clientY - touch1.clientY, 2)
+    );
+  }
+  
+  /**
+   * Calculate center point between two touches
+   */
+  getTouchCenter(touch1, touch2) {
+    return {
+      x: (touch1.clientX + touch2.clientX) / 2,
+      y: (touch1.clientY + touch2.clientY) / 2
+    };
   }
   
   handleKeyDown(e) {
@@ -219,6 +451,18 @@ export class Viewport {
         }));
       }
     }
+  }
+  
+  /**
+   * Zoom to a specific scale at a given center point
+   * @param {number} targetScale - The target zoom scale
+   * @param {number} centerX - X coordinate of the zoom center
+   * @param {number} centerY - Y coordinate of the zoom center
+   */
+  zoomTo(targetScale, centerX, centerY) {
+    const clampedScale = Math.max(this.minScale, Math.min(this.maxScale, targetScale));
+    const scaleFactor = clampedScale / this.scale;
+    this.zoomAt(centerX, centerY, scaleFactor);
   }
   
   updateTransform() {

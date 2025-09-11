@@ -256,6 +256,8 @@ export class Node {
         
         if (element) {
           socket.element = element;
+          // Store socket reference on the element for easy access
+          element._socket = socket;
           socket.setupContextMenu();
         } else {
           console.warn(`Socket element not found for socket ${socket.id} - flow-socket found but no flow-socket-anchor`);
@@ -279,6 +281,8 @@ export class Node {
         
         if (element) {
           socket.element = element;
+          // Store socket reference on the element for easy access
+          element._socket = socket;
           socket.setupContextMenu();
         } else {
           console.warn(`Socket element not found for socket ${socket.id} - flow-socket found but no flow-socket-anchor`);
@@ -340,10 +344,27 @@ export class Node {
   setupDragging() {
     let isDragging = false;
     let dragOffset = { x: 0, y: 0 };
+    let touchStartTime = 0;
+    let touchStartTarget = null;
+    
+    // Long press state for mobile context menu
+    let longPressState = {
+      timer: null,
+      startTime: 0,
+      threshold: 500, // 500ms for long press
+      moved: false
+    };
     
     const handlePointerDown = (e) => {
       // Don't start dragging if clicking on interactive elements
       if (this.isInteractiveElement(e.target)) return;
+      
+      // For touch events, add a small delay to prevent conflicts with scrolling
+      if (e.pointerType === 'touch') {
+        touchStartTime = Date.now();
+        // Don't prevent default immediately for touch events
+        return;
+      }
       
       // Select node on click (unless Ctrl/Cmd is held for multi-select)
       const isMultiSelect = e.ctrlKey || e.metaKey;
@@ -357,7 +378,6 @@ export class Node {
       
       isDragging = true;
       this.element.classList.add('dragging');
-      this.element.setPointerCapture(e.pointerId);
       
       // Store initial positions of all selected nodes for multi-drag
       this.flowGraph.startMultiDrag(e, this);
@@ -367,6 +387,23 @@ export class Node {
     };
     
     const handlePointerMove = (e) => {
+      // For touch events, only start dragging after a small delay
+      if (e.pointerType === 'touch' && !isDragging) {
+        const touchDelay = Date.now() - touchStartTime;
+        if (touchDelay > 50) { // 50ms delay
+          // Select node and start dragging
+          this.flowGraph.selectNode(this.id, false);
+          const isSelected = this.flowGraph.selection.has(this.id);
+          
+          if (isSelected) {
+            isDragging = true;
+            this.element.classList.add('dragging');
+            this.flowGraph.startMultiDrag(e, this);
+          }
+        }
+        return;
+      }
+      
       if (!isDragging) return;
       
       // Use the multi-drag system to move all selected nodes
@@ -380,15 +417,135 @@ export class Node {
       
       isDragging = false;
       this.element.classList.remove('dragging');
-      this.element.releasePointerCapture(e.pointerId);
       
       // End multi-drag
       this.flowGraph.endMultiDrag();
     };
     
-    this.element.addEventListener('pointerdown', handlePointerDown);
-    this.element.addEventListener('pointermove', handlePointerMove);
-    this.element.addEventListener('pointerup', handlePointerUp);
+    // Long press helper methods
+    const startLongPressDetection = (target, x, y) => {
+      cancelLongPress();
+      
+      longPressState.target = target;
+      longPressState.startTime = Date.now();
+      longPressState.moved = false;
+      
+      longPressState.timer = setTimeout(() => {
+        if (!longPressState.moved) {
+          handleLongPress(target, x, y);
+        }
+      }, longPressState.threshold);
+    };
+    
+    const cancelLongPress = () => {
+      if (longPressState.timer) {
+        clearTimeout(longPressState.timer);
+        longPressState.timer = null;
+      }
+      longPressState.moved = false;
+    };
+    
+    const handleLongPress = (target, x, y) => {
+      // Add visual feedback
+      this.element.classList.add('long-press-active');
+      
+      
+      // Use existing context menu system
+      this.flowGraph.showNodeContextMenu(x, y, [
+        {
+          label: 'Delete Node',
+          icon: '🗑️',
+          action: () => this.flowGraph.removeNode(this.id)
+        }
+      ]);
+      
+      // Remove visual feedback after a short delay
+      setTimeout(() => {
+        this.element.classList.remove('long-press-active');
+      }, 500);
+    };
+
+    // Handle touch events specifically
+    const handleTouchStart = (e) => {
+      if (this.isInteractiveElement(e.target)) return;
+      
+      touchStartTime = Date.now();
+      touchStartTarget = e.target;
+      
+      // Start long press detection
+      const touch = e.touches[0];
+      startLongPressDetection(e.target, touch.clientX, touch.clientY);
+      
+      // Don't prevent default to allow natural touch behavior initially
+    };
+    
+    const handleTouchMove = (e) => {
+      // Cancel long press if user moved
+      if (longPressState.target) {
+        longPressState.moved = true;
+        cancelLongPress();
+      }
+      
+      if (!isDragging) {
+        // Check if socket interaction is active
+        if (this.flowGraph.connections.socketInteractionActive) {
+          return; // Don't start dragging if socket interaction is active
+        }
+        
+        // Check if the original touch target was interactive
+        if (touchStartTarget && this.isInteractiveElement(touchStartTarget)) {
+          return; // Don't start dragging if original target was interactive
+        }
+        
+        const touchDelay = Date.now() - touchStartTime;
+        if (touchDelay > 50) {
+          // Select node and start dragging
+          this.flowGraph.selectNode(this.id, false);
+          const isSelected = this.flowGraph.selection.has(this.id);
+          
+          if (isSelected) {
+            isDragging = true;
+            this.element.classList.add('dragging');
+            this.flowGraph.startMultiDrag(e.touches[0], this);
+            e.preventDefault(); // Prevent scrolling
+          }
+        }
+        return;
+      }
+      
+      // Use the multi-drag system to move all selected nodes
+      this.flowGraph.updateMultiDrag(e.touches[0]);
+      
+      e.preventDefault();
+    };
+    
+    const handleTouchEnd = (e) => {
+      // Cancel long press
+      cancelLongPress();
+      
+      if (!isDragging) {
+        // Reset touch state
+        touchStartTarget = null;
+        return;
+      }
+      
+      isDragging = false;
+      this.element.classList.remove('dragging');
+      touchStartTarget = null;
+      
+      // End multi-drag
+      this.flowGraph.endMultiDrag();
+    };
+    
+    // Use mouse events instead of pointer events
+    this.element.addEventListener('mousedown', handlePointerDown);
+    this.element.addEventListener('mousemove', handlePointerMove);
+    this.element.addEventListener('mouseup', handlePointerUp);
+    
+    // Add touch event listeners
+    this.element.addEventListener('touchstart', handleTouchStart, { passive: true });
+    this.element.addEventListener('touchmove', handleTouchMove, { passive: false });
+    this.element.addEventListener('touchend', handleTouchEnd, { passive: true });
     
     // Add double-click to execute
     this.element.addEventListener('dblclick', (e) => {

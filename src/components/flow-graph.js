@@ -188,8 +188,32 @@ export class FlowGraphElement extends LitElement {
       }
       
       const nodeBody = def.querySelector('node-body');
-      const inputs = def.querySelectorAll('flow-input');
-      const outputs = def.querySelectorAll('flow-output');
+      const flowSockets = def.querySelectorAll('flow-socket');
+      
+      // Process flow-socket components
+      const inputSockets = [];
+      const outputSockets = [];
+      
+      Array.from(flowSockets).forEach(socket => {
+        const socketId = socket.getAttribute('name');
+        const socketType = socket.getAttribute('type');
+        const socketLabel = socket.getAttribute('label');
+        const socketDataType = socket.getAttribute('data-type') || 'any';
+        
+        if (socketType === 'input') {
+          inputSockets.push({
+            id: socketId,
+            label: socketLabel,
+            type: socketDataType
+          });
+        } else if (socketType === 'output') {
+          outputSockets.push({
+            id: socketId,
+            label: socketLabel,
+            type: socketDataType
+          });
+        }
+      });
       
       const template = {
         name,
@@ -202,16 +226,8 @@ export class FlowGraphElement extends LitElement {
         onExecute,
         colorPatch: Object.keys(colorPatch).length > 0 ? colorPatch : null,
         html: nodeBody ? nodeBody.innerHTML : null,
-        inputs: Array.from(inputs).map(input => ({
-          id: input.getAttribute('socket')?.split(':')[1] || input.getAttribute('socket'),
-          label: input.getAttribute('label'),
-          type: input.getAttribute('type') || 'any'
-        })),
-        outputs: Array.from(outputs).map(output => ({
-          id: output.getAttribute('socket')?.split(':')[1] || output.getAttribute('socket'),
-          label: output.getAttribute('label'),
-          type: output.getAttribute('type') || 'any'
-        }))
+        inputs: inputSockets,
+        outputs: outputSockets
       };
       
       this.flowGraph.addNodeTemplate(name, template);

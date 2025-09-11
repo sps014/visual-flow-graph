@@ -150,6 +150,7 @@ export class Node {
   }
 
 
+
   /**
    * Create a mapping of data keys to DOM elements for data binding.
    * Scans the node's HTML for elements with data-key attributes.
@@ -234,26 +235,56 @@ export class Node {
       this.outputs.set(outputConfig.id, socket);
     });
     
-    // Link socket elements
-    this.linkSocketElements();
+    // Link socket elements - delay to allow flow-socket components to render
+    requestAnimationFrame(() => {
+      this.linkSocketElements();
+    });
   }
   
   linkSocketElements() {
-    // Link input socket elements
+    // Link input socket elements - use flow-socket components
     this.inputs.forEach(socket => {
-      const element = this.element.querySelector(`[data-sock="${socket.id}"]`);
-      if (element) {
-        socket.element = element;
-        socket.setupContextMenu();
+      const flowSocket = this.element.querySelector(`flow-socket[name="${socket.id}"]`);
+      if (flowSocket) {
+        // First try to find flow-socket-anchor in shadow DOM (default sockets)
+        let element = flowSocket.shadowRoot?.querySelector('flow-socket-anchor');
+        
+        // If not found, try to find it as a direct child (custom slot content)
+        if (!element) {
+          element = flowSocket.querySelector('flow-socket-anchor');
+        }
+        
+        if (element) {
+          socket.element = element;
+          socket.setupContextMenu();
+        } else {
+          console.warn(`Socket element not found for socket ${socket.id} - flow-socket found but no flow-socket-anchor`);
+        }
+      } else {
+        console.warn(`Flow-socket not found for socket ${socket.id}`);
       }
     });
     
-    // Link output socket elements
+    // Link output socket elements - use flow-socket components
     this.outputs.forEach(socket => {
-      const element = this.element.querySelector(`[data-sock="${socket.id}"]`);
-      if (element) {
-        socket.element = element;
-        socket.setupContextMenu();
+      const flowSocket = this.element.querySelector(`flow-socket[name="${socket.id}"]`);
+      if (flowSocket) {
+        // First try to find flow-socket-anchor in shadow DOM (default sockets)
+        let element = flowSocket.shadowRoot?.querySelector('flow-socket-anchor');
+        
+        // If not found, try to find it as a direct child (custom slot content)
+        if (!element) {
+          element = flowSocket.querySelector('flow-socket-anchor');
+        }
+        
+        if (element) {
+          socket.element = element;
+          socket.setupContextMenu();
+        } else {
+          console.warn(`Socket element not found for socket ${socket.id} - flow-socket found but no flow-socket-anchor`);
+        }
+      } else {
+        console.warn(`Flow-socket not found for socket ${socket.id}`);
       }
     });
   }
@@ -268,6 +299,33 @@ export class Node {
     
     // Socket elements always prevent dragging
     if (element.classList.contains('socket')) return true;
+    
+    // Check if element is inside a flow-socket-anchor (in shadow DOM)
+    if (element.closest('flow-socket-anchor')) return true;
+    
+    // Check if element is a flow-socket-anchor itself
+    if (element.tagName === 'FLOW-SOCKET-ANCHOR') return true;
+    
+    // Check if element is inside a flow-socket component's shadow DOM
+    const flowSocket = element.closest('flow-socket');
+    if (flowSocket && flowSocket !== element) {
+      // Only check if the element is inside the shadow DOM of a different flow-socket
+      const shadowRoot = flowSocket.shadowRoot;
+      if (shadowRoot && shadowRoot.contains(element)) {
+        // Check if it's inside the anchor or is the socket span
+        const anchor = shadowRoot.querySelector('flow-socket-anchor');
+        if (anchor && (anchor.contains(element) || element === anchor)) {
+          return true;
+        }
+        // Also check if it's the socket span itself
+        if (element.classList.contains('socket')) {
+          return true;
+        }
+      }
+    }
+    
+    // Check if element is a flow-socket itself (prevent dragging when clicking on the component)
+    if (element.tagName === 'FLOW-SOCKET') return true;
     
     // Form elements are naturally interactive
     if (element.matches('input, textarea, select, button, a[href]')) return true;

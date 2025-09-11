@@ -42,6 +42,9 @@ export class Socket {
     /** @type {Node} The parent node this socket belongs to */
     this.node = node;
     
+    /** @type {string} The ID of the parent node */
+    this.nodeId = node.id;
+    
     /** @type {string} Unique identifier for this socket */
     this.id = config.id;
     

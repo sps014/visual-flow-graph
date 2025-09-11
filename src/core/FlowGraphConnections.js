@@ -54,8 +54,10 @@ export class FlowGraphConnections {
    * Handle socket pointer down
    */
   handleSocketPointerDown(e) {
-    const socket = e.target.closest('.socket');
-    if (!socket) return;
+    // Check for flow-socket component
+    const flowSocket = e.target.closest('flow-socket');
+    
+    if (!flowSocket) return;
     
     // Check if in readonly mode
     if (this.flowGraph.readonly) {
@@ -67,9 +69,10 @@ export class FlowGraphConnections {
     e.preventDefault();
     e.stopPropagation();
     
-    const nodeElement = socket.closest('.node');
+    const nodeElement = flowSocket.closest('.node');
     const nodeId = nodeElement?.dataset.id;
-    const socketId = socket.dataset.sock;
+    const socketId = flowSocket.getAttribute('name');
+    const actualSocketElement = flowSocket.shadowRoot?.querySelector('flow-socket-anchor');
     
     if (!nodeId || !socketId) return;
     
@@ -81,8 +84,11 @@ export class FlowGraphConnections {
     this.connectionState.active = true;
     this.connectionState.fromSocket = socketObj;
     
-    // Add visual feedback
-    socket.classList.add('socket-active');
+    // Add visual feedback to the inner socket element
+    const innerSocket = flowSocket.shadowRoot?.querySelector('.socket');
+    if (innerSocket) {
+      innerSocket.classList.add('socket-active');
+    }
     
     // Show temp path
     this.flowGraph.tempPath.style.display = 'block';
@@ -97,22 +103,31 @@ export class FlowGraphConnections {
     
     this.updateTempPath(e.clientX, e.clientY);
     
-    // Check for socket hover
-    const socket = e.target.closest('.socket');
-    if (socket && socket !== this.connectionState.fromSocket?.element) {
-      const nodeElement = socket.closest('.node');
+    // Check for socket hover - flow-socket components only
+    const flowSocket = e.target.closest('flow-socket');
+    
+    if (flowSocket && flowSocket !== this.connectionState.fromSocket?.element?.closest('flow-socket')) {
+      const nodeElement = flowSocket.closest('.node');
       const nodeId = nodeElement?.dataset.id;
-      const socketId = socket.dataset.sock;
+      const socketId = flowSocket.getAttribute('name');
       
       if (nodeId && socketId) {
         const node = this.flowGraph.nodes.get(nodeId);
         const socketObj = node?.getSocket(socketId);
         
         if (socketObj && this.canConnect(this.connectionState.fromSocket, socketObj)) {
-          socket.classList.add('socket-hover');
+          // Add visual feedback to the inner socket element
+          const innerSocket = flowSocket.shadowRoot?.querySelector('.socket');
+          if (innerSocket) {
+            innerSocket.classList.add('socket-hover');
+          }
           this.connectionState.toSocket = socketObj;
         } else {
-          socket.classList.remove('socket-hover');
+          // Remove visual feedback from the inner socket element
+          const innerSocket = flowSocket.shadowRoot?.querySelector('.socket');
+          if (innerSocket) {
+            innerSocket.classList.remove('socket-hover');
+          }
           this.connectionState.toSocket = null;
         }
       }
@@ -120,6 +135,13 @@ export class FlowGraphConnections {
       // Remove hover from all sockets
       this.flowGraph.container.querySelectorAll('.socket-hover').forEach(s => {
         s.classList.remove('socket-hover');
+      });
+      // Also remove hover from flow-socket inner elements
+      this.flowGraph.container.querySelectorAll('flow-socket').forEach(flowSocket => {
+        const innerSocket = flowSocket.shadowRoot?.querySelector('.socket');
+        if (innerSocket) {
+          innerSocket.classList.remove('socket-hover');
+        }
       });
       this.connectionState.toSocket = null;
     }
@@ -131,12 +153,20 @@ export class FlowGraphConnections {
   handleSocketPointerUp(e) {
     if (!this.connectionState.active) return;
     
-    // Clean up visual feedback
+    // Clean up visual feedback - both legacy sockets and flow-socket components
     this.flowGraph.container.querySelectorAll('.socket-active').forEach(s => {
       s.classList.remove('socket-active');
     });
     this.flowGraph.container.querySelectorAll('.socket-hover').forEach(s => {
       s.classList.remove('socket-hover');
+    });
+    
+    // Also clean up socket elements in flow-socket shadow DOMs
+    this.flowGraph.container.querySelectorAll('flow-socket').forEach(flowSocket => {
+      const socketElement = flowSocket.shadowRoot?.querySelector('.socket');
+      if (socketElement) {
+        socketElement.classList.remove('socket-active', 'socket-hover');
+      }
     });
     
     this.flowGraph.tempPath.style.display = 'none';
@@ -174,7 +204,28 @@ export class FlowGraphConnections {
    * Get socket position in world coordinates
    */
   getSocketPosition(socket) {
-    const element = socket.element;
+    let element = socket.element;
+    
+    // If element is null, try to find it again (for flow-socket components)
+    if (!element) {
+      const node = this.flowGraph.nodes.get(socket.nodeId);
+      if (node) {
+        // Try to find the flow-socket component and get its anchor
+        const flowSocket = node.element.querySelector(`flow-socket[name="${socket.id}"]`);
+        if (flowSocket) {
+          element = flowSocket.shadowRoot?.querySelector('flow-socket-anchor');
+          if (element) {
+            socket.element = element; // Update the socket's element reference
+          }
+        }
+      }
+    }
+    
+    if (!element) {
+      console.warn(`Socket element not found for socket ${socket.id}`);
+      return { x: 0, y: 0 };
+    }
+    
     const rect = element.getBoundingClientRect();
     const surfaceRect = this.flowGraph.surface.getBoundingClientRect();
     

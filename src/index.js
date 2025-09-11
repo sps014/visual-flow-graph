@@ -16,8 +16,8 @@ import './styles/theme.css';
 import './components/flow-graph.js';
 import './components/flow-node-def.js';
 import './components/flow-node.js';
-import './components/flow-input.js';
-import './components/flow-output.js';
+import './components/flow-socket.js';
+import './components/flow-socket-anchor.js';
 import './components/flow-edge.js';
 import './components/flow-definitions.js';
 import './components/flow-nodes.js';
@@ -38,11 +38,11 @@ export { FlowNodeDefElement } from './components/flow-node-def.js';
 /** @type {typeof import('./components/flow-node.js').FlowNodeElement} */
 export { FlowNodeElement } from './components/flow-node.js';
 
-/** @type {typeof import('./components/flow-input.js').FlowInputElement} */
-export { FlowInputElement } from './components/flow-input.js';
+/** @type {typeof import('./components/flow-socket.js').FlowSocketElement} */
+export { FlowSocketElement } from './components/flow-socket.js';
 
-/** @type {typeof import('./components/flow-output.js').FlowOutputElement} */
-export { FlowOutputElement } from './components/flow-output.js';
+/** @type {typeof import('./components/flow-socket-anchor.js').FlowSocketAnchorElement} */
+export { FlowSocketAnchorElement } from './components/flow-socket-anchor.js';
 
 /** @type {typeof import('./components/flow-edge.js').FlowEdgeElement} */
 export { FlowEdgeElement } from './components/flow-edge.js';

@@ -211,12 +211,9 @@
             <div class="title">🔢 Number</div>
             <div class="body">
               <input type="number" class="input-box" value="0" data-key="num:value" placeholder="Enter value">
-              <div class="line" style="text-align:right">
-                <span class="socket out" data-sock="value"></span> Value
-              </div>
+              <flow-socket type="output" name="value" label="Value" data-type="number"></flow-socket>
             </div>
           </node-body>
-          <flow-output socket="value" label="Value" type="number"></flow-output>
         </flow-node-def>
         
         <!-- Math Add Node -->
@@ -225,21 +222,12 @@
           <node-body>
             <div class="title">➕ Add</div>
             <div class="body">
-              <div class="line">
-                <span class="socket in" data-sock="a"></span> A
-              </div>
-              <div class="line">
-                <span class="socket in" data-sock="b"></span> B
-              </div>
+              <flow-socket type="input" name="a" label="A" data-type="number"></flow-socket>
+              <flow-socket type="input" name="b" label="B" data-type="number"></flow-socket>
               <div style="height:8px"></div>
-              <div class="line" style="text-align:right">
-                <span class="socket out" data-sock="sum"></span> Sum
-              </div>
+              <flow-socket type="output" name="sum" label="Sum" data-type="number"></flow-socket>
             </div>
           </node-body>
-          <flow-input socket="a" label="A" type="number"></flow-input>
-          <flow-input socket="b" label="B" type="number"></flow-input>
-          <flow-output socket="sum" label="Sum" type="number"></flow-output>
         </flow-node-def>
         
         <!-- Watch Node -->
@@ -247,12 +235,9 @@
           <node-body>
             <div class="title">👁️ Watch</div>
             <div class="body">
-              <div class="line">
-                <span class="socket in" data-sock="value"></span> Value
-              </div>
+              <flow-socket type="input" name="value" label="Value" data-type="any"></flow-socket>
             </div>
           </node-body>
-          <flow-input socket="value" label="Value" type="any"></flow-input>
         </flow-node-def>
         
         <!-- Multiply Node -->
@@ -260,21 +245,12 @@
           <node-body>
             <div class="title">✖️ Multiply</div>
             <div class="body">
-              <div class="line">
-                <span class="socket in" data-sock="a"></span> A
-              </div>
-              <div class="line">
-                <span class="socket in" data-sock="b"></span> B
-              </div>
+              <flow-socket type="input" name="a" label="A" data-type="number"></flow-socket>
+              <flow-socket type="input" name="b" label="B" data-type="number"></flow-socket>
               <div style="height:8px"></div>
-              <div class="line" style="text-align:right">
-                <span class="socket out" data-sock="product"></span> Product
-              </div>
+              <flow-socket type="output" name="product" label="Product" data-type="number"></flow-socket>
             </div>
           </node-body>
-          <flow-input socket="a" label="A" type="number"></flow-input>
-          <flow-input socket="b" label="B" type="number"></flow-input>
-          <flow-output socket="product" label="Product" type="number"></flow-output>
         </flow-node-def>
         
         <!-- Split Node -->
@@ -282,25 +258,13 @@
           <node-body>
             <div class="title">🔀 Split</div>
             <div class="body">
-              <div class="line">
-                <span class="socket in" data-sock="input"></span> Input
-              </div>
+              <flow-socket type="input" name="input" label="Input" data-type="any"></flow-socket>
               <div style="height:8px"></div>
-              <div class="line" style="text-align:right">
-                <span class="socket out" data-sock="out1"></span> Out 1
-              </div>
-              <div class="line" style="text-align:right">
-                <span class="socket out" data-sock="out2"></span> Out 2
-              </div>
-              <div class="line" style="text-align:right">
-                <span class="socket out" data-sock="out3"></span> Out 3
-              </div>
+              <flow-socket type="output" name="out1" label="Out 1" data-type="any"></flow-socket>
+              <flow-socket type="output" name="out2" label="Out 2" data-type="any"></flow-socket>
+              <flow-socket type="output" name="out3" label="Out 3" data-type="any"></flow-socket>
             </div>
           </node-body>
-          <flow-input socket="input" label="Input" type="any"></flow-input>
-          <flow-output socket="out1" label="Out 1" type="any"></flow-output>
-          <flow-output socket="out2" label="Out 2" type="any"></flow-output>
-          <flow-output socket="out3" label="Out 3" type="any"></flow-output>
         </flow-node-def>
         
         <!-- Advanced 3D Renderer Node - Shows arbitrary HTML content with data-draggable attributes -->
@@ -309,12 +273,8 @@
             <div class="title">🎮 3D Renderer</div>
             <div class="body">
               <!-- Input sockets -->
-              <div class="line">
-                <span class="socket in" data-sock="mesh"></span> Mesh Data
-              </div>
-              <div class="line">
-                <span class="socket in" data-sock="camera"></span> Camera
-              </div>
+              <flow-socket type="input" name="mesh" label="Mesh Data" data-type="object"></flow-socket>
+              <flow-socket type="input" name="camera" label="Camera" data-type="object"></flow-socket>
               
               <!-- 3D Canvas (simulated) -->
               <div style="margin: 8px 0; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; background: linear-gradient(45deg, #1a1a2e, #16213e); height: 120px; position: relative; overflow: hidden;">
@@ -355,18 +315,10 @@
               
               <!-- Output sockets -->
               <div style="height:8px"></div>
-              <div class="line" style="text-align:right">
-                <span class="socket out" data-sock="render"></span> Rendered
-              </div>
-              <div class="line" style="text-align:right">
-                <span class="socket out" data-sock="stats"></span> Stats
-              </div>
+              <flow-socket type="output" name="render" label="Rendered" data-type="texture"></flow-socket>
+              <flow-socket type="output" name="stats" label="Stats" data-type="object"></flow-socket>
             </div>
           </node-body>
-          <flow-input socket="mesh" label="Mesh Data" type="object"></flow-input>
-          <flow-input socket="camera" label="Camera" type="object"></flow-input>
-          <flow-output socket="render" label="Rendered" type="texture"></flow-output>
-          <flow-output socket="stats" label="Stats" type="object"></flow-output>
         </flow-node-def>
         
         <!-- Logic Node -->
@@ -375,21 +327,12 @@
           <node-body>
             <div class="title">⚡ If</div>
             <div class="body">
-              <div class="line">
-                <span class="socket in" data-sock="condition"></span> Condition
-              </div>
+              <flow-socket type="input" name="condition" label="Condition" data-type="boolean"></flow-socket>
               <div style="height:8px"></div>
-              <div class="line" style="text-align:right">
-                <span class="socket out" data-sock="true"></span> True
-              </div>
-              <div class="line" style="text-align:right">
-                <span class="socket out" data-sock="false"></span> False
-              </div>
+              <flow-socket type="output" name="true" label="True" data-type="any"></flow-socket>
+              <flow-socket type="output" name="false" label="False" data-type="any"></flow-socket>
             </div>
           </node-body>
-          <flow-input socket="condition" label="Condition" type="boolean"></flow-input>
-          <flow-output socket="true" label="True" type="any"></flow-output>
-          <flow-output socket="false" label="False" type="any"></flow-output>
         </flow-node-def>
         
         <!-- Text Node -->
@@ -399,12 +342,9 @@
             <div class="title">📝 String</div>
             <div class="body">
               <input type="text" class="input-box" value="Hello" data-key="text:value" placeholder="Enter text">
-              <div class="line" style="text-align:right">
-                <span class="socket out" data-sock="text"></span> Text
-              </div>
+              <flow-socket type="output" name="text" label="Text" data-type="string"></flow-socket>
             </div>
           </node-body>
-          <flow-output socket="text" label="Text" type="string"></flow-output>
         </flow-node-def>
         
         <!-- Canvas Node -->
@@ -414,12 +354,60 @@
             <div class="title">🎨 Canvas</div>
             <div class="body">
               <canvas data-draggable="false" style="width: 100%; height: 60px; background: #000; border-radius: 4px;"></canvas>
-              <div class="line" style="text-align:right">
-                <span class="socket out" data-sock="image"></span> Image
-              </div>
+              <flow-socket type="output" name="image" label="Image" data-type="image"></flow-socket>
             </div>
           </node-body>
-          <flow-output socket="image" label="Image" type="image"></flow-output>
+        </flow-node-def>
+        
+        <!-- Example Node with Custom Socket Styling -->
+        <flow-node-def name="example.custom" label="Custom Socket Example" width="180" height="120" category="Example" description="Shows custom socket styling" icon="🎨" onExecute="customExample">
+          <node-body>
+            <div class="title">🎨 Custom Socket Example</div>
+            <div class="body">
+              <!-- Default socket -->
+              <flow-socket type="input" name="default" label="Default Input" data-type="any"></flow-socket>
+              <!-- Custom styled socket -->
+              <flow-socket type="output" name="custom" label="Custom Output" data-type="any" color="#10b981" size="20px"></flow-socket>
+            </div>
+          </node-body>
+        </flow-node-def>
+        
+        <!-- Square Sample Node with Square Slots -->
+        <flow-node-def name="shape.square" label="Square Slots" width="160" height="160" category="Shapes" description="Shows square-shaped sockets" icon="⬜" 
+                       color-bg="linear-gradient(90deg, rgba(16,185,129,0.15), transparent)" color-text="#10b981" onExecute="generateSquare">
+          <node-body>
+            <div class="title">⬜ Square Slots</div>
+            <div class="body">
+              <!-- Square visualization -->
+              <div style="width: 60px; height: 60px; background: linear-gradient(45deg, #10b981, #059669); border: 2px solid #10b981; border-radius: 4px; margin: 8px auto; box-shadow: 0 2px 8px rgba(16,185,129,0.3);"></div>
+              
+              <!-- Input controls -->
+              <div style="margin: 8px 0;">
+                <label style="font-size: 10px; color: rgba(255,255,255,0.7);">Size:</label>
+                <input type="range" min="10" max="100" value="50" data-key="size" data-draggable="false" style="width: 100%; accent-color: #10b981;">
+              </div>
+              
+              <!-- Default circular sockets -->
+              <flow-socket type="input" name="size" label="Size" data-type="number" size="16px"></flow-socket>
+              <flow-socket type="output" name="shape" label="Shape" data-type="object" size="20px" custom-class="glow-effect"></flow-socket>
+              
+              <!-- Square socket via custom slot content -->
+              <flow-socket type="output" name="square" data-type="any">
+                <flow-socket-anchor>
+                  <span style="border-color: #10b981; background: linear-gradient(45deg, #10b981, #059669); width: 18px; height: 18px; border-radius: 4px; display: block; border: 2px solid;"></span>
+                </flow-socket-anchor>
+                <span class="socket-label" style="color: #10b981; font-weight: bold;">Square Socket</span>
+              </flow-socket>
+              
+              <!-- Diamond socket via custom slot content -->
+              <flow-socket type="input" name="diamond" data-type="any">
+                <flow-socket-anchor>
+                  <span style="border-color: #8b5cf6; background: linear-gradient(45deg, #8b5cf6, #7c3aed); width: 16px; height: 16px; display: block; border: 2px solid; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); margin: 0 auto;"></span>
+                </flow-socket-anchor>
+                <span class="socket-label" style="color: #8b5cf6; font-weight: bold;">Diamond Socket</span>
+              </flow-socket>
+            </div>
+          </node-body>
         </flow-node-def>
       </flow-definitions>
       
@@ -436,6 +424,10 @@
         <flow-node type="data.watch" id="n9" x="850" y="250"></flow-node>
         <flow-node type="data.watch" id="n10" x="850" y="400"></flow-node>
         <flow-node type="data.watch" id="n11" x="850" y="550"></flow-node>
+        <!-- Test node with new flow-socket system -->
+        <flow-node type="example.custom" id="n12" x="100" y="550"></flow-node>
+        <!-- Square sample node -->
+        <flow-node type="shape.square" id="n13" x="300" y="550"></flow-node>
       </flow-nodes>
       
       <flow-edges>
@@ -450,6 +442,8 @@
         <flow-edge from="n6:false" to="n9:value"></flow-edge>
         <flow-edge from="n7:true" to="n10:value"></flow-edge>
         <flow-edge from="n7:false" to="n11:value"></flow-edge>
+        <!-- Test edge with new flow-socket system -->
+        <flow-edge from="n3:value" to="n12:default"></flow-edge>
       </flow-edges>
     </flow-graph>
   </div>
@@ -718,6 +712,46 @@
       
       // Set output value
       context.setOutput(0, 'canvas rendered image data');
+    };
+    
+    window.customExample = async function(context) {
+      console.log('🎨 Custom socket example:', context);
+      
+      // Simulate async processing
+      await new Promise(resolve => setTimeout(resolve,1000));
+      
+      // Set output value
+      context.setOutput(0, 'Custom socket output!');
+    };
+    
+    window.generateSquare = async function(context) {
+      console.log('⬜ Generating square:', context);
+      
+      // Get size from input or data binding
+      const size = context.getInput(0) || context.getData('size') || 50;
+      
+      // Simulate async processing
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Create square shape object
+      const square = {
+        type: 'square',
+        size: size,
+        color: '#10b981',
+        position: { x: 0, y: 0 },
+        rotation: 0,
+        properties: {
+          width: size,
+          height: size,
+          borderWidth: 2,
+          borderRadius: 4
+        }
+      };
+      
+      // Set output value
+      context.setOutput(0, square);
+      
+      console.log('✅ Square generated:', square);
     };
     
     // Animation Controls

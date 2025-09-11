@@ -22,6 +22,15 @@ A modern, declarative, HTML-based visual scripting library built with Lit web co
 
 ## 🆕 Recent Updates
 
+### v1.6.0 - Self-Contained Socket System & Enhanced Execution
+- **Flow-Socket Components**: New `<flow-socket>` custom elements with automatic styling and structure generation
+- **Socket Customization**: Full customization via slot content for any socket shape (square, diamond, etc.)
+- **Default Green Theme**: All default sockets now use green color (#10b981) matching edges
+- **Enhanced Execution**: Added `getData()` method for accessing node data during execution
+- **Slot-Based Customization**: Complete control over socket appearance through custom HTML content
+- **Modern Socket System**: Self-contained `<flow-socket>` components with full customization
+- **Improved Performance**: Optimized socket linking and connection handling
+
 ### v1.5.0 - Readonly Mode & Form Control Management
 - **Readonly Mode**: Toggle between edit and view-only modes for execution and viewing scenarios
 - **Form Control Disabling**: Automatic disabling of all form controls (inputs, buttons, etc.) in readonly mode
@@ -103,13 +112,10 @@ FlowGraph is distributed as a single bundled ES6 module with all dependencies in
       <node-body>
         <div class="title">🔢 Number</div>
         <div class="body">
-          <input type="number" class="input-box" value="0" placeholder="Enter value">
-          <div class="line" style="text-align:right">
-            <span class="socket out" data-sock="value"></span> Value
-          </div>
+          <input type="number" class="input-box" value="0" data-key="num:value" placeholder="Enter value">
+          <flow-socket type="output" name="value" label="Value" data-type="number"></flow-socket>
         </div>
       </node-body>
-      <flow-output socket="value" label="Value" type="number"></flow-output>
     </flow-node-def>
     
     <flow-node-def name="math.add" label="Add" width="180" height="120" 
@@ -119,21 +125,12 @@ FlowGraph is distributed as a single bundled ES6 module with all dependencies in
       <node-body>
         <div class="title">➕ Add</div>
         <div class="body">
-          <div class="line">
-            <span class="socket in" data-sock="a"></span> A
-          </div>
-          <div class="line">
-            <span class="socket in" data-sock="b"></span> B
-          </div>
+          <flow-socket type="input" name="a" label="A" data-type="number"></flow-socket>
+          <flow-socket type="input" name="b" label="B" data-type="number"></flow-socket>
           <div style="height:8px"></div>
-          <div class="line" style="text-align:right">
-            <span class="socket out" data-sock="sum"></span> Sum
-          </div>
+          <flow-socket type="output" name="sum" label="Sum" data-type="number"></flow-socket>
         </div>
       </node-body>
-      <flow-input socket="a" label="A" type="number"></flow-input>
-      <flow-input socket="b" label="B" type="number"></flow-input>
-      <flow-output socket="sum" label="Sum" type="number"></flow-output>
     </flow-node-def>
   </flow-definitions>
   
@@ -151,6 +148,58 @@ FlowGraph is distributed as a single bundled ES6 module with all dependencies in
   </flow-edges>
 </flow-graph>
 ```
+
+## 🔌 Flow-Socket System
+
+FlowGraph features a modern, self-contained socket system using `<flow-socket>` custom elements that automatically generate proper structure and styling.
+
+### Basic Socket Usage
+
+```html
+<!-- Simple socket with default styling -->
+<flow-socket type="input" name="data" label="Data" data-type="any"></flow-socket>
+<flow-socket type="output" name="result" label="Result" data-type="number"></flow-socket>
+
+<!-- Custom styled socket -->
+<flow-socket type="output" name="custom" label="Custom" color="#10b981" size="20px" custom-class="glow-effect"></flow-socket>
+```
+
+### Custom Socket Shapes
+
+You can create any socket shape using slot content. When using custom slot content, you define your own label styling, so the `label` attribute is not needed:
+
+```html
+<!-- Square socket - no label attribute needed when using custom slot content -->
+<flow-socket type="output" name="square">
+  <flow-socket-anchor>
+    <span style="border-color: #10b981; background: linear-gradient(45deg, #10b981, #059669); 
+          width: 18px; height: 18px; border-radius: 4px; display: block; border: 2px solid;"></span>
+  </flow-socket-anchor>
+  <span class="socket-label" style="color: #10b981; font-weight: bold;">Square Socket</span>
+</flow-socket>
+
+<!-- Diamond socket - no label attribute needed when using custom slot content -->
+<flow-socket type="input" name="diamond">
+  <flow-socket-anchor>
+    <span  style="border-color: #8b5cf6; background: linear-gradient(45deg, #8b5cf6, #7c3aed); 
+          width: 16px; height: 16px; display: block; border: 2px solid; 
+          clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); margin: 0 auto;"></span>
+  </flow-socket-anchor>
+  <span class="socket-label" style="color: #8b5cf6; font-weight: bold;">Diamond Socket</span>
+</flow-socket>
+```
+
+### Socket Attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `type` | String | Socket type: "input" or "output" |
+| `name` | String | Socket identifier for connections |
+| `label` | String | Display label for the socket |
+| `color` | String | Custom color (hex, rgb, etc.) |
+| `size` | String | Socket size (e.g., "16px", "20px") |
+| `custom-class` | String | Additional CSS class for styling |
+| `data-type` | String | Data type for validation |
 
 ## ⚡ Async Node Execution
 
@@ -202,6 +251,23 @@ window.addNumbers = async function(context) {
   // Set output value
   context.setOutput(0, sum);
 };
+
+// Example using getData method for data binding
+window.processData = async function(context) {
+  // Get data from node's data binding system
+  const size = context.getData('size') || 50;  // from data-key="size"
+  const color = context.getData('color') || '#10b981';  // from data-key="color"
+  
+  // Process the data
+  const result = {
+    size: size * 2,
+    color: color,
+    processed: true
+  };
+  
+  // Set output value
+  context.setOutput(0, result);
+};
 ```
 
 ### Execution Context
@@ -215,6 +281,43 @@ Each async function receives a `context` object with:
 - `context.outputs` - Map of output sockets
 - `context.getInput(index)` - Get input socket value by index
 - `context.setOutput(index, value)` - Set output socket value by index
+- `context.getData(key)` - Get data from node's data binding system
+
+### Data Binding System
+
+FlowGraph supports automatic data binding between form controls and execution context using `data-key` attributes:
+
+```html
+<!-- Node with data binding -->
+<flow-node-def name="data.processor" label="Data Processor" onExecute="processData">
+  <node-body>
+    <div class="title">📊 Data Processor</div>
+    <div class="body">
+      <input type="number" data-key="size" value="50" placeholder="Size">
+      <input type="color" data-key="color" value="#10b981">
+      <select data-key="mode">
+        <option value="normal">Normal</option>
+        <option value="advanced">Advanced</option>
+      </select>
+      <flow-socket type="output" name="result" label="Result"></flow-socket>
+    </div>
+  </node-body>
+</flow-node-def>
+```
+
+```javascript
+// Access bound data in execution
+window.processData = async function(context) {
+  // Get all bound data
+  const size = context.getData('size');        // 50
+  const color = context.getData('color');      // "#10b981"
+  const mode = context.getData('mode');        // "normal"
+  
+  // Process the data
+  const result = { size, color, mode, processed: true };
+  context.setOutput(0, result);
+};
+```
 
 ### Execution Triggers
 
@@ -919,16 +1022,33 @@ Define reusable node templates with enhanced metadata.
 - `<flow-input>`: Defines input sockets
 - `<flow-output>`: Defines output sockets
 
-### Socket Definition (`<flow-input>`, `<flow-output>`)
+### Socket Definition (`<flow-socket>`)
 
-Define input and output sockets for nodes.
+Define self-contained input and output sockets for nodes with automatic styling and structure generation.
 
 #### Attributes
 | Attribute | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `socket` | String | ✅ | Socket identifier |
-| `label` | String | ❌ | Display label |
-| `type` | String | ❌ | Data type for validation (default: "any") |
+| `type` | String | ✅ | Socket type: "input" or "output" |
+| `name` | String | ✅ | Socket identifier for connections |
+| `label` | String | ❌ | Display label for the socket |
+| `color` | String | ❌ | Custom color (hex, rgb, etc.) |
+| `size` | String | ❌ | Socket size (e.g., "16px", "20px") |
+| `custom-class` | String | ❌ | Additional CSS class for styling |
+| `data-type` | String | ❌ | Data type for validation (default: "any") |
+
+#### Slot Content
+You can provide custom slot content for complete control over socket appearance:
+
+```html
+<flow-socket type="output" name="custom" label="Custom Socket">
+  <flow-socket-anchor>
+    <span  style="/* custom styles */"></span>
+  </flow-socket-anchor>
+  <span class="socket-label" style="/* custom label styles */">Custom Socket</span>
+</flow-socket>
+```
+
 
 ### Node Instance (`<flow-node>`)
 
@@ -1201,14 +1321,14 @@ flowGraph.deserialize(savedData);
     <div class="title">⚙️ Processor</div>
     <div class="body">
       <div class="line">
-        <span class="socket in" data-sock="input"></span> Input
+        <span class="socket in"></span> Input
       </div>
       <select class="input-box">
         <option>Transform A</option>
         <option>Transform B</option>
       </select>
       <div class="line" style="text-align:right">
-        <span class="socket out" data-sock="output"></span> Output
+        <span class="socket out"></span> Output
       </div>
     </div>
   </node-body>

@@ -71,6 +71,29 @@
     background: #ffffff !important;
     box-shadow: 0 0 0 3px rgba(31, 41, 55, 0.1) !important;
   }
+
+  /* Auto-expanding textbox */
+  .node-solid .auto-expand {
+    resize: none !important;
+    overflow: hidden !important;
+    transition: width 0.2s ease !important;
+    min-width: 200px !important;
+    max-width: 400px !important;
+  }
+
+  /* Make the node container flexible */
+  .node-solid {
+    min-width: 200px !important;
+    width: auto !important;
+    max-width: 450px !important;
+    transition: width 0.2s ease !important;
+  }
+
+  .node-solid .body {
+    width: auto !important;
+    min-width: 200px !important;
+    transition: width 0.2s ease !important;
+  }
   </style>
   <!-- Use bundled FlowGraph with CSS -->
   <link rel="stylesheet" href="dist/flowgraph.css">
@@ -436,14 +459,14 @@
         <!-- Custom Styled Node Examples - Demonstrates the new node customization system -->
         
         <!-- Solid Opaque Node -->
-        <flow-node-def name="custom.minimal" label="Solid Node" width="200" height="140" category="Custom" description="Pure opaque solid design" icon="🔲" 
+        <flow-node-def name="custom.minimal" label="Solid Node" width="250" height="140" category="Custom" description="Pure opaque solid design with auto-expanding textbox" icon="🔲" 
                        custom-class="node-solid" onExecute="minimalExample">
           <node-body>
             <div class="">🔲 Solid Design</div>
             <div class="body">
               <flow-socket type="input" name="input" label="Input" data-type="any"></flow-socket>
               <div style="margin: 8px 0;">
-                <input type="text" class="input-box" value="Solid & Opaque" data-key="text:value" placeholder="Enter text" style="width: calc(100% - 10px);">
+                <input type="text" class="input-box auto-expand" value="Solid & Opaque" data-key="text:value" placeholder="Enter text" style="width: calc(100% - 10px); min-width: 200px;">
               </div>
               <flow-socket type="output" name="output" label="Output" data-type="any"></flow-socket>
             </div>
@@ -602,9 +625,19 @@
         }
       });
     };
-    
+
     await waitForFlowGraph();
     console.log('FlowGraph loaded with', flowGraphElement.flowGraph.nodes.size, 'nodes');
+    
+    // Setup auto-expand for custom nodes
+    const autoExpandInputs = document.querySelectorAll('.auto-expand');
+    autoExpandInputs.forEach(input => {
+      input.addEventListener('input', () => {
+        const width = Math.max(input.value.length * 8 + 20, 200);
+        input.style.width = `${width}px`;
+        // Edges will automatically update via ResizeObserver
+      });
+    });
     
     // Multi-drag instructions
     console.log('💡 Multi-drag: Select multiple nodes with Ctrl/Cmd+click, then drag any selected node to move all together!');

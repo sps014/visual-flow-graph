@@ -305,6 +305,9 @@ export class Node {
         console.warn(`Flow-socket not found for socket ${socket.id}`);
       }
     });
+    
+    // Setup automatic size change detection
+    this.setupSizeObserver();
   }
   
   /**
@@ -842,7 +845,51 @@ export class Node {
     };
   }
   
+  /**
+   * Update the node size and recalculate connected edges.
+   * Call this when the node's dimensions change.
+   */
+  updateSize(newWidth, newHeight) {
+    if (newWidth !== undefined) {
+      this.width = newWidth;
+      if (this.element) {
+        this.element.style.width = `${newWidth}px`;
+      }
+    }
+    
+    if (newHeight !== undefined) {
+      this.height = newHeight;
+      if (this.element) {
+        this.element.style.height = `${newHeight}px`;
+      }
+    }
+    
+    // Update edges connected to this node
+    if (this.flowGraph) {
+      this.flowGraph.updateEdgesForNode(this);
+    }
+  }
+
+  /**
+   * Set up automatic edge recalculation when the node size changes.
+   * Uses ResizeObserver to detect size changes automatically.
+   */
+  setupSizeObserver() {
+    if (!this.element || !window.ResizeObserver) return;
+    
+    this.resizeObserver = new ResizeObserver(() => {
+      if (this.flowGraph) {
+        this.flowGraph.updateEdgesForNode(this);
+      }
+    });
+    
+    this.resizeObserver.observe(this.element);
+  }
+  
   destroy() {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
     if (this.element) {
       this.element.remove();
     }

@@ -67,6 +67,12 @@
   --fg-socket-shadow-default: 0 2px 6px rgba(2,6,23,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
   --fg-socket-shadow-hover: 0 4px 12px rgba(2,6,23,0.7), 0 0 0 2px rgba(124,58,237,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
   --fg-socket-shadow-active: 0 4px 12px rgba(124,58,237,0.4), 0 0 0 3px rgba(124,58,237,0.3);
+  
+  /* Grid customization */
+  --fg-grid-main-color: rgba(255,255,255,0.1);
+  --fg-grid-minor-color: rgba(255,255,255,0.05);
+  --fg-grid-main-size: 50px;
+  --fg-grid-minor-size: 10px;
 }
 
 /* Theme variants */
@@ -87,6 +93,11 @@ flow-graph[theme="light"] {
   --fg-bg: #f8fafc;
   --fg-panel: #ffffff;
   --fg-node: #ffffff;
+  
+  /* Grid customization for light theme */
+  --fg-grid-main-color: rgba(0,0,0,0.1);
+  --fg-grid-minor-color: rgba(0,0,0,0.05);
+  
   --fg-accent: #7c3aed;
   --fg-muted: #64748b;
   --fg-text: #1f2937;
@@ -103,18 +114,19 @@ flow-graph {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: 
+  background-color: var(--fg-bg, #1a1a1a);
+  background-image: 
     /* Main grid lines */
-    linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px),
+    linear-gradient(var(--fg-grid-main-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--fg-grid-main-color) 1px, transparent 1px),
     /* Minor grid lines */
-    linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px);
+    linear-gradient(var(--fg-grid-minor-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--fg-grid-minor-color) 1px, transparent 1px);
   background-size: 
-    50px 50px,  /* Main grid */
-    50px 50px,  /* Main grid */
-    10px 10px,  /* Minor grid */
-    10px 10px;  /* Minor grid */
+    var(--fg-grid-main-size) var(--fg-grid-main-size),  /* Main grid */
+    var(--fg-grid-main-size) var(--fg-grid-main-size),  /* Main grid */
+    var(--fg-grid-minor-size) var(--fg-grid-minor-size),  /* Minor grid */
+    var(--fg-grid-minor-size) var(--fg-grid-minor-size);  /* Minor grid */
   background-position: 
     0 0,        /* Main grid */
     0 0,        /* Main grid */
@@ -128,6 +140,7 @@ flow-graph {
   inset: 0;
   overflow: hidden;
   transform-origin: 0px 0px;
+  background: transparent;
 }
 
 /* svg layer for edges (goes behind nodes) */
@@ -145,6 +158,7 @@ flow-graph {
   position: absolute;
   inset: 0;
   z-index: 2; /* Above edges */
+  background: transparent;
 }
 
 /* ===== NODE STYLES ===== */
@@ -165,6 +179,7 @@ flow-graph {
 
 .node.dragging { 
   cursor: grabbing; 
+  opacity: 1;
   box-shadow: 
     0 12px 48px rgba(2,6,23,0.8),
     inset 0 1px 0 rgba(255,255,255,0.1);
@@ -551,7 +566,7 @@ button.interactive:hover {
 
 /* ===== DRAGGING STYLES ===== */
 .node.dragging {
-  opacity: 0.8;
+  opacity: 1;
   transform: scale(1.02);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   z-index: 1000;

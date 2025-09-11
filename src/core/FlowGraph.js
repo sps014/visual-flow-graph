@@ -67,6 +67,12 @@ export class FlowGraph extends EventTarget {
     /** @type {HTMLDivElement} The main surface element containing all flow graph content */
     this.surface = document.createElement('div');
     this.surface.className = 'surface';
+    this.surface.style.cssText = `
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      transform-origin: 0px 0px;
+    `;
     
     /** @type {SVGSVGElement} SVG element for rendering edges and connections */
     this.edgeSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');

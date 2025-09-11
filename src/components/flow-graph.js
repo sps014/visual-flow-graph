@@ -72,7 +72,24 @@ export class FlowGraphElement extends LitElement {
    */
   static styles = css`
     :host {
-      /* All styles are now handled by theme.css */
+      background-color: #f8f9fa;
+      background-image: 
+        /* Main grid lines */
+        linear-gradient(rgba(0,0,0,0.4) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.4) 1px, transparent 1px),
+        /* Minor grid lines */
+        linear-gradient(rgba(0,0,0,0.2) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.2) 1px, transparent 1px);
+      background-size: 
+        50px 50px,  /* Main grid */
+        50px 50px,  /* Main grid */
+        10px 10px,  /* Minor grid */
+        10px 10px;  /* Minor grid */
+      background-position: 
+        0 0,        /* Main grid */
+        0 0,        /* Main grid */
+        0 0,        /* Minor grid */
+        0 0;        /* Minor grid */
     }
   `;
   

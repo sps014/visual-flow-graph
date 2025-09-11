@@ -8,7 +8,6 @@
   html, body {
     height: 100%; 
     margin: 0; 
-    background: linear-gradient(180deg, #091027 0%, #071420 100%); 
     font-family: 'Inter', 'Roboto', system-ui, sans-serif; 
     color: #fff;
     overflow: hidden;
@@ -210,7 +209,7 @@
           <node-body>
             <div class="title">🔢 Number</div>
             <div class="body">
-              <input type="number" class="input-box" value="0" data-key="num:value" placeholder="Enter value">
+              <input type="number" class="input-box" value="0" data-key="num:value" placeholder="Enter value" style="width: calc(100% - 10px);">
               <flow-socket type="output" name="value" label="Value" data-type="number"></flow-socket>
             </div>
           </node-body>
@@ -402,7 +401,7 @@
               <!-- Diamond socket via custom slot content -->
               <flow-socket type="input" name="diamond" data-type="any">
                 <flow-socket-anchor>
-                  <span style="border-color: #8b5cf6; background: linear-gradient(45deg, #8b5cf6, #7c3aed); width: 16px; height: 16px; display: block; border: 2px solid; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); margin: 0 auto;"></span>
+                  <span style="border-color: #8b5cf6; background: linear-gradient(45deg, #8b5cf6, #7c3aed); width: 24px; height: 24px; display: block; border: 2px solid; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); margin: 0 auto;"></span>
                 </flow-socket-anchor>
                 <span class="socket-label" style="color: #8b5cf6; font-weight: bold;">Diamond Socket</span>
               </flow-socket>

@@ -463,6 +463,12 @@ flow-graph[theme="dark"] {
   --fg-panel: #0b1220;                 /* Panel backgrounds */
   --fg-node: #0f1724;                  /* Node backgrounds */
   
+  /* Grid customization */
+  --fg-grid-main-color: rgba(255,255,255,0.1);  /* Main grid line color */
+  --fg-grid-minor-color: rgba(255,255,255,0.05); /* Minor grid line color */
+  --fg-grid-main-size: 50px;                     /* Main grid size */
+  --fg-grid-minor-size: 10px;                    /* Minor grid size */
+  
   /* Text colors */
   --fg-text: #ffffff;                  /* Primary text */
   --fg-muted: #94a3b8;                 /* Secondary text */
@@ -482,6 +488,13 @@ flow-graph[theme="light"] {
   --fg-bg: #f8fafc;
   --fg-panel: #ffffff;
   --fg-node: #ffffff;
+  
+  /* Grid customization for light theme */
+  --fg-grid-main-color: rgba(0,0,0,0.1);        /* Darker grid for light background */
+  --fg-grid-minor-color: rgba(0,0,0,0.05);      /* Lighter minor grid */
+  --fg-grid-main-size: 50px;
+  --fg-grid-minor-size: 10px;
+  
   --fg-text: #1f2937;
   --fg-muted: #64748b;
   --fg-accent: #7c3aed;
@@ -491,6 +504,29 @@ flow-graph[theme="light"] {
   --fg-error: #ef4444;
 }
 ```
+
+### 🎯 Grid Customization
+
+Customize the background grid appearance with these variables:
+
+```css
+flow-graph {
+  /* Grid colors */
+  --fg-grid-main-color: rgba(59, 130, 246, 0.2);   /* Blue main grid */
+  --fg-grid-minor-color: rgba(59, 130, 246, 0.1);  /* Blue minor grid */
+  
+  /* Grid sizes */
+  --fg-grid-main-size: 100px;                       /* Larger main grid */
+  --fg-grid-minor-size: 20px;                       /* Larger minor grid */
+}
+```
+
+**Grid Examples:**
+- **No grid**: `--fg-grid-main-color: transparent;`
+- **Red grid**: `--fg-grid-main-color: rgba(239, 68, 68, 0.2);`
+- **Green grid**: `--fg-grid-main-color: rgba(16, 185, 129, 0.2);`
+- **Purple grid**: `--fg-grid-main-color: rgba(147, 51, 234, 0.2);`
+- **Dense grid**: `--fg-grid-main-size: 25px; --fg-grid-minor-size: 5px;`
 
 ### ✨ Animation Customization
 

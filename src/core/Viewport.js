@@ -226,10 +226,13 @@ export class Viewport {
     const transform = `translate(${this.x}px, ${this.y}px) scale(${this.scale})`;
     this.contentContainer.style.transform = transform;
     
-    // Update grid background position on the surface
-    const gridSize = 50;
-    const minorGridSize = 10;
-    this.surface.style.backgroundPosition = 
+    // Update grid background position on the flow-graph element using CSS variables
+    const flowGraphElement = this.flowGraph.container;
+    const computedStyle = getComputedStyle(flowGraphElement);
+    const gridSize = parseInt(computedStyle.getPropertyValue('--fg-grid-main-size')) || 50;
+    const minorGridSize = parseInt(computedStyle.getPropertyValue('--fg-grid-minor-size')) || 10;
+    
+    flowGraphElement.style.backgroundPosition = 
       `${this.x % gridSize}px ${this.y % gridSize}px, ` +
       `${this.x % gridSize}px ${this.y % gridSize}px, ` +
       `${this.x % minorGridSize}px ${this.y % minorGridSize}px, ` +

@@ -426,7 +426,7 @@ button.interactive:hover {
 .node.executing {
   box-shadow: 0 0 20px var(--fg-executing-shadow) !important;
   border: 2px solid var(--fg-executing-border) !important;
-  background: var(--fg-executing-bg) !important;
+  background: var(--fg-executing-bg);
 }
 
 .node.executing .title {
@@ -438,7 +438,7 @@ button.interactive:hover {
 .node.executing.flowing {
   box-shadow: 0 0 20px var(--fg-animation-flowing-color, 0.8) !important;
   border: 2px solid var(--fg-animation-flowing-color) !important;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--fg-animation-flowing-color) 10%, transparent), color-mix(in srgb, var(--fg-animation-flowing-color) 5%, transparent)) !important;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--fg-animation-flowing-color) 10%, transparent), color-mix(in srgb, var(--fg-animation-flowing-color) 5%, transparent));
 }
 
 .node.executing.flowing .title {
@@ -448,7 +448,7 @@ button.interactive:hover {
 .node.executing.pulsing {
   box-shadow: 0 0 20px color-mix(in srgb, var(--fg-animation-pulsing-color) 80%, transparent) !important;
   border: 2px solid var(--fg-animation-pulsing-color) !important;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--fg-animation-pulsing-color) 10%, transparent), color-mix(in srgb, var(--fg-animation-pulsing-color) 5%, transparent)) !important;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--fg-animation-pulsing-color) 10%, transparent), color-mix(in srgb, var(--fg-animation-pulsing-color) 5%, transparent));
 }
 
 .node.executing.pulsing .title {
@@ -458,7 +458,7 @@ button.interactive:hover {
 .node.executing.data-flow {
   box-shadow: 0 0 20px color-mix(in srgb, var(--fg-animation-data-flow-color) 80%, transparent) !important;
   border: 2px solid var(--fg-animation-data-flow-color) !important;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--fg-animation-data-flow-color) 10%, transparent), color-mix(in srgb, var(--fg-animation-data-flow-color) 5%, transparent)) !important;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--fg-animation-data-flow-color) 10%, transparent), color-mix(in srgb, var(--fg-animation-data-flow-color) 5%, transparent));
 }
 
 .node.executing.data-flow .title {

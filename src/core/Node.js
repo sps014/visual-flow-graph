@@ -112,7 +112,20 @@ export class Node {
    */
   createElement() {
     this.element = document.createElement('div');
-    this.element.className = `node type-${this.type}`;
+    
+    // Build class list
+    const classes = ['node', `type-${this.type}`];
+    
+    // Add custom class if specified, otherwise check if node-body has class attribute
+    if (this.template && this.template.customClass) {
+      classes.push(this.template.customClass);
+    } else if (this.template && this.template.html && this.template.html.includes('<node-body class=')) {
+      // Skip default class if node-body has class attribute
+    } else {
+      classes.push('node-default');
+    }
+    
+    this.element.className = classes.join(' ');
     this.element.style.left = this.x + 'px';
     this.element.style.top = this.y + 'px';
     this.element.dataset.id = this.id;
@@ -148,6 +161,7 @@ export class Node {
     // Add to DOM
     this.flowGraph.nodesRoot.appendChild(this.element);
   }
+
 
 
 

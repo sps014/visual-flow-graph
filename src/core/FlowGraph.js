@@ -173,8 +173,8 @@ export class FlowGraph extends EventTarget {
     
     // Clear selection when clicking on empty space
     this.surface.addEventListener('click', (e) => {
-      // Only clear if clicking directly on surface (not on nodes)
-      if (e.target === this.surface) {
+      // Clear if clicking on surface or any non-node element
+      if (e.target === this.surface || !e.target.closest('.node')) {
         this.selection.clearSelection();
       }
     });
@@ -244,7 +244,8 @@ export class FlowGraph extends EventTarget {
    *   ],
    *   html: '<div>Add: <input data-key="a" type="number"> + <input data-key="b" type="number"></div>',
    *   category: 'math',
-   *   onExecute: 'executeMathAdd'
+   *   onExecute: 'executeMathAdd',
+   *   customClass: 'my-custom-node' // Optional: custom CSS class for styling
    * });
    * ```
    */
@@ -430,6 +431,18 @@ export class FlowGraph extends EventTarget {
       if (edge.fromSocket.node === node || edge.toSocket.node === node) {
         edge.updatePath();
       }
+    }
+  }
+
+  /**
+   * Update the visual path of all edges in the graph.
+   * Useful for refreshing edge positions after initial load.
+   * 
+   * @public
+   */
+  updateAllEdges() {
+    for (const edge of this.edges.values()) {
+      edge.updatePath();
     }
   }
   

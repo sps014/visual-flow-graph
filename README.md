@@ -22,6 +22,15 @@ A modern, declarative, HTML-based visual scripting library built with Lit web co
 
 ## 🆕 Recent Updates
 
+### v1.7.0 - Node Customization System
+- **Flexible Node Styling**: Complete separation of functionality from appearance
+- **Custom CSS Classes**: Support for custom node styling via `custom-class` attribute
+- **Backward Compatibility**: Existing nodes work exactly as before with automatic `node-default` class
+- **Functional States**: Dragging, selection, and execution states work with both default and custom classes
+- **Clean Architecture**: `.node` class contains only functional properties, `.node-default` provides visual styling
+- **Complete Customization**: Users can completely override node appearance while preserving all functionality
+- **Example Styles**: Included minimal, dark, and neon node style examples
+
 ### v1.6.0 - Self-Contained Socket System & Enhanced Execution
 - **Flow-Socket Components**: New `<flow-socket>` custom elements with automatic styling and structure generation
 - **Socket Customization**: Full customization via slot content for any socket shape (square, diamond, etc.)
@@ -1161,6 +1170,148 @@ flowGraph.addEventListener('nodes:delete', (e) => {
   console.log('Nodes deleted:', e.detail.deletedNodes.length, 'nodes');
 });
 ```
+
+## 🎨 Node Customization System
+
+FlowGraph v1.7.0 introduces a clean node styling system that separates functionality from appearance, allowing complete visual customization while maintaining all existing features.
+
+### Core Architecture
+
+The system uses two key CSS classes:
+
+- **`.node`** - Contains ONLY essential functional properties (positioning, sizing, interaction, performance)
+- **`.node-default`** - Provides the default visual appearance (applied automatically when no custom class is specified)
+
+### How It Works
+
+**Simple Logic:**
+1. **Custom class provided** → Use custom class, no default
+2. **No custom class** → Apply `node-default` class
+
+### Default Behavior
+
+When no custom class is specified, nodes automatically get the `node-default` class:
+
+```html
+<flow-node-def name="math.add" label="Add" width="180" height="120">
+  <!-- Gets: node type-math.add node-default -->
+</flow-node-def>
+```
+
+### Custom Styling
+
+To create custom node styles, specify a `custom-class` attribute:
+
+```html
+<flow-node-def name="custom.solid" label="Solid Node" width="200" height="140" 
+               custom-class="node-solid">
+  <node-body>
+    <div class="title">🔲 Solid Design</div>
+    <div class="body">
+      <flow-socket type="input" name="input" label="Input" data-type="any"></flow-socket>
+      <input type="text" class="input-box" value="Solid & Opaque" data-key="text:value">
+      <flow-socket type="output" name="output" label="Output" data-type="any"></flow-socket>
+    </div>
+  </node-body>
+</flow-node-def>
+```
+
+### CSS Structure
+
+#### Base Node Class (Functional Only)
+```css
+.node {
+  position: absolute;
+  min-width: 160px;
+  transform-origin: 0 0;
+  user-select: none;
+  cursor: grab;
+  transform: translateZ(0);
+}
+```
+
+#### Default Appearance Class
+```css
+.node-default {
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 
+    0 8px 32px rgba(2,6,23,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  backdrop-filter: blur(8px);
+}
+```
+
+#### Custom Node Styles
+```css
+/* Solid opaque design - only override visual properties */
+.node-solid {
+  border-radius: 6px !important;
+  background: #ffffff !important;
+  border: 3px solid #1f2937;  /* No !important - allows selection override */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);  /* No !important - allows selection override */
+  color: #1f2937 !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+}
+
+.node-solid .title {
+  background: #1f2937 !important;
+  color: #ffffff !important;
+  border-bottom: 2px solid #374151 !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.node-solid .body {
+  color: #374151 !important;
+  font-weight: 500 !important;
+}
+
+.node-solid .input-box {
+  background: #f9fafb !important;
+  border: 2px solid #d1d5db !important;
+  color: #1f2937 !important;
+  font-weight: 500 !important;
+}
+
+.node-solid .input-box:focus {
+  border-color: #1f2937 !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(31, 41, 55, 0.1) !important;
+}
+```
+
+### Functional States
+
+All functional states (dragging, selection, execution) work automatically with both default and custom node classes - no additional CSS required.
+
+### Programmatic Usage
+
+```javascript
+// Add a node template with custom styling
+flowGraph.addNodeTemplate('custom.processor', {
+  inputs: [{ id: 'input', type: 'any', label: 'Input' }],
+  outputs: [{ id: 'output', type: 'any', label: 'Output' }],
+  html: '<div class="title">⚙️ Processor</div><div class="body">...</div>',
+  customClass: 'node-solid', // Custom CSS class
+  onExecute: 'processData'
+});
+
+// Create a node with the custom styling
+const node = flowGraph.addNode('custom.processor', { x: 100, y: 100 });
+```
+
+### Benefits
+
+- **Simple & Clean**: Explicit logic, no complex detection
+- **Backward Compatible**: Existing nodes work exactly as before
+- **Complete Customization**: Override any visual property
+- **Preserved Functionality**: All interactions work perfectly
+- **Natural State Overrides**: Selection and dragging states work without explicit CSS
+- **Performance**: No impact on existing performance
 
 ## 🎯 Event System
 

@@ -191,6 +191,7 @@ export class FlowGraphElement extends LitElement {
       const description = def.getAttribute('description') || '';
       const icon = def.getAttribute('icon') || '';
       const onExecute = def.getAttribute('onExecute');
+      const customClass = def.getAttribute('custom-class');
       
       // Parse color patch attributes
       const colorPatch = {};
@@ -241,6 +242,7 @@ export class FlowGraphElement extends LitElement {
         description,
         icon,
         onExecute,
+        customClass,
         colorPatch: Object.keys(colorPatch).length > 0 ? colorPatch : null,
         html: nodeBody ? nodeBody.innerHTML : null,
         inputs: inputSockets,

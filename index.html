@@ -47,6 +47,30 @@
     --fg-socket-output-border: rgba(147,51,234,0.8);
   }
   */
+  
+  /* Custom Solid Node Styles - Override bundled CSS */
+  .node-solid {
+    border-radius: 6px !important;
+    background: #ffffff !important;
+    border: 3px solid #1f2937;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    color: #1f2937 !important;
+    opacity: 1 !important;
+    backdrop-filter: none !important;
+  }
+
+  .node-solid .input-box {
+    background: #f9fafb !important;
+    border: 2px solid #d1d5db !important;
+    color: #1f2937 !important;
+    font-weight: 500 !important;
+  }
+
+  .node-solid .input-box:focus {
+    border-color: #1f2937 !important;
+    background: #ffffff !important;
+    box-shadow: 0 0 0 3px rgba(31, 41, 55, 0.1) !important;
+  }
   </style>
   <!-- Use bundled FlowGraph with CSS -->
   <link rel="stylesheet" href="dist/flowgraph.css">
@@ -408,6 +432,25 @@
             </div>
           </node-body>
         </flow-node-def>
+        
+        <!-- Custom Styled Node Examples - Demonstrates the new node customization system -->
+        
+        <!-- Solid Opaque Node -->
+        <flow-node-def name="custom.minimal" label="Solid Node" width="200" height="140" category="Custom" description="Pure opaque solid design" icon="🔲" 
+                       custom-class="node-solid" onExecute="minimalExample">
+          <node-body>
+            <div class="">🔲 Solid Design</div>
+            <div class="body">
+              <flow-socket type="input" name="input" label="Input" data-type="any"></flow-socket>
+              <div style="margin: 8px 0;">
+                <input type="text" class="input-box" value="Solid & Opaque" data-key="text:value" placeholder="Enter text" style="width: calc(100% - 10px);">
+              </div>
+              <flow-socket type="output" name="output" label="Output" data-type="any"></flow-socket>
+            </div>
+          </node-body>
+        </flow-node-def>
+        
+        
       </flow-definitions>
       
       <flow-nodes>
@@ -427,6 +470,9 @@
         <flow-node type="example.custom" id="n12" x="100" y="550"></flow-node>
         <!-- Square sample node -->
         <flow-node type="shape.square" id="n13" x="300" y="550"></flow-node>
+        
+        <!-- Custom styled node - demonstrating the new node customization system -->
+        <flow-node type="custom.minimal" id="n14" x="500" y="550"></flow-node>
       </flow-nodes>
       
       <flow-edges>
@@ -752,6 +798,27 @@
       
       console.log('✅ Square generated:', square);
     };
+    
+    // Custom node execution functions - demonstrating the new customization system
+    
+    window.minimalExample = async function(context) {
+      console.log('✨ Minimal node example:', context);
+      
+      // Get input value or use data binding
+      const inputValue = context.getInput(0) || context.getData('text') || 'Clean & Simple';
+      
+      // Simulate processing
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Process the input (simple text transformation)
+      const result = `Processed: ${inputValue}`;
+      
+      // Set output value
+      context.setOutput(0, result);
+      
+      console.log('✅ Minimal processing complete:', result);
+    };
+    
     
     // Animation Controls
     let animationsEnabled = true;

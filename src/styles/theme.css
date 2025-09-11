@@ -175,6 +175,7 @@ flow-graph {
   user-select: none;
   cursor: grab;
   backdrop-filter: blur(8px);
+  transform: translateZ(0);
 }
 
 .node.dragging { 
@@ -570,6 +571,7 @@ button.interactive:hover {
   transform: scale(1.02);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   z-index: 1000;
+  transform: translateZ(0);
 }
 
 /* ===== CONTEXT MENU STYLES ===== */

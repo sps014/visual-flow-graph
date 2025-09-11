@@ -73,6 +73,7 @@ export class FlowContextMenu extends LitElement {
       max-width: var(--context-menu-max-width, 300px);
       max-height: 400px;
       overflow-y: auto;
+      overflow-x: hidden;
       padding: 8px 0;
       font-family: inherit;
       user-select: none;
@@ -157,17 +158,24 @@ export class FlowContextMenu extends LitElement {
     .node-info {
       flex: 1;
       min-width: 0;
+      overflow: hidden;
     }
 
     .node-name {
       font-weight: 500;
       margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .node-description {
       font-size: 11px;
       color: var(--fg-muted, #94a3b8);
       opacity: 0.8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .node-item:hover .node-description {
@@ -180,6 +188,10 @@ export class FlowContextMenu extends LitElement {
       background: rgba(255, 255, 255, 0.1);
       border-radius: 3px;
       color: var(--fg-muted, #94a3b8);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 80px;
     }
 
     .node-item:hover .node-type {

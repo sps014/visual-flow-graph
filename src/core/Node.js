@@ -450,14 +450,17 @@ export class Node {
       this.element.classList.add('long-press-active');
       
       
-      // Use existing context menu system
-      this.flowGraph.showNodeContextMenu(x, y, [
-        {
-          label: 'Delete Node',
-          icon: '🗑️',
-          action: () => this.flowGraph.removeNode(this.id)
-        }
-      ]);
+      // Use existing context menu system from flow-graph component
+      const flowGraphElement = this.flowGraph.container.querySelector('flow-graph');
+      if (flowGraphElement) {
+        flowGraphElement.showNodeContextMenu(x, y, [
+          {
+            label: 'Delete Node',
+            icon: '🗑️',
+            action: () => this.flowGraph.removeNode(this.id)
+          }
+        ]);
+      }
       
       // Remove visual feedback after a short delay
       setTimeout(() => {

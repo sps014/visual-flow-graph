@@ -621,7 +621,7 @@ export class FlowGraphConnections {
     }
     
     // If source socket is 'any', it can connect to anything
-    if (fromDataType === 'any') {
+    if (fromDataType === 'any' || fromDataType === 'object') {
       return true;
     }
     

@@ -260,11 +260,19 @@ export class FlowGraphConnections {
     
     // Create connection if valid
     if (this.connectionState.fromSocket && this.connectionState.toSocket) {
-      // Ensure fromSocket is output and toSocket is input for edge creation
-      const fromSocket = this.connectionState.fromSocket.type === 'output' ? 
-        this.connectionState.fromSocket : this.connectionState.toSocket;
-      const toSocket = this.connectionState.fromSocket.type === 'input' ? 
-        this.connectionState.fromSocket : this.connectionState.toSocket;
+      // Determine which socket is output and which is input
+      let fromSocket, toSocket;
+      
+      if (this.connectionState.fromSocket.type === 'output' && this.connectionState.toSocket.type === 'input') {
+        fromSocket = this.connectionState.fromSocket;
+        toSocket = this.connectionState.toSocket;
+      } else if (this.connectionState.fromSocket.type === 'input' && this.connectionState.toSocket.type === 'output') {
+        fromSocket = this.connectionState.toSocket;
+        toSocket = this.connectionState.fromSocket;
+      } else {
+        // Invalid connection - both same type or other invalid combination
+        return;
+      }
       
       this.flowGraph.createEdge(fromSocket, toSocket);
     }
@@ -612,7 +620,12 @@ export class FlowGraphConnections {
       return true;
     }
     
-    // Exact type match only
+    // If source socket is 'any', it can connect to anything
+    if (fromDataType === 'any') {
+      return true;
+    }
+    
+    // Exact type match
     return fromDataType === toDataType;
   }
   

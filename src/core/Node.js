@@ -306,8 +306,7 @@ export class Node {
       }
     });
     
-    // Setup automatic size change detection
-    this.setupSizeObserver();
+    // Size change detection is now handled at the graph level for better performance
   }
   
   /**
@@ -870,26 +869,8 @@ export class Node {
     }
   }
 
-  /**
-   * Set up automatic edge recalculation when the node size changes.
-   * Uses ResizeObserver to detect size changes automatically.
-   */
-  setupSizeObserver() {
-    if (!this.element || !window.ResizeObserver) return;
-    
-    this.resizeObserver = new ResizeObserver(() => {
-      if (this.flowGraph) {
-        this.flowGraph.updateEdgesForNode(this);
-      }
-    });
-    
-    this.resizeObserver.observe(this.element);
-  }
   
   destroy() {
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect();
-    }
     if (this.element) {
       this.element.remove();
     }

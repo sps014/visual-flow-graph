@@ -154,6 +154,12 @@ export class FlowGraph extends EventTarget {
     /** @type {FlowGraphDrag} Handles dragging operations for nodes and edges */
     this.drag = new FlowGraphDrag(this);
 
+    /** @type {ResizeObserver|null} Graph-level resize observer for all nodes */
+    this.resizeObserver = null;
+
+    /** @type {Map<HTMLElement, Node>} Reverse lookup map from DOM element to Node instance */
+    this.elementToNodeMap = new Map();
+
     this.init();
   }
 
@@ -165,6 +171,7 @@ export class FlowGraph extends EventTarget {
    */
   init() {
     this.setupEventListeners();
+    this.setupResizeObserver();
   }
 
   /**
@@ -187,6 +194,57 @@ export class FlowGraph extends EventTarget {
 
     // Prevent context menu on right click
     this.container.addEventListener("contextmenu", (e) => e.preventDefault());
+  }
+
+  /**
+   * Set up a graph-level ResizeObserver to monitor all nodes for size changes.
+   * This is more efficient than having individual ResizeObservers on each node.
+   * 
+   * @private
+   */
+  setupResizeObserver() {
+    if (!window.ResizeObserver) return;
+    
+    this.resizeObserver = new ResizeObserver((entries) => {
+      // Process all resize entries in a single batch
+      const nodesToUpdate = new Set();
+      
+      
+      for (const entry of entries) {
+        // The entry.target should be a node element directly
+        const node = this.elementToNodeMap.get(entry.target);
+        
+        if (node) {
+          nodesToUpdate.add(node);
+        } else {
+          console.warn('No node found for resized element:', entry.target);
+        }
+      }
+      
+      // Update edges for all affected nodes
+      for (const node of nodesToUpdate) {
+        this.updateEdgesForNode(node);
+      }
+    });
+    
+    // We'll observe individual nodes as they're added
+    // The observer is ready but not observing anything yet
+  }
+
+  /**
+   * Find a node by its DOM element.
+   * 
+   * @param {HTMLElement} element - The DOM element to search for
+   * @returns {Node|null} The node that owns this element, or null if not found
+   * @private
+   */
+  findNodeByElement(element) {
+    // Check if the element is a node element or is contained within one
+    const nodeElement = element.closest('.node');
+    if (!nodeElement) return null;
+    
+    // Use reverse lookup map for O(1) performance
+    return this.elementToNodeMap.get(nodeElement) || null;
   }
 
   // ===== DELEGATION METHODS =====
@@ -302,6 +360,19 @@ export class FlowGraph extends EventTarget {
       initialData: config.data || {}, // Pass initial data
     });
     this.nodes.set(node.id, node);
+    
+    // Register in reverse lookup map for efficient element-to-node lookup
+    if (node.element) {
+      this.elementToNodeMap.set(node.element, node);
+      
+      // Start observing this node for resize changes
+      if (this.resizeObserver) {
+        this.resizeObserver.observe(node.element);
+        console.log('Started observing node for resize:', node.id);
+      }
+    } else {
+      console.warn('Node element not ready when adding node:', node.id);
+    }
 
     // If in readonly mode, disable form controls for the new node
     if (this.readonly) {
@@ -347,6 +418,16 @@ export class FlowGraph extends EventTarget {
     }
     edgesToRemove.forEach((edgeId) => this.removeEdge(edgeId));
 
+    // Remove from reverse lookup map and stop observing
+    if (node.element) {
+      this.elementToNodeMap.delete(node.element);
+      
+      // Stop observing this node
+      if (this.resizeObserver) {
+        this.resizeObserver.unobserve(node.element);
+      }
+    }
+    
     // Remove node
     node.destroy();
     this.nodes.delete(nodeId);
@@ -485,6 +566,9 @@ export class FlowGraph extends EventTarget {
     for (const nodeId of this.nodes.keys()) {
       this.removeNode(nodeId);
     }
+    
+    // Clear reverse lookup map
+    this.elementToNodeMap.clear();
   }
 
   /**
@@ -858,6 +942,12 @@ export class FlowGraph extends EventTarget {
   }
 
   destroy() {
+    // Clean up resize observer
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
+    
     this.clear();
     this.surface.remove();
   }

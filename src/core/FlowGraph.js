@@ -189,6 +189,8 @@ export class FlowGraph extends EventTarget {
       // Clear if clicking on surface or any non-node element
       if (e.target === this.surface || !e.target.closest(".node")) {
         this.selection.clearSelection();
+        // Also cancel any active connection
+        this.connections.cancelConnection();
       }
     });
 

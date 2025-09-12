@@ -1,4 +1,76 @@
 /**
+ * Utility function to extract color from a socket element.
+ * Looks for border-color in the socket's computed styles or inline styles.
+ * 
+ * @param {HTMLElement} socketElement - The socket DOM element
+ * @returns {string} The extracted color or default color
+ */
+function extractSocketColor(socketElement) {
+  if (!socketElement) return '#10b981';
+  
+  // Try to get the actual socket span element within the anchor
+  let socketSpan = socketElement.querySelector('.socket');
+  
+  // If no .socket class found, look for any span with border-color style
+  if (!socketSpan) {
+    socketSpan = socketElement.querySelector('span[style*="border-color"]');
+  }
+  
+  // If still not found, use the element itself
+  if (!socketSpan) {
+    socketSpan = socketElement;
+  }
+  
+  // First try to get color from inline style attribute
+  const inlineStyle = socketSpan.getAttribute('style');
+  if (inlineStyle) {
+    const borderColorMatch = inlineStyle.match(/border-color:\s*([^;]+)/);
+    if (borderColorMatch) {
+      const color = borderColorMatch[1].trim();
+      // Convert rgb/rgba to hex if needed
+      if (color.startsWith('rgb')) {
+        const rgbMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/);
+        if (rgbMatch) {
+          const r = parseInt(rgbMatch[1]);
+          const g = parseInt(rgbMatch[2]);
+          const b = parseInt(rgbMatch[3]);
+          return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+        }
+      }
+      // Handle hex values
+      if (color.startsWith('#')) {
+        return color;
+      }
+    }
+  }
+  
+  // Fallback to computed styles
+  const computedStyle = window.getComputedStyle(socketSpan);
+  const borderColor = computedStyle.borderColor;
+  
+  // Convert rgb/rgba to hex if needed
+  if (borderColor && borderColor !== 'rgba(0, 0, 0, 0)') {
+    // Handle rgb/rgba values
+    if (borderColor.startsWith('rgb')) {
+      const rgbMatch = borderColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/);
+      if (rgbMatch) {
+        const r = parseInt(rgbMatch[1]);
+        const g = parseInt(rgbMatch[2]);
+        const b = parseInt(rgbMatch[3]);
+        return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+      }
+    }
+    // Handle hex values
+    if (borderColor.startsWith('#')) {
+      return borderColor;
+    }
+  }
+  
+  // Fallback to default color
+  return '#10b981';
+}
+
+/**
  * Handles socket connections and edge creation for FlowGraph.
  * 
  * This class manages the connection system between nodes, including
@@ -108,6 +180,9 @@ export class FlowGraphConnections {
       innerSocket.classList.add('socket-active');
     }
     
+    // Set temporary path color based on socket color
+    this.updateTempPathColor(socketObj);
+    
     // Show temp path
     this.flowGraph.tempPath.style.display = 'block';
     this.updateTempPath(e.clientX, e.clientY);
@@ -178,34 +253,24 @@ export class FlowGraphConnections {
   handleSocketMouseUp(e) {
     if (!this.connectionState.active) return;
     
-    // Clean up visual feedback - both legacy sockets and flow-socket components
-    this.flowGraph.container.querySelectorAll('.socket-active').forEach(s => {
-      s.classList.remove('socket-active');
-    });
-    this.flowGraph.container.querySelectorAll('.socket-hover').forEach(s => {
-      s.classList.remove('socket-hover');
-    });
-    
-    // Also clean up socket elements in flow-socket shadow DOMs
-    this.flowGraph.container.querySelectorAll('flow-socket').forEach(flowSocket => {
-      const socketElement = flowSocket.shadowRoot?.querySelector('.socket');
-      if (socketElement) {
-        socketElement.classList.remove('socket-active', 'socket-hover');
-      }
-    });
-    
-    this.flowGraph.tempPath.style.display = 'none';
-    
     // Create connection if valid
     if (this.connectionState.fromSocket && this.connectionState.toSocket) {
       this.flowGraph.createEdge(this.connectionState.fromSocket, this.connectionState.toSocket);
     }
+    
+    // Clean up visual feedback with a slight delay to ensure connection is processed
+    setTimeout(() => {
+      this.cleanupSocketStates();
+    }, 0);
+    
+    this.flowGraph.tempPath.style.display = 'none';
     
     // Reset state
     this.connectionState.active = false;
     this.connectionState.fromSocket = null;
     this.connectionState.toSocket = null;
   }
+
 
 
 
@@ -321,6 +386,84 @@ export class FlowGraphConnections {
     
     const path = this.createCubicPath(fromPos, { x: toX, y: toY }, fromSocket);
     this.flowGraph.tempPath.setAttribute('d', path);
+  }
+
+  /**
+   * Clean up all socket visual states
+   */
+  cleanupSocketStates() {
+    // Clean up visual feedback - both legacy sockets and flow-socket components
+    this.flowGraph.container.querySelectorAll('.socket-active').forEach(s => {
+      s.classList.remove('socket-active');
+    });
+    this.flowGraph.container.querySelectorAll('.socket-hover').forEach(s => {
+      s.classList.remove('socket-hover');
+    });
+    
+    // Also clean up socket elements in flow-socket shadow DOMs
+    this.flowGraph.container.querySelectorAll('flow-socket').forEach(flowSocket => {
+      // Clean up standard .socket elements
+      const socketElement = flowSocket.shadowRoot?.querySelector('.socket');
+      if (socketElement) {
+        socketElement.classList.remove('socket-active', 'socket-hover');
+      }
+      
+      // Clean up custom socket elements (spans with inline styles)
+      const customSocketElements = flowSocket.shadowRoot?.querySelectorAll('span[style*="border-color"]');
+      if (customSocketElements) {
+        customSocketElements.forEach(span => {
+          span.classList.remove('socket-active', 'socket-hover');
+        });
+      }
+    });
+  }
+
+  /**
+   * Cancel current connection and clean up states
+   */
+  cancelConnection() {
+    if (this.connectionState.active) {
+      this.cleanupSocketStates();
+      this.flowGraph.tempPath.style.display = 'none';
+      this.connectionState.active = false;
+      this.connectionState.fromSocket = null;
+      this.connectionState.toSocket = null;
+    }
+  }
+
+  /**
+   * Update temporary path color based on socket color
+   */
+  updateTempPathColor(socket) {
+    const color = this.extractSocketColor(socket.element);
+    this.flowGraph.tempPath.setAttribute('stroke', color);
+  }
+
+  /**
+   * Extract color from a socket element
+   */
+  extractSocketColor(socketElement) {
+    if (!socketElement) return '#10b981';
+    
+    // Look for socket span element within the anchor
+    let socketSpan = socketElement.querySelector('.socket') || 
+                     socketElement.querySelector('span[style*="border-color"]') || 
+                     socketElement;
+    
+    // Try inline style first
+    const inlineStyle = socketSpan.getAttribute('style');
+    if (inlineStyle) {
+      const borderColorMatch = inlineStyle.match(/border-color:\s*([^;]+)/);
+      if (borderColorMatch) {
+        return borderColorMatch[1].trim();
+      }
+    }
+    
+    // Fallback to computed styles
+    const computedStyle = window.getComputedStyle(socketSpan);
+    const borderColor = computedStyle.borderColor;
+    
+    return borderColor && borderColor !== 'rgba(0, 0, 0, 0)' ? borderColor : '#10b981';
   }
 
   /**

@@ -415,6 +415,10 @@ export class Viewport {
       case 'Escape':
         e.preventDefault();
         this.flowGraph.clearSelection();
+        // Also cancel any active connection
+        if (this.flowGraph.connections) {
+          this.flowGraph.connections.cancelConnection();
+        }
         break;
     }
   }

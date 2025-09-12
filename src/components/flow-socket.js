@@ -205,9 +205,13 @@ export class FlowSocketElement extends LitElement {
     const color = this.color || defaultColor;
     const size = this.size || '16px';
     
+    // Convert color to rgba format for background gradient
+    const rgbaColor1 = this.hexToRgba(color, 0.6);
+    const rgbaColor2 = this.hexToRgba(color, 0.3);
+    
     return `
       border-color: ${color};
-      background: linear-gradient(180deg, ${this.hexToRgba(color, 0.6)}, ${this.hexToRgba(color, 0.3)});
+      background: linear-gradient(180deg, ${rgbaColor1}, ${rgbaColor2});
       width: ${size};
       height: ${size};
       border-radius: 50%;
@@ -240,6 +244,7 @@ export class FlowSocketElement extends LitElement {
     const b = parseInt(hex.slice(5, 7), 16);
     return `rgba(${r}, ${g}, ${b}, ${opacity})`;
   }
+
   
   /**
    * Get the socket anchor element for edge connections.

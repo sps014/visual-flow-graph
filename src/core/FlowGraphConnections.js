@@ -538,6 +538,11 @@ export class FlowGraphConnections {
     if (fromSocket.node === toSocket.node) return false;
     if (fromSocket.type === toSocket.type) return false;
     
+    // Check data type compatibility
+    if (!this.isDataTypeCompatible(fromSocket.dataType, toSocket.dataType)) {
+      return false;
+    }
+    
     // Check if connection already exists
     for (const edge of this.flowGraph.edges.values()) {
       if ((edge.fromSocket === fromSocket && edge.toSocket === toSocket) ||
@@ -547,6 +552,22 @@ export class FlowGraphConnections {
     }
     
     return true;
+  }
+
+  /**
+   * Check if two data types are compatible for connection
+   * @param {string} fromDataType - Source socket data type
+   * @param {string} toDataType - Target socket data type
+   * @returns {boolean} True if types are compatible
+   */
+  isDataTypeCompatible(fromDataType, toDataType) {
+    // If target socket is 'any' or 'object', it can accept anything
+    if (toDataType === 'any' || toDataType === 'object') {
+      return true;
+    }
+    
+    // Exact type match only
+    return fromDataType === toDataType;
   }
   
   /**

@@ -63,9 +63,12 @@ export class Socket {
     /** @type {Set<Edge>} Set of edges connected to this socket */
     this.connections = new Set();
     
-    /** @type {number} Maximum number of connections allowed */
-    this.maxConnections = config.maxConnections || (this.type === 'output' ? Infinity : 1);
-  }
+      /** @type {number} Maximum number of connections allowed */
+      this.maxConnections = config.maxConnections || (this.type === 'output' ? Infinity : 1);
+      
+      /** @type {Object|null} Original colors of the socket before any edge connections */
+      this.originalColors = null;
+    }
   
   /**
    * Check if this socket can connect to another socket.
@@ -304,6 +307,31 @@ export class Socket {
   }
   
   /**
+   * Store the original colors of the socket before any modifications.
+   * 
+   * @private
+   */
+  storeOriginalColors() {
+    if (!this.element || this.originalColors) return;
+    
+    // Find the actual socket element - could be .socket class or custom shape
+    let socketElement = this.element.querySelector('.socket');
+    
+    // If no .socket class found, look for any span element (custom shapes)
+    if (!socketElement) {
+      socketElement = this.element.querySelector('span');
+    }
+    
+    if (!socketElement) return;
+    
+    // Store original colors
+    this.originalColors = {
+      borderColor: socketElement.style.borderColor || getComputedStyle(socketElement).borderColor,
+      background: socketElement.style.background || getComputedStyle(socketElement).background
+    };
+  }
+  
+  /**
    * Update the socket color to match the connected edge.
    * 
    * @param {Edge} edge - The edge to get the color from
@@ -315,35 +343,60 @@ export class Socket {
     const edgeColor = edge.color;
     if (!edgeColor) return;
     
-    // Find the actual socket span inside the flow-socket-anchor
-    const socketSpan = this.element.querySelector('.socket');
-    if (!socketSpan) return;
+    // Store original colors if not already stored
+    this.storeOriginalColors();
     
-    // Update the socket span's border color
-    socketSpan.style.borderColor = edgeColor;
+    // Find the actual socket element - could be .socket class or custom shape
+    let socketElement = this.element.querySelector('.socket');
+    
+    // If no .socket class found, look for any span element (custom shapes)
+    if (!socketElement) {
+      socketElement = this.element.querySelector('span');
+    }
+    
+    if (!socketElement) return;
+    
+    // Update the socket element's border color
+    socketElement.style.borderColor = edgeColor;
     
     // Use fully opaque color for background
-    socketSpan.style.background = edgeColor;
+    socketElement.style.background = edgeColor;
   }
   
   /**
-   * Reset the socket to its default color.
+   * Reset the socket to its original color.
    * 
    * @private
    */
   resetToDefaultColor() {
     if (!this.element) return;
     
-    // Find the actual socket span inside the flow-socket-anchor
-    const socketSpan = this.element.querySelector('.socket');
-    if (!socketSpan) return;
+    // Find the actual socket element - could be .socket class or custom shape
+    let socketElement = this.element.querySelector('.socket');
     
-    // Reset to default input socket color
-    const defaultColor = '#10b981';
-    socketSpan.style.borderColor = defaultColor;
+    // If no .socket class found, look for any span element (custom shapes)
+    if (!socketElement) {
+      socketElement = this.element.querySelector('span');
+    }
     
-    // Use fully opaque color for background
-    socketSpan.style.background = defaultColor;
+    if (!socketElement) return;
+    
+    // If we have stored original colors, restore them
+    if (this.originalColors) {
+      socketElement.style.borderColor = this.originalColors.borderColor;
+      socketElement.style.background = this.originalColors.background;
+    } else {
+      // Fallback to default input socket color if no original colors stored
+      const defaultColor = '#10b981';
+      socketElement.style.borderColor = defaultColor;
+      socketElement.style.background = defaultColor;
+    }
+    
+    // Update tempPath color if there's an active connection from this socket
+    if (this.node.flowGraph.connections.connectionState.active && 
+        this.node.flowGraph.connections.connectionState.fromSocket === this) {
+      this.node.flowGraph.connections.updateTempPathColor(this);
+    }
   }
   
   /**

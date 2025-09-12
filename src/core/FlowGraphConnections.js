@@ -459,14 +459,37 @@ export class FlowGraphConnections {
     // Look for socket span element within the anchor
     let socketSpan = socketElement.querySelector('.socket') || 
                      socketElement.querySelector('span[style*="border-color"]') || 
-                     socketElement;
+                     socketElement.querySelector('span[style*="background"]');
+    
+    // For custom shapes like diamond, try to find any span with styling
+    if (!socketSpan) {
+      socketSpan = socketElement.querySelector('span');
+    }
+    
+    // If we still don't have a span, don't use the anchor element
+    if (!socketSpan || socketSpan === socketElement) return '#10b981';
     
     // Try inline style first
     const inlineStyle = socketSpan.getAttribute('style');
     if (inlineStyle) {
+      // Look for border-color first (most reliable for socket colors)
       const borderColorMatch = inlineStyle.match(/border-color:\s*([^;]+)/);
       if (borderColorMatch) {
-        return borderColorMatch[1].trim();
+        const color = borderColorMatch[1].trim();
+        if (color && color !== 'transparent' && color !== 'rgba(0, 0, 0, 0)') {
+          return color;
+        }
+      }
+      
+      // For custom shapes, check background color only if no border color found
+      const backgroundColorMatch = inlineStyle.match(/background:\s*([^;]+)/);
+      if (backgroundColorMatch) {
+        const bgColor = backgroundColorMatch[1].trim();
+        // Skip gradients and complex backgrounds, only use solid colors
+        if (bgColor && !bgColor.includes('gradient') && !bgColor.includes('url') && 
+            bgColor !== 'transparent' && bgColor !== 'rgba(0, 0, 0, 0)') {
+          return bgColor;
+        }
       }
     }
     
@@ -474,7 +497,19 @@ export class FlowGraphConnections {
     const computedStyle = window.getComputedStyle(socketSpan);
     const borderColor = computedStyle.borderColor;
     
-    return borderColor && borderColor !== 'rgba(0, 0, 0, 0)' ? borderColor : '#10b981';
+    // Check if we got a valid color
+    if (borderColor && borderColor !== 'rgba(0, 0, 0, 0)' && borderColor !== 'transparent') {
+      return borderColor;
+    }
+    
+    // Try to get background color as fallback
+    const backgroundColor = computedStyle.backgroundColor;
+    if (backgroundColor && backgroundColor !== 'rgba(0, 0, 0, 0)' && backgroundColor !== 'transparent') {
+      return backgroundColor;
+    }
+    
+    // Final fallback to default color
+    return '#10b981';
   }
 
   /**

@@ -87,7 +87,7 @@ export class FlowGraph extends EventTarget {
       width: 100%;
       height: 100%;
       overflow: visible;
-      z-index: 1;
+      z-index: 2;
     `;
 
     /** @type {HTMLDivElement} Container element for all node elements */
@@ -96,7 +96,7 @@ export class FlowGraph extends EventTarget {
     this.nodesRoot.style.cssText = `
       position: absolute;
       inset: 0;
-      z-index: 2;
+      z-index: 1;
     `;
 
     // Temp path for drawing connections

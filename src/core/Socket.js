@@ -108,6 +108,11 @@ export class Socket {
    */
   addConnection(edge) {
     this.connections.add(edge);
+    
+    // If this is an input socket, update its color to match the edge
+    if (this.type === 'input') {
+      this.updateColorFromEdge(edge);
+    }
   }
   
   /**
@@ -117,6 +122,11 @@ export class Socket {
    */
   removeConnection(edge) {
     this.connections.delete(edge);
+    
+    // If this is an input socket, reset to default color when disconnected
+    if (this.type === 'input') {
+      this.resetToDefaultColor();
+    }
   }
   
   /**
@@ -291,6 +301,79 @@ export class Socket {
       this.contextMenu.remove();
       this.contextMenu = null;
     }
+  }
+  
+  /**
+   * Update the socket color to match the connected edge.
+   * 
+   * @param {Edge} edge - The edge to get the color from
+   * @private
+   */
+  updateColorFromEdge(edge) {
+    if (!this.element) return;
+    
+    const edgeColor = edge.color;
+    if (!edgeColor) return;
+    
+    // Find the actual socket span inside the flow-socket-anchor
+    const socketSpan = this.element.querySelector('.socket');
+    if (!socketSpan) return;
+    
+    // Update the socket span's border color
+    socketSpan.style.borderColor = edgeColor;
+    
+    // Use fully opaque color for background
+    socketSpan.style.background = edgeColor;
+  }
+  
+  /**
+   * Reset the socket to its default color.
+   * 
+   * @private
+   */
+  resetToDefaultColor() {
+    if (!this.element) return;
+    
+    // Find the actual socket span inside the flow-socket-anchor
+    const socketSpan = this.element.querySelector('.socket');
+    if (!socketSpan) return;
+    
+    // Reset to default input socket color
+    const defaultColor = '#10b981';
+    socketSpan.style.borderColor = defaultColor;
+    
+    // Use fully opaque color for background
+    socketSpan.style.background = defaultColor;
+  }
+  
+  /**
+   * Convert a color to rgba format with specified alpha.
+   * 
+   * @param {string} color - The color to convert
+   * @param {number} alpha - The alpha value (0-1)
+   * @returns {string} The rgba color string
+   * @private
+   */
+  colorToRgba(color, alpha) {
+    // Handle hex colors
+    if (color.startsWith('#')) {
+      const hex = color.slice(1);
+      const r = parseInt(hex.slice(0, 2), 16);
+      const g = parseInt(hex.slice(2, 4), 16);
+      const b = parseInt(hex.slice(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+    
+    // Handle rgb/rgba colors
+    if (color.startsWith('rgb')) {
+      const values = color.match(/\d+/g);
+      if (values && values.length >= 3) {
+        return `rgba(${values[0]}, ${values[1]}, ${values[2]}, ${alpha})`;
+      }
+    }
+    
+    // Fallback
+    return `rgba(16, 185, 129, ${alpha})`;
   }
   
   destroy() {

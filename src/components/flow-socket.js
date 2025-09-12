@@ -201,17 +201,13 @@ export class FlowSocketElement extends LitElement {
    * @private
    */
   getSocketStyle() {
-    const defaultColor = this.type === 'input' ? '#10b981' : '#10b981';
+    const defaultColor = this.type === 'input' ? '#10b981' : '#ef4444';
     const color = this.color || defaultColor;
-    const size = this.size || '16px';
-    
-    // Convert color to rgba format for background gradient
-    const rgbaColor1 = this.colorToRgba(color, 0.6);
-    const rgbaColor2 = this.colorToRgba(color, 0.3);
+    const size = this.size || '10px';
     
     return `
       border-color: ${color};
-      background: linear-gradient(180deg, ${rgbaColor1}, ${rgbaColor2});
+      background: ${color};
       width: ${size};
       height: ${size};
       border-radius: 50%;

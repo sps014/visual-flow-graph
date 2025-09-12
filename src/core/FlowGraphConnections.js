@@ -229,6 +229,11 @@ export class FlowGraphConnections {
           }
           
           this.connectionState.toSocket = socketObj;
+          
+          // Update temporary path color to show the output socket's color
+          const outputSocket = this.connectionState.fromSocket.type === 'output' ? 
+            this.connectionState.fromSocket : socketObj;
+          this.updateTempPathColor(outputSocket);
         }
       }
     } else {
@@ -255,7 +260,13 @@ export class FlowGraphConnections {
     
     // Create connection if valid
     if (this.connectionState.fromSocket && this.connectionState.toSocket) {
-      this.flowGraph.createEdge(this.connectionState.fromSocket, this.connectionState.toSocket);
+      // Ensure fromSocket is output and toSocket is input for edge creation
+      const fromSocket = this.connectionState.fromSocket.type === 'output' ? 
+        this.connectionState.fromSocket : this.connectionState.toSocket;
+      const toSocket = this.connectionState.fromSocket.type === 'input' ? 
+        this.connectionState.fromSocket : this.connectionState.toSocket;
+      
+      this.flowGraph.createEdge(fromSocket, toSocket);
     }
     
     // Clean up visual feedback with a slight delay to ensure connection is processed

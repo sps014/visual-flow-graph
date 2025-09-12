@@ -370,7 +370,6 @@ export class FlowGraph extends EventTarget {
       // Start observing this node for resize changes
       if (this.resizeObserver) {
         this.resizeObserver.observe(node.element);
-        console.log('Started observing node for resize:', node.id);
       }
     } else {
       console.warn('Node element not ready when adding node:', node.id);
@@ -664,6 +663,13 @@ export class FlowGraph extends EventTarget {
     if (data.readonly !== undefined) {
       this.setReadonly(data.readonly);
     }
+    
+    // Dispatch deserialize event
+    this.container.dispatchEvent(
+      new CustomEvent("graph:deserialize", {
+        detail: { data },
+      })
+    );
   }
 
   /**

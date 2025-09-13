@@ -407,12 +407,35 @@ export class FlowGraphConnections {
         toSocket = this.connectionState.fromSocket;
       } else {
         // Invalid connection - both same type or other invalid combination
+        this.fireConnectionFailed(this.connectionState.fromSocket, this.connectionState.toSocket, 'Invalid socket type combination - both sockets are the same type');
+        this.cleanupConnection();
         return;
       }
       
-      this.flowGraph.createEdge(fromSocket, toSocket);
+      // Check if connection is valid (this will fire the failure event if needed)
+      if (this.canConnect(fromSocket, toSocket)) {
+        this.flowGraph.createEdge(fromSocket, toSocket);
+      }
     }
     
+    // Clean up visual feedback with a slight delay to ensure connection is processed
+    setTimeout(() => {
+      this.cleanupSocketStates();
+    }, 0);
+    
+    this.flowGraph.tempPath.style.display = 'none';
+    
+    // Reset state
+    this.connectionState.active = false;
+    this.connectionState.fromSocket = null;
+    this.connectionState.toSocket = null;
+  }
+
+  /**
+   * Clean up connection state and visual feedback
+   * @private
+   */
+  cleanupConnection() {
     // Clean up visual feedback with a slight delay to ensure connection is processed
     setTimeout(() => {
       this.cleanupSocketStates();
@@ -819,29 +842,59 @@ export class FlowGraphConnections {
    * Check if two sockets can be connected
    */
   canConnect(fromSocket, toSocket) {
-    if (!fromSocket || !toSocket) return false;
-    if (fromSocket === toSocket) return false;
-    if (fromSocket.node === toSocket.node) return false;
-    if (fromSocket.type === toSocket.type) return false;
+    if (!fromSocket || !toSocket) {
+      this.fireConnectionFailed(fromSocket, toSocket, 'Invalid sockets provided');
+      return false;
+    }
+    if (fromSocket === toSocket) {
+      this.fireConnectionFailed(fromSocket, toSocket, 'Cannot connect socket to itself');
+      return false;
+    }
+    if (fromSocket.node === toSocket.node) {
+      this.fireConnectionFailed(fromSocket, toSocket, 'Cannot connect sockets from the same node');
+      return false;
+    }
+    if (fromSocket.type === toSocket.type) {
+      this.fireConnectionFailed(fromSocket, toSocket, `Cannot connect two ${fromSocket.type} sockets`);
+      return false;
+    }
     
     // Check data type compatibility
     if (!this.isDataTypeCompatible(fromSocket.dataType, toSocket.dataType)) {
+      this.fireConnectionFailed(fromSocket, toSocket, `Data type mismatch: ${fromSocket.dataType} cannot connect to ${toSocket.dataType}`);
       return false;
     }
     
     // Check connection limits
-    if (fromSocket.connections.size >= fromSocket.maxConnections) return false;
-    if (toSocket.connections.size >= toSocket.maxConnections) return false;
+    if (fromSocket.connections.size >= fromSocket.maxConnections) {
+      this.fireConnectionFailed(fromSocket, toSocket, `Source socket has reached maximum connections (${fromSocket.maxConnections})`);
+      return false;
+    }
+    if (toSocket.connections.size >= toSocket.maxConnections) {
+      this.fireConnectionFailed(fromSocket, toSocket, `Target socket has reached maximum connections (${toSocket.maxConnections})`);
+      return false;
+    }
     
     // Check if connection already exists
     for (const edge of this.flowGraph.edges.values()) {
       if ((edge.fromSocket === fromSocket && edge.toSocket === toSocket) ||
           (edge.fromSocket === toSocket && edge.toSocket === fromSocket)) {
+        this.fireConnectionFailed(fromSocket, toSocket, 'Connection already exists between these sockets');
         return false;
       }
     }
     
     return true;
+  }
+
+  /**
+   * Fire connection failed event
+   * @private
+   */
+  fireConnectionFailed(fromSocket, toSocket, reason) {
+    this.flowGraph.container.dispatchEvent(new CustomEvent('edge:connection:failed', {
+      detail: { fromSocket, toSocket, reason }
+    }));
   }
 
   /**

@@ -287,9 +287,9 @@ G.elementStyles = [], G.shadowRootOptions = { mode: "open" }, G[P("elementProper
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const _ = globalThis, q = _.trustedTypes, ft = q ? q.createPolicy("lit-html", { createHTML: (l) => l }) : void 0, kt = "$lit$", x = `lit$${Math.random().toFixed(9).slice(2)}$`, Ct = "?" + x, Yt = `<${Ct}>`, A = document, L = () => A.createComment(""), D = (l) => l === null || typeof l != "object" && typeof l != "function", ot = Array.isArray, Xt = (l) => ot(l) || typeof (l == null ? void 0 : l[Symbol.iterator]) == "function", Y = `[ 	
-\f\r]`, M = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, mt = /-->/g, gt = />/g, k = RegExp(`>|${Y}(?:([^\\s"'>=/]+)(${Y}*=${Y}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`, "g"), wt = /'/g, yt = /"/g, $t = /^(?:script|style|textarea|title)$/i, Ft = (l) => (t, ...e) => ({ _$litType$: l, strings: t, values: e }), w = Ft(1), N = Symbol.for("lit-noChange"), g = Symbol.for("lit-nothing"), vt = /* @__PURE__ */ new WeakMap(), C = A.createTreeWalker(A, 129);
+const _ = globalThis, q = _.trustedTypes, ft = q ? q.createPolicy("lit-html", { createHTML: (l) => l }) : void 0, kt = "$lit$", x = `lit$${Math.random().toFixed(9).slice(2)}$`, Ct = "?" + x, Ft = `<${Ct}>`, A = document, L = () => A.createComment(""), D = (l) => l === null || typeof l != "object" && typeof l != "function", ot = Array.isArray, Yt = (l) => ot(l) || typeof (l == null ? void 0 : l[Symbol.iterator]) == "function", F = `[ 	
+\f\r]`, M = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, mt = /-->/g, gt = />/g, k = RegExp(`>|${F}(?:([^\\s"'>=/]+)(${F}*=${F}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`, "g"), wt = /'/g, yt = /"/g, $t = /^(?:script|style|textarea|title)$/i, Xt = (l) => (t, ...e) => ({ _$litType$: l, strings: t, values: e }), w = Xt(1), N = Symbol.for("lit-noChange"), g = Symbol.for("lit-nothing"), vt = /* @__PURE__ */ new WeakMap(), C = A.createTreeWalker(A, 129);
 function At(l, t) {
   if (!ot(l) || !l.hasOwnProperty("raw")) throw Error("invalid template strings array");
   return ft !== void 0 ? ft.createHTML(t) : t;
@@ -302,7 +302,7 @@ const Vt = (l, t) => {
     let c, h, d = -1, p = 0;
     for (; p < r.length && (n.lastIndex = p, h = n.exec(r), h !== null); ) p = n.lastIndex, n === M ? h[1] === "!--" ? n = mt : h[1] !== void 0 ? n = gt : h[2] !== void 0 ? ($t.test(h[2]) && (o = RegExp("</" + h[2], "g")), n = k) : h[3] !== void 0 && (n = k) : n === k ? h[0] === ">" ? (n = o ?? M, d = -1) : h[1] === void 0 ? d = -2 : (d = n.lastIndex - h[2].length, c = h[1], n = h[3] === void 0 ? k : h[3] === '"' ? yt : wt) : n === yt || n === wt ? n = k : n === mt || n === gt ? n = M : (n = k, o = void 0);
     const f = n === k && l[a + 1].startsWith("/>") ? " " : "";
-    i += n === M ? r + Yt : d >= 0 ? (s.push(c), r.slice(0, d) + kt + r.slice(d) + x + f) : r + x + (d === -2 ? a : f);
+    i += n === M ? r + Ft : d >= 0 ? (s.push(c), r.slice(0, d) + kt + r.slice(d) + x + f) : r + x + (d === -2 ? a : f);
   }
   return [At(l, i + (l[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), s];
 };
@@ -398,7 +398,7 @@ class R {
     return this._$AB;
   }
   _$AI(t, e = this) {
-    t = T(this, t, e), D(t) ? t === g || t == null || t === "" ? (this._$AH !== g && this._$AR(), this._$AH = g) : t !== this._$AH && t !== N && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : Xt(t) ? this.k(t) : this._(t);
+    t = T(this, t, e), D(t) ? t === g || t == null || t === "" ? (this._$AH !== g && this._$AR(), this._$AH = g) : t !== this._$AH && t !== N && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : Yt(t) ? this.k(t) : this._(t);
   }
   O(t) {
     return this._$AA.parentNode.insertBefore(t, this._$AB);
@@ -507,8 +507,8 @@ class Jt {
     T(this, t);
   }
 }
-const X = _.litHtmlPolyfillSupport;
-X == null || X(I, R), (_.litHtmlVersions ?? (_.litHtmlVersions = [])).push("3.3.1");
+const Y = _.litHtmlPolyfillSupport;
+Y == null || Y(I, R), (_.litHtmlVersions ?? (_.litHtmlVersions = [])).push("3.3.1");
 const Qt = (l, t, e) => {
   const s = (e == null ? void 0 : e.renderBefore) ?? t;
   let o = s._$litPart$;
@@ -551,8 +551,8 @@ class y extends G {
 }
 var bt;
 y._$litElement$ = !0, y.finalized = !0, (bt = $.litElementHydrateSupport) == null || bt.call($, { LitElement: y });
-const F = $.litElementPolyfillSupport;
-F == null || F({ LitElement: y });
+const X = $.litElementPolyfillSupport;
+X == null || X({ LitElement: y });
 ($.litElementVersions ?? ($.litElementVersions = [])).push("4.2.1");
 class St {
   /**
@@ -2307,14 +2307,25 @@ class ae {
           e = this.connectionState.fromSocket, s = this.connectionState.toSocket;
         else if (this.connectionState.fromSocket.type === "input" && this.connectionState.toSocket.type === "output")
           e = this.connectionState.toSocket, s = this.connectionState.fromSocket;
-        else
+        else {
+          this.fireConnectionFailed(this.connectionState.fromSocket, this.connectionState.toSocket, "Invalid socket type combination - both sockets are the same type"), this.cleanupConnection();
           return;
-        this.flowGraph.createEdge(e, s);
+        }
+        this.canConnect(e, s) && this.flowGraph.createEdge(e, s);
       }
       setTimeout(() => {
         this.cleanupSocketStates();
       }, 0), this.flowGraph.tempPath.style.display = "none", this.connectionState.active = !1, this.connectionState.fromSocket = null, this.connectionState.toSocket = null;
     }
+  }
+  /**
+   * Clean up connection state and visual feedback
+   * @private
+   */
+  cleanupConnection() {
+    setTimeout(() => {
+      this.cleanupSocketStates();
+    }, 0), this.flowGraph.tempPath.style.display = "none", this.connectionState.active = !1, this.connectionState.fromSocket = null, this.connectionState.toSocket = null;
   }
   /**
    * Handle socket touch start
@@ -2523,11 +2534,33 @@ class ae {
    * Check if two sockets can be connected
    */
   canConnect(t, e) {
-    if (!t || !e || t === e || t.node === e.node || t.type === e.type || !this.isDataTypeCompatible(t.dataType, e.dataType) || t.connections.size >= t.maxConnections || e.connections.size >= e.maxConnections) return !1;
+    if (!t || !e)
+      return this.fireConnectionFailed(t, e, "Invalid sockets provided"), !1;
+    if (t === e)
+      return this.fireConnectionFailed(t, e, "Cannot connect socket to itself"), !1;
+    if (t.node === e.node)
+      return this.fireConnectionFailed(t, e, "Cannot connect sockets from the same node"), !1;
+    if (t.type === e.type)
+      return this.fireConnectionFailed(t, e, `Cannot connect two ${t.type} sockets`), !1;
+    if (!this.isDataTypeCompatible(t.dataType, e.dataType))
+      return this.fireConnectionFailed(t, e, `Data type mismatch: ${t.dataType} cannot connect to ${e.dataType}`), !1;
+    if (t.connections.size >= t.maxConnections)
+      return this.fireConnectionFailed(t, e, `Source socket has reached maximum connections (${t.maxConnections})`), !1;
+    if (e.connections.size >= e.maxConnections)
+      return this.fireConnectionFailed(t, e, `Target socket has reached maximum connections (${e.maxConnections})`), !1;
     for (const s of this.flowGraph.edges.values())
       if (s.fromSocket === t && s.toSocket === e || s.fromSocket === e && s.toSocket === t)
-        return !1;
+        return this.fireConnectionFailed(t, e, "Connection already exists between these sockets"), !1;
     return !0;
+  }
+  /**
+   * Fire connection failed event
+   * @private
+   */
+  fireConnectionFailed(t, e, s) {
+    this.flowGraph.container.dispatchEvent(new CustomEvent("edge:connection:failed", {
+      detail: { fromSocket: t, toSocket: e, reason: s }
+    }));
   }
   /**
    * Check if two data types are compatible for connection

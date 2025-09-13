@@ -148,6 +148,12 @@ FlowGraph is perfect for:
 
 **No additional dependencies required** - everything is bundled and ready to use!
 
+## 🎮 Try the Live Demo
+
+**Experience FlowGraph in action!** [Launch Interactive Demo →](demo.html)
+
+---
+
 ## Getting Started
 
 Ready to start building with FlowGraph? Check out our comprehensive guides:

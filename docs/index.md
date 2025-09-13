@@ -61,6 +61,12 @@ FlowGraph is a modern, HTML-based visual scripting library that lets you create 
 - **🔗 Edge Selection** - Select and manage connections
 - **⌨️ Keyboard Shortcuts** - Copy, paste, delete, and selection shortcuts
 
+
+**⚡ Async Execution** 
+
+![Image](https://github.com/user-attachments/assets/09dcbc1e-54fa-4e4b-9ef1-03cac3c1d0a8)
+
+
 ## Quick Example
 
 ```html

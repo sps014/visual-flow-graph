@@ -773,7 +773,15 @@ export class FlowGraphConnections {
     const rect = element.getBoundingClientRect();
     const surfaceRect = this.flowGraph.surface.getBoundingClientRect();
     
-    const x = (rect.left + rect.width / 2 - surfaceRect.left - this.flowGraph.viewport.x) / this.flowGraph.viewport.scale;
+    // Offset by socket width based on type
+    let xOffset = rect.width / 2;
+    if (socket.type === 'output') {
+      xOffset = rect.width / 2; // +width/2 for output sockets
+    } else if (socket.type === 'input') {
+      xOffset = -rect.width / 2; // -width/2 for input sockets
+    }
+    
+    const x = (rect.left + rect.width / 2 + xOffset - surfaceRect.left - this.flowGraph.viewport.x) / this.flowGraph.viewport.scale;
     const y = (rect.top + rect.height / 2 - surfaceRect.top - this.flowGraph.viewport.y) / this.flowGraph.viewport.scale;
     
     return { x, y };

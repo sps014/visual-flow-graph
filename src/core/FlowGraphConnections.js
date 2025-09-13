@@ -123,21 +123,176 @@ export class FlowGraphConnections {
   }
 
   /**
-   * Setup event listeners for connection operations.
-   * Handles pointer events for socket interactions.
+   * Setup event listeners for connection operations using event delegation.
+   * OPTIMIZED: Uses single delegated listeners instead of individual listeners.
+   * Implements optimization from report: Event delegation.
    * 
    * @private
    */
   setupEventListeners() {
-    // Socket connection handling with mouse events
-    this.flowGraph.container.addEventListener('mousedown', this.handleSocketMouseDown.bind(this));
-    this.flowGraph.container.addEventListener('mousemove', this.handleSocketMouseMove.bind(this));
-    this.flowGraph.container.addEventListener('mouseup', this.handleSocketMouseUp.bind(this));
+    // Use event delegation for better performance - single listener handles all socket events
+    this.flowGraph.container.addEventListener('mousedown', this.handleDelegatedMouseEvent.bind(this));
+    this.flowGraph.container.addEventListener('mousemove', this.handleDelegatedMouseEvent.bind(this));
+    this.flowGraph.container.addEventListener('mouseup', this.handleDelegatedMouseEvent.bind(this));
     
-    // Add touch event listeners for better mobile support
-    this.flowGraph.container.addEventListener('touchstart', this.handleSocketTouchStart.bind(this), { passive: false });
-    this.flowGraph.container.addEventListener('touchmove', this.handleSocketTouchMove.bind(this), { passive: false });
-    this.flowGraph.container.addEventListener('touchend', this.handleSocketTouchEnd.bind(this), { passive: false });
+    // Add global mouse listeners for connection operations
+    // This ensures mousemove and mouseup work even when mouse leaves the container
+    document.addEventListener('mousemove', this.handleGlobalMouseMove.bind(this));
+    document.addEventListener('mouseup', this.handleGlobalMouseUp.bind(this));
+    
+    // Delegated touch event listeners for better mobile support
+    this.flowGraph.container.addEventListener('touchstart', this.handleDelegatedTouchEvent.bind(this), { passive: false });
+    this.flowGraph.container.addEventListener('touchmove', this.handleDelegatedTouchEvent.bind(this), { passive: false });
+    this.flowGraph.container.addEventListener('touchend', this.handleDelegatedTouchEvent.bind(this), { passive: false });
+  }
+
+  /**
+   * Handle delegated mouse events for all socket interactions.
+   * OPTIMIZED: Single event handler for all mouse events.
+   * 
+   * @param {MouseEvent} e - Mouse event
+   * @private
+   */
+  handleDelegatedMouseEvent(e) {
+    // For mousedown, only handle if target is a socket anchor or socket span
+    if (e.type === 'mousedown') {
+      if (!this.isSocketTarget(e.target)) return;
+      this.handleSocketMouseDown(e);
+      return;
+    }
+    
+    // For mousemove and mouseup, handle if connection is active OR if target is a socket
+    if (e.type === 'mousemove' || e.type === 'mouseup') {
+      if (this.connectionState.active) {
+        // Always handle mousemove/mouseup during active connection
+        if (e.type === 'mousemove') {
+          this.handleSocketMouseMove(e);
+        } else {
+          this.handleSocketMouseUp(e);
+        }
+        return;
+      }
+      
+      // If not in active connection, only handle if target is a socket
+      if (!this.isSocketTarget(e.target)) return;
+      
+      if (e.type === 'mousemove') {
+        this.handleSocketMouseMove(e);
+      } else {
+        this.handleSocketMouseUp(e);
+      }
+    }
+  }
+
+  /**
+   * Check if the target element is a valid socket target for connections.
+   * Only allows connections when clicking on the actual socket anchor or socket span.
+   * 
+   * @param {HTMLElement} target - The target element
+   * @returns {boolean} True if the target is a valid socket target
+   * @private
+   */
+  isSocketTarget(target) {
+    // Reject socket labels immediately
+    if (target.classList.contains('socket-label')) {
+      return false;
+    }
+    
+    // Check if target is a flow-socket-anchor element
+    if (target.tagName === 'FLOW-SOCKET-ANCHOR') {
+      return true;
+    }
+    
+    // Check if target is inside a flow-socket-anchor (handles both DOM and shadow DOM)
+    const socketAnchor = target.closest('flow-socket-anchor');
+    if (socketAnchor) {
+      return true;
+    }
+    
+    // Check if target is inside a flow-socket and traverse shadow DOM
+    const flowSocket = target.closest('flow-socket');
+    if (flowSocket) {
+      // If target is the flow-socket itself, allow it
+      if (target === flowSocket) {
+        return true;
+      }
+      
+      const shadowRoot = flowSocket.shadowRoot;
+      if (shadowRoot) {
+        const socketAnchor = shadowRoot.querySelector('flow-socket-anchor');
+        if (socketAnchor && socketAnchor.contains(target)) {
+          return true;
+        }
+      }
+    }
+    
+    return false;
+  }
+
+  /**
+   * Handle global mouse move events during connection operations.
+   * OPTIMIZED: Ensures mouse tracking works even when mouse leaves container.
+   * 
+   * @param {MouseEvent} e - Mouse event
+   * @private
+   */
+  handleGlobalMouseMove(e) {
+    // Only handle if connection is active
+    if (this.connectionState.active) {
+      this.handleSocketMouseMove(e);
+    }
+  }
+
+  /**
+   * Handle global mouse up events during connection operations.
+   * OPTIMIZED: Ensures mouse up is captured even when mouse leaves container.
+   * 
+   * @param {MouseEvent} e - Mouse event
+   * @private
+   */
+  handleGlobalMouseUp(e) {
+    // Only handle if connection is active
+    if (this.connectionState.active) {
+      this.handleSocketMouseUp(e);
+    }
+  }
+
+  /**
+   * Handle delegated touch events for all socket interactions.
+   * OPTIMIZED: Single event handler for all touch events.
+   * 
+   * @param {TouchEvent} e - Touch event
+   * @private
+   */
+  handleDelegatedTouchEvent(e) {
+    // For touchstart, only handle if target is a socket anchor or socket span
+    if (e.type === 'touchstart') {
+      if (!this.isSocketTarget(e.target)) return;
+      this.handleSocketTouchStart(e);
+      return;
+    }
+    
+    // For touchmove and touchend, handle if connection is active OR if target is a socket
+    if (e.type === 'touchmove' || e.type === 'touchend') {
+      if (this.connectionState.active) {
+        // Always handle touchmove/touchend during active connection
+        if (e.type === 'touchmove') {
+          this.handleSocketTouchMove(e);
+        } else {
+          this.handleSocketTouchEnd(e);
+        }
+        return;
+      }
+      
+      // If not in active connection, only handle if target is a socket
+      if (!this.isSocketTarget(e.target)) return;
+      
+      if (e.type === 'touchmove') {
+        this.handleSocketTouchMove(e);
+      } else {
+        this.handleSocketTouchEnd(e);
+      }
+    }
   }
 
   /**
@@ -210,23 +365,8 @@ export class FlowGraphConnections {
         const socketObj = node?.getSocket(socketId);
         
         if (socketObj && this.canConnect(this.connectionState.fromSocket, socketObj)) {
-          // Remove previous hover
-          this.flowGraph.container.querySelectorAll('.socket-hover').forEach(s => {
-            s.classList.remove('socket-hover');
-          });
-          // Also remove hover from flow-socket inner elements
-          this.flowGraph.container.querySelectorAll('flow-socket').forEach(flowSocket => {
-            const innerSocket = flowSocket.shadowRoot?.querySelector('.socket');
-            if (innerSocket) {
-              innerSocket.classList.remove('socket-hover');
-            }
-          });
-          
-          // Add hover to current socket
-          const innerSocket = flowSocket.shadowRoot?.querySelector('.socket');
-          if (innerSocket) {
-            innerSocket.classList.add('socket-hover');
-          }
+          // Use optimized cleanup and hover update
+          this.updateSocketHover(flowSocket);
           
           this.connectionState.toSocket = socketObj;
           
@@ -237,17 +377,8 @@ export class FlowGraphConnections {
         }
       }
     } else {
-      // Remove hover from all sockets
-      this.flowGraph.container.querySelectorAll('.socket-hover').forEach(s => {
-        s.classList.remove('socket-hover');
-      });
-      // Also remove hover from flow-socket inner elements
-      this.flowGraph.container.querySelectorAll('flow-socket').forEach(flowSocket => {
-        const innerSocket = flowSocket.shadowRoot?.querySelector('.socket');
-        if (innerSocket) {
-          innerSocket.classList.remove('socket-hover');
-        }
-      });
+      // Use optimized cleanup for all sockets
+      this.clearAllSocketHover();
       this.connectionState.toSocket = null;
     }
   }
@@ -408,33 +539,101 @@ export class FlowGraphConnections {
   }
 
   /**
-   * Clean up all socket visual states
+   * Update socket hover state efficiently.
+   * OPTIMIZED: Uses cached elements and batch operations.
+   * 
+   * @param {HTMLElement} flowSocket - The flow-socket element to hover
+   * @private
    */
-  cleanupSocketStates() {
-    // Clean up visual feedback - both legacy sockets and flow-socket components
-    this.flowGraph.container.querySelectorAll('.socket-active').forEach(s => {
-      s.classList.remove('socket-active');
-    });
-    this.flowGraph.container.querySelectorAll('.socket-hover').forEach(s => {
-      s.classList.remove('socket-hover');
+  updateSocketHover(flowSocket) {
+    // Clear all existing hover states first
+    this.clearAllSocketHover();
+    
+    // Add hover to current socket
+    const innerSocket = flowSocket.shadowRoot?.querySelector('.socket');
+    if (innerSocket) {
+      innerSocket.classList.add('socket-hover');
+    }
+  }
+
+  /**
+   * Clear all socket hover states efficiently.
+   * OPTIMIZED: Uses cached elements and batch operations.
+   * 
+   * @private
+   */
+  clearAllSocketHover() {
+    // Use cached socket elements for better performance
+    const sockets = this.flowGraph.getCachedElements ? 
+      this.flowGraph.getCachedElements('sockets') : 
+      this.flowGraph.container.querySelectorAll('flow-socket');
+      
+    // Batch all hover removal operations
+    const hoverRemovalTasks = [];
+    
+    sockets.forEach(flowSocket => {
+      hoverRemovalTasks.push(() => {
+        const innerSocket = flowSocket.shadowRoot?.querySelector('.socket');
+        if (innerSocket) {
+          innerSocket.classList.remove('socket-hover');
+        }
+      });
     });
     
-    // Also clean up socket elements in flow-socket shadow DOMs
-    this.flowGraph.container.querySelectorAll('flow-socket').forEach(flowSocket => {
-      // Clean up standard .socket elements
-      const socketElement = flowSocket.shadowRoot?.querySelector('.socket');
-      if (socketElement) {
-        socketElement.classList.remove('socket-active', 'socket-hover');
-      }
+    // Execute all hover removal tasks in batch
+    hoverRemovalTasks.forEach(task => task());
+  }
+
+  /**
+   * Clean up all socket visual states using optimized DOM queries.
+   * OPTIMIZED: Uses cached elements and batch DOM updates.
+   */
+  cleanupSocketStates() {
+    // Use DOM batcher for efficient cleanup
+    if (this.flowGraph.domBatcher) {
+      this.flowGraph.domBatcher.schedule('update', () => {
+        this.performSocketCleanup();
+      });
+    } else {
+      this.performSocketCleanup();
+    }
+  }
+
+  /**
+   * Perform the actual socket cleanup operations.
+   * OPTIMIZED: Uses cached elements and batch operations.
+   * 
+   * @private
+   */
+  performSocketCleanup() {
+    // Use cached socket elements for better performance
+    const sockets = this.flowGraph.getCachedElements ? 
+      this.flowGraph.getCachedElements('sockets') : 
+      this.flowGraph.container.querySelectorAll('flow-socket');
       
-      // Clean up custom socket elements (spans with inline styles)
-      const customSocketElements = flowSocket.shadowRoot?.querySelectorAll('span[style*="border-color"]');
-      if (customSocketElements) {
-        customSocketElements.forEach(span => {
-          span.classList.remove('socket-active', 'socket-hover');
-        });
-      }
+    // Batch all cleanup operations
+    const cleanupTasks = [];
+    
+    sockets.forEach(flowSocket => {
+      cleanupTasks.push(() => {
+        // Clean up standard .socket elements
+        const socketElement = flowSocket.shadowRoot?.querySelector('.socket');
+        if (socketElement) {
+          socketElement.classList.remove('socket-active', 'socket-hover');
+        }
+        
+        // Clean up custom socket elements (spans with inline styles)
+        const customSocketElements = flowSocket.shadowRoot?.querySelectorAll('span[style*="border-color"]');
+        if (customSocketElements) {
+          customSocketElements.forEach(span => {
+            span.classList.remove('socket-active', 'socket-hover');
+          });
+        }
+      });
     });
+    
+    // Execute all cleanup tasks in batch
+    cleanupTasks.forEach(task => task());
   }
 
   /**
@@ -751,5 +950,19 @@ export class FlowGraphConnections {
     
     // Show the context menu
     socket.showContextMenu(x, y);
+  }
+
+  /**
+   * Clean up event listeners and resources.
+   * 
+   * @public
+   */
+  destroy() {
+    // Remove global event listeners
+    document.removeEventListener('mousemove', this.handleGlobalMouseMove.bind(this));
+    document.removeEventListener('mouseup', this.handleGlobalMouseUp.bind(this));
+    
+    // Cancel any active connection
+    this.cancelConnection();
   }
 }

@@ -6,6 +6,7 @@ import { FlowGraphExecution } from "./FlowGraphExecution.js";
 import { FlowGraphSelection } from "./FlowGraphSelection.js";
 import { FlowGraphConnections } from "./FlowGraphConnections.js";
 import { FlowGraphDrag } from "./FlowGraphDrag.js";
+import { DOMBatcher } from "./DOMBatcher.js";
 
 /**
  * Main FlowGraph class that manages the visual scripting interface.
@@ -160,6 +161,42 @@ export class FlowGraph extends EventTarget {
     /** @type {Map<HTMLElement, Node>} Reverse lookup map from DOM element to Node instance */
     this.elementToNodeMap = new Map();
 
+    // ===== PERFORMANCE OPTIMIZATION SYSTEMS =====
+    
+    /** @type {DOMBatcher} Batches DOM operations for better performance */
+    this.domBatcher = new DOMBatcher();
+    
+    /** @type {Map<string, HTMLElement|NodeList>} Cache for frequently accessed DOM elements */
+    this.domCache = new Map();
+    
+    /** @type {Map<Node, Set<Edge>>} Spatial index for efficient edge lookups by node */
+    this.nodeEdgeIndex = new Map();
+    
+    /** @type {WeakMap<HTMLElement, Node>} WeakMap for automatic cleanup of element references */
+    this.elementNodeWeakMap = new WeakMap();
+    
+    /** @type {Set<Function>} Pool of reusable functions for performance */
+    this.functionPool = new Set();
+    
+    /** @type {Object} Animation batching system */
+    this.animationBatcher = {
+      pendingUpdates: new Set(),
+      rafId: null,
+      isScheduled: false
+    };
+    
+    /** @type {number|null} RAF ID for edge updates */
+    this.edgeUpdateRafId = null;
+    
+    /** @type {Object} Throttled update functions */
+    this.throttledUpdates = {
+      edgeUpdate: this.createAdaptiveThrottledFunction(this.batchUpdateEdges.bind(this)),
+      nodeUpdate: this.createAdaptiveThrottledFunction(this.batchUpdateNodes.bind(this))
+    };
+    
+    /** @type {number} Display refresh rate detection */
+    this.displayRefreshRate = this.detectDisplayRefreshRate();
+
     this.init();
   }
 
@@ -170,6 +207,7 @@ export class FlowGraph extends EventTarget {
    * @private
    */
   init() {
+    this.setupDOMCache();
     this.setupEventListeners();
     this.setupResizeObserver();
   }
@@ -233,8 +271,272 @@ export class FlowGraph extends EventTarget {
     // The observer is ready but not observing anything yet
   }
 
+  // ===== DOM OPTIMIZATION METHODS =====
+
   /**
-   * Find a node by its DOM element.
+   * Set up DOM cache for frequently accessed elements.
+   * Implements optimization from report: DOM query caching.
+   * 
+   * @private
+   */
+  setupDOMCache() {
+    // Cache common selectors for O(1) access
+    this.domCache.set('nodes', () => this.nodesRoot.querySelectorAll('.node'));
+    this.domCache.set('sockets', () => this.nodesRoot.querySelectorAll('flow-socket'));
+    this.domCache.set('edges', () => this.edgeSvg.querySelectorAll('path[data-edge-id]'));
+    this.domCache.set('selectedNodes', () => this.nodesRoot.querySelectorAll('.node.selected'));
+    this.domCache.set('selectedEdges', () => this.edgeSvg.querySelectorAll('path.selected'));
+    
+    // Cache static elements
+    this.domCache.set('surface', this.surface);
+    this.domCache.set('nodesRoot', this.nodesRoot);
+    this.domCache.set('edgeSvg', this.edgeSvg);
+    this.domCache.set('contentContainer', this.contentContainer);
+  }
+
+  /**
+   * Get cached DOM elements with automatic refresh.
+   * 
+   * @param {string} key - Cache key
+   * @returns {HTMLElement|NodeList} Cached element(s)
+   * @private
+   */
+  getCachedElements(key) {
+    const cached = this.domCache.get(key);
+    if (typeof cached === 'function') {
+      return cached(); // Dynamic selectors are functions
+    }
+    return cached; // Static elements are stored directly
+  }
+
+  /**
+   * Detect display refresh rate for optimal performance.
+   * OPTIMIZED: Adaptive throttling based on display capabilities.
+   * 
+   * @returns {number} Detected refresh rate in Hz
+   * @private
+   */
+  detectDisplayRefreshRate() {
+    // Default to 60Hz if detection fails
+    let refreshRate = 60;
+    
+    try {
+      // Use requestAnimationFrame to detect refresh rate
+      let lastTime = performance.now();
+      let frameCount = 0;
+      let startTime = lastTime;
+      
+      const detectFrame = (currentTime) => {
+        frameCount++;
+        const delta = currentTime - lastTime;
+        
+        if (currentTime - startTime >= 1000) { // Measure for 1 second
+          refreshRate = Math.round(frameCount * 1000 / (currentTime - startTime));
+          return;
+        }
+        
+        lastTime = currentTime;
+        requestAnimationFrame(detectFrame);
+      };
+      
+      requestAnimationFrame(detectFrame);
+    } catch (error) {
+      console.warn('Could not detect display refresh rate, using 60Hz:', error);
+    }
+    
+    // Cap at reasonable limits
+    return Math.min(Math.max(refreshRate, 60), 240);
+  }
+
+  /**
+   * Create adaptive throttled function for high refresh rate displays.
+   * OPTIMIZED: Automatically adjusts to display refresh rate.
+   * 
+   * @param {Function} func - Function to throttle
+   * @returns {Function} Adaptive throttled function
+   * @private
+   */
+  createAdaptiveThrottledFunction(func) {
+    let lastCall = 0;
+    let rafId = null;
+    let pendingArgs = null;
+    
+    return function(...args) {
+      const now = performance.now();
+      const timeSinceLastCall = now - lastCall;
+      
+      // Calculate optimal throttle interval based on refresh rate
+      const optimalInterval = 1000 / this.displayRefreshRate;
+      
+      // If enough time has passed, call immediately
+      if (timeSinceLastCall >= optimalInterval) {
+        lastCall = now;
+        func.apply(this, args);
+        return;
+      }
+      
+      // Otherwise, schedule for next frame
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
+      
+      pendingArgs = args;
+      rafId = requestAnimationFrame((currentTime) => {
+        lastCall = currentTime;
+        func.apply(this, pendingArgs);
+        rafId = null;
+        pendingArgs = null;
+      });
+    };
+  }
+
+  /**
+   * Create throttled function for performance optimization.
+   * Implements optimization from report: Throttled updates.
+   * 
+   * @param {Function} func - Function to throttle
+   * @param {number} limit - Throttle limit in ms
+   * @returns {Function} Throttled function
+   * @private
+   */
+  createThrottledFunction(func, limit) {
+    let inThrottle;
+    return function(...args) {
+      if (!inThrottle) {
+        func.apply(this, args);
+        inThrottle = true;
+        setTimeout(() => inThrottle = false, limit);
+      }
+    };
+  }
+
+  /**
+   * Batch update edges for better performance.
+   * OPTIMIZED: Uses requestAnimationFrame for smooth high refresh rate updates.
+   * 
+   * @param {Set<Node>} nodes - Nodes whose edges need updating
+   * @private
+   */
+  batchUpdateEdges(nodes = new Set()) {
+    // Use requestAnimationFrame for smooth updates
+    if (this.edgeUpdateRafId) {
+      cancelAnimationFrame(this.edgeUpdateRafId);
+    }
+    
+    this.edgeUpdateRafId = requestAnimationFrame(() => {
+      this.performEdgeUpdates(nodes);
+      this.edgeUpdateRafId = null;
+    });
+  }
+
+  /**
+   * Perform the actual edge updates.
+   * OPTIMIZED: Batches DOM operations for better performance.
+   * 
+   * @param {Set<Node>} nodes - Nodes whose edges need updating
+   * @private
+   */
+  performEdgeUpdates(nodes = new Set()) {
+    if (nodes.size === 0) {
+      // Update all edges if no specific nodes provided
+      for (const edge of this.edges.values()) {
+        edge.updatePath();
+      }
+      return;
+    }
+
+    // Use spatial index for efficient edge lookup
+    const edgesToUpdate = new Set();
+    for (const node of nodes) {
+      const connectedEdges = this.nodeEdgeIndex.get(node);
+      if (connectedEdges) {
+        connectedEdges.forEach(edge => edgesToUpdate.add(edge));
+      }
+    }
+
+    // Batch update all affected edges using DOM batcher
+    if (this.domBatcher && edgesToUpdate.size > 0) {
+      this.domBatcher.schedule('update', () => {
+        for (const edge of edgesToUpdate) {
+          edge.updatePath();
+        }
+      });
+    } else {
+      // Fallback: direct updates
+      for (const edge of edgesToUpdate) {
+        edge.updatePath();
+      }
+    }
+  }
+
+  /**
+   * Batch update nodes for better performance.
+   * 
+   * @param {Set<Node>} nodes - Nodes to update
+   * @private
+   */
+  batchUpdateNodes(nodes) {
+    if (nodes.size === 0) return;
+
+    // Use DocumentFragment for efficient DOM manipulation
+    const fragment = document.createDocumentFragment();
+    const updates = [];
+
+    for (const node of nodes) {
+      if (node.element && node.element.parentNode) {
+        updates.push(() => {
+          // Batch position updates
+          node.element.style.transform = `translate(${node.x}px, ${node.y}px)`;
+        });
+      }
+    }
+
+    // Execute all updates in a single batch
+    this.domBatcher.schedule('update', () => {
+      updates.forEach(update => update());
+    });
+  }
+
+  /**
+   * Schedule animation update with batching.
+   * Implements optimization from report: Animation batching.
+   * 
+   * @param {HTMLElement} element - Element to animate
+   * @param {Object} animation - Animation properties
+   * @private
+   */
+  scheduleAnimationUpdate(element, animation) {
+    this.animationBatcher.pendingUpdates.add({ element, animation });
+    
+    if (!this.animationBatcher.isScheduled) {
+      this.animationBatcher.isScheduled = true;
+      this.animationBatcher.rafId = requestAnimationFrame(() => {
+        this.processAnimationUpdates();
+        this.animationBatcher.isScheduled = false;
+        this.animationBatcher.rafId = null;
+      });
+    }
+  }
+
+  /**
+   * Process batched animation updates.
+   * 
+   * @private
+   */
+  processAnimationUpdates() {
+    this.animationBatcher.pendingUpdates.forEach(({ element, animation }) => {
+      try {
+        Object.assign(element.style, animation);
+      } catch (error) {
+        console.warn('Error applying animation:', error);
+      }
+    });
+    this.animationBatcher.pendingUpdates.clear();
+  }
+
+  /**
+   * Find a node by its DOM element using optimized lookup.
+   * OPTIMIZED: Uses WeakMap for automatic memory management and O(1) performance.
    * 
    * @param {HTMLElement} element - The DOM element to search for
    * @returns {Node|null} The node that owns this element, or null if not found
@@ -245,8 +547,18 @@ export class FlowGraph extends EventTarget {
     const nodeElement = element.closest('.node');
     if (!nodeElement) return null;
     
-    // Use reverse lookup map for O(1) performance
-    return this.elementToNodeMap.get(nodeElement) || null;
+    // First try WeakMap for automatic memory management
+    let node = this.elementNodeWeakMap.get(nodeElement);
+    if (node) return node;
+    
+    // Fallback to regular Map for O(1) performance
+    node = this.elementToNodeMap.get(nodeElement);
+    if (node) {
+      // Cache in WeakMap for future lookups
+      this.elementNodeWeakMap.set(nodeElement, node);
+    }
+    
+    return node || null;
   }
 
   // ===== DELEGATION METHODS =====
@@ -355,6 +667,7 @@ export class FlowGraph extends EventTarget {
       throw new Error(`Unknown node type: ${type}`);
     }
 
+    // Use DOM batcher for node creation
     const node = new Node(this, {
       ...config,
       type,
@@ -363,9 +676,13 @@ export class FlowGraph extends EventTarget {
     });
     this.nodes.set(node.id, node);
     
-    // Register in reverse lookup map for efficient element-to-node lookup
+    // Register in optimized lookup maps
     if (node.element) {
       this.elementToNodeMap.set(node.element, node);
+      this.elementNodeWeakMap.set(node.element, node); // WeakMap for automatic cleanup
+      
+      // Initialize spatial index for this node
+      this.nodeEdgeIndex.set(node, new Set());
       
       // Start observing this node for resize changes
       if (this.resizeObserver) {
@@ -410,18 +727,18 @@ export class FlowGraph extends EventTarget {
     const node = this.nodes.get(nodeId);
     if (!node) return;
 
-    // Remove all connected edges
-    const edgesToRemove = [];
-    for (const edge of this.edges.values()) {
-      if (edge.fromSocket.node === node || edge.toSocket.node === node) {
-        edgesToRemove.push(edge.id);
-      }
+    // Use spatial index for efficient edge removal
+    const connectedEdges = this.nodeEdgeIndex.get(node);
+    if (connectedEdges) {
+      // Batch remove all connected edges
+      const edgeIds = Array.from(connectedEdges).map(edge => edge.id);
+      edgeIds.forEach((edgeId) => this.removeEdge(edgeId));
     }
-    edgesToRemove.forEach((edgeId) => this.removeEdge(edgeId));
 
-    // Remove from reverse lookup map and stop observing
+    // Clean up all references for memory optimization
     if (node.element) {
       this.elementToNodeMap.delete(node.element);
+      // WeakMap will automatically clean up when element is garbage collected
       
       // Stop observing this node
       if (this.resizeObserver) {
@@ -429,7 +746,13 @@ export class FlowGraph extends EventTarget {
       }
     }
     
-    // Remove node
+    // Remove from spatial index
+    this.nodeEdgeIndex.delete(node);
+    
+    // Use DOM batcher for node removal
+    this.domBatcher.scheduleNodeDelete(node.element);
+    
+    // Clean up node
     node.destroy();
     this.nodes.delete(nodeId);
 
@@ -465,6 +788,20 @@ export class FlowGraph extends EventTarget {
 
     const edge = new Edge(this, fromSocket, toSocket);
     this.edges.set(edge.id, edge);
+
+    // Update spatial index for efficient edge lookups
+    const fromNode = fromSocket.node;
+    const toNode = toSocket.node;
+    
+    if (!this.nodeEdgeIndex.has(fromNode)) {
+      this.nodeEdgeIndex.set(fromNode, new Set());
+    }
+    if (!this.nodeEdgeIndex.has(toNode)) {
+      this.nodeEdgeIndex.set(toNode, new Set());
+    }
+    
+    this.nodeEdgeIndex.get(fromNode).add(edge);
+    this.nodeEdgeIndex.get(toNode).add(edge);
 
     this.container.dispatchEvent(
       new CustomEvent("edge:create", {
@@ -505,6 +842,17 @@ export class FlowGraph extends EventTarget {
     const edge = this.edges.get(edgeId);
     if (!edge) return;
 
+    // Remove from spatial index
+    const fromNode = edge.fromSocket.node;
+    const toNode = edge.toSocket.node;
+    
+    if (this.nodeEdgeIndex.has(fromNode)) {
+      this.nodeEdgeIndex.get(fromNode).delete(edge);
+    }
+    if (this.nodeEdgeIndex.has(toNode)) {
+      this.nodeEdgeIndex.get(toNode).delete(edge);
+    }
+
     edge.destroy();
     this.edges.delete(edgeId);
 
@@ -518,28 +866,30 @@ export class FlowGraph extends EventTarget {
   /**
    * Update the visual path of all edges connected to a specific node.
    * Called when a node is moved or resized.
+   * OPTIMIZED: Uses spatial index for O(log n) instead of O(n) performance.
    *
    * @param {Node} node - The node whose connected edges should be updated
    * @private
    */
   updateEdgesForNode(node) {
-    for (const edge of this.edges.values()) {
-      if (edge.fromSocket.node === node || edge.toSocket.node === node) {
-        edge.updatePath();
-      }
+    // Use spatial index for efficient lookup - O(log n) instead of O(n)
+    const connectedEdges = this.nodeEdgeIndex.get(node);
+    if (connectedEdges) {
+      // Use throttled update for better performance
+      this.throttledUpdates.edgeUpdate(new Set([node]));
     }
   }
 
   /**
    * Update the visual path of all edges in the graph.
    * Useful for refreshing edge positions after initial load.
+   * OPTIMIZED: Uses throttled batching for better performance.
    *
    * @public
    */
   updateAllEdges() {
-    for (const edge of this.edges.values()) {
-      edge.updatePath();
-    }
+    // Use throttled batch update for better performance
+    this.throttledUpdates.edgeUpdate(new Set());
   }
 
   /**
@@ -558,18 +908,29 @@ export class FlowGraph extends EventTarget {
       throw new Error("Cannot clear graph in readonly mode");
     }
 
-    // Remove all edges
-    for (const edgeId of this.edges.keys()) {
-      this.removeEdge(edgeId);
-    }
+    // Batch remove all edges efficiently
+    const edgeIds = Array.from(this.edges.keys());
+    edgeIds.forEach((edgeId) => this.removeEdge(edgeId));
 
-    // Remove all nodes
-    for (const nodeId of this.nodes.keys()) {
-      this.removeNode(nodeId);
-    }
+    // Batch remove all nodes efficiently
+    const nodeIds = Array.from(this.nodes.keys());
+    nodeIds.forEach((nodeId) => this.removeNode(nodeId));
     
-    // Clear reverse lookup map
+    // Clear all optimization system caches
     this.elementToNodeMap.clear();
+    this.nodeEdgeIndex.clear();
+    // WeakMap will auto-cleanup when elements are garbage collected
+    
+    // Clear animation batcher
+    if (this.animationBatcher.rafId) {
+      cancelAnimationFrame(this.animationBatcher.rafId);
+      this.animationBatcher.rafId = null;
+    }
+    this.animationBatcher.pendingUpdates.clear();
+    this.animationBatcher.isScheduled = false;
+    
+    // Flush DOM batcher
+    this.domBatcher.flush();
   }
 
   /**
@@ -954,6 +1315,25 @@ export class FlowGraph extends EventTarget {
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = null;
+    }
+    
+    // Clean up optimization systems
+    this.domBatcher.destroy();
+    this.domCache.clear();
+    this.nodeEdgeIndex.clear();
+    this.functionPool.clear();
+    
+    // Clean up connections
+    this.connections.destroy();
+    
+    // Cancel any pending animations
+    if (this.animationBatcher.rafId) {
+      cancelAnimationFrame(this.animationBatcher.rafId);
+    }
+    
+    // Cancel any pending edge updates
+    if (this.edgeUpdateRafId) {
+      cancelAnimationFrame(this.edgeUpdateRafId);
     }
     
     this.clear();

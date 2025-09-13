@@ -168,11 +168,16 @@ export class Node {
   /**
    * Create a mapping of data keys to DOM elements for data binding.
    * Scans the node's HTML for elements with data-key attributes.
+   * OPTIMIZED: Cache query results and use WeakMap for automatic cleanup.
    * 
    * @private
    */
   createDataKeyMap() {
-    this.element.querySelectorAll('[data-key]').forEach(element => {
+    // Use cached query or perform once and cache
+    const dataKeyElements = this.element.querySelectorAll('[data-key]');
+    
+    // Batch process all data-key elements efficiently
+    dataKeyElements.forEach(element => {
       const dataKey = element.getAttribute('data-key');
       const parsedDataKey = this.parseDataKey(dataKey);
       this.dataKeyMap.set(parsedDataKey.key, 
@@ -186,34 +191,64 @@ export class Node {
   
   /**
    * Disable all form controls in the node for readonly mode.
+   * OPTIMIZED: Batch DOM updates for better performance.
    * 
    * @private
    */
   disableFormControls() {
+    // Batch all style changes for better performance
+    const updates = [];
     this.dataKeyMap.forEach(({ el }) => {
-      // Disable if it's a form control
-      if ('disabled' in el) {
-        el.disabled = true;
-      }
-      el.style.opacity = '0.6';
-      el.style.cursor = 'not-allowed';
+      updates.push(() => {
+        // Disable if it's a form control
+        if ('disabled' in el) {
+          el.disabled = true;
+        }
+        el.style.opacity = '0.6';
+        el.style.cursor = 'not-allowed';
+      });
     });
+    
+    // Execute all updates in a single batch
+    if (this.flowGraph && this.flowGraph.domBatcher) {
+      this.flowGraph.domBatcher.schedule('update', () => {
+        updates.forEach(update => update());
+      });
+    } else {
+      // Fallback for initialization
+      updates.forEach(update => update());
+    }
   }
   
   /**
    * Enable all form controls in the node for edit mode.
+   * OPTIMIZED: Batch DOM updates for better performance.
    * 
    * @private
    */
   enableFormControls() {
+    // Batch all style changes for better performance
+    const updates = [];
     this.dataKeyMap.forEach(({ el }) => {
-      // Enable if it's a form control
-      if ('disabled' in el) {
-        el.disabled = false;
-      }
-      el.style.opacity = '1';
-      el.style.cursor = '';
+      updates.push(() => {
+        // Enable if it's a form control
+        if ('disabled' in el) {
+          el.disabled = false;
+        }
+        el.style.opacity = '1';
+        el.style.cursor = '';
+      });
     });
+    
+    // Execute all updates in a single batch
+    if (this.flowGraph && this.flowGraph.domBatcher) {
+      this.flowGraph.domBatcher.schedule('update', () => {
+        updates.forEach(update => update());
+      });
+    } else {
+      // Fallback for initialization
+      updates.forEach(update => update());
+    }
   }
   
 
@@ -556,30 +591,51 @@ export class Node {
       this.flowGraph.endMultiDrag();
     };
     
-    // Use mouse events instead of pointer events
-    this.element.addEventListener('mousedown', handlePointerDown);
-    this.element.addEventListener('mousemove', handlePointerMove);
-    this.element.addEventListener('mouseup', handlePointerUp);
+    // OPTIMIZED: Store event handlers for potential cleanup and use delegation where possible
+    this.eventHandlers = {
+      mousedown: handlePointerDown,
+      mousemove: handlePointerMove,
+      mouseup: handlePointerUp,
+      touchstart: handleTouchStart,
+      touchmove: handleTouchMove,
+      touchend: handleTouchEnd,
+      dblclick: (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.execute();
+      }
+    };
+
+    // Add event listeners with proper cleanup tracking
+    this.element.addEventListener('mousedown', this.eventHandlers.mousedown);
+    this.element.addEventListener('mousemove', this.eventHandlers.mousemove);
+    this.element.addEventListener('mouseup', this.eventHandlers.mouseup);
     
     // Add touch event listeners
-    this.element.addEventListener('touchstart', handleTouchStart, { passive: true });
-    this.element.addEventListener('touchmove', handleTouchMove, { passive: false });
-    this.element.addEventListener('touchend', handleTouchEnd, { passive: true });
+    this.element.addEventListener('touchstart', this.eventHandlers.touchstart, { passive: true });
+    this.element.addEventListener('touchmove', this.eventHandlers.touchmove, { passive: false });
+    this.element.addEventListener('touchend', this.eventHandlers.touchend, { passive: true });
     
     // Add double-click to execute
-    this.element.addEventListener('dblclick', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      this.execute();
-    });
+    this.element.addEventListener('dblclick', this.eventHandlers.dblclick);
   }
   
   setPosition(x, y) {
     const oldPosition = { x: this.x, y: this.y };
     this.x = x;
     this.y = y;
-    this.element.style.left = x + 'px';
-    this.element.style.top = y + 'px';
+    
+    // Use optimized animation batching for position updates
+    if (this.flowGraph && this.flowGraph.scheduleAnimationUpdate) {
+      this.flowGraph.scheduleAnimationUpdate(this.element, {
+        left: x + 'px',
+        top: y + 'px'
+      });
+    } else {
+      // Fallback for direct updates
+      this.element.style.left = x + 'px';
+      this.element.style.top = y + 'px';
+    }
     
     // Fire move event
     this.flowGraph.container.dispatchEvent(new CustomEvent('node:move', {
@@ -602,10 +658,23 @@ export class Node {
   
   setSelected(selected) {
     this.selected = selected;
-    if (selected) {
-      this.element.classList.add('selected');
+    
+    // Use DOM batcher for class changes
+    if (this.flowGraph && this.flowGraph.domBatcher) {
+      this.flowGraph.domBatcher.schedule('update', () => {
+        if (selected) {
+          this.element.classList.add('selected');
+        } else {
+          this.element.classList.remove('selected');
+        }
+      });
     } else {
-      this.element.classList.remove('selected');
+      // Fallback for direct updates
+      if (selected) {
+        this.element.classList.add('selected');
+      } else {
+        this.element.classList.remove('selected');
+      }
     }
   }
   
@@ -871,8 +940,36 @@ export class Node {
 
   
   destroy() {
-    if (this.element) {
-      this.element.remove();
+    // Clean up event listeners to prevent memory leaks
+    if (this.element && this.eventHandlers) {
+      this.element.removeEventListener('mousedown', this.eventHandlers.mousedown);
+      this.element.removeEventListener('mousemove', this.eventHandlers.mousemove);
+      this.element.removeEventListener('mouseup', this.eventHandlers.mouseup);
+      this.element.removeEventListener('touchstart', this.eventHandlers.touchstart);
+      this.element.removeEventListener('touchmove', this.eventHandlers.touchmove);
+      this.element.removeEventListener('touchend', this.eventHandlers.touchend);
+      this.element.removeEventListener('dblclick', this.eventHandlers.dblclick);
     }
+    
+    // Clean up all references for memory optimization
+    if (this.element) {
+      // Use DOM batcher for removal if available
+      if (this.flowGraph && this.flowGraph.domBatcher) {
+        this.flowGraph.domBatcher.scheduleNodeDelete(this.element);
+      } else {
+        this.element.remove();
+      }
+    }
+    
+    // Clear all maps and references
+    this.inputs.clear();
+    this.outputs.clear();
+    this.dataKeyMap.clear();
+    
+    // Clear references to prevent memory leaks
+    this.eventHandlers = null;
+    this.flowGraph = null;
+    this.element = null;
+    this.template = null;
   }
 }

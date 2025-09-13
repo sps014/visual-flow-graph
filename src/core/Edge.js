@@ -75,6 +75,9 @@ export class Edge {
     /** @type {string} The color of this edge (from output socket) */
     this.color = extractSocketColor(fromSocket.element);
     
+    /** @type {number|null} RAF ID for smooth updates */
+    this.updateRafId = null;
+    
     this.init();
   }
   
@@ -122,18 +125,27 @@ export class Edge {
   
   /**
    * Update the visual path of this edge.
-   * Recalculates the bezier curve based on current socket positions.
+   * OPTIMIZED: Smooth updates for high refresh rate displays.
    * 
    * @private
    */
   updatePath() {
-    if (!this.fromSocket.element || !this.toSocket.element) return;
+    if (!this.fromSocket.element || !this.toSocket.element || !this.element) return;
     
     const fromPos = this.fromSocket.getPosition();
     const toPos = this.toSocket.getPosition();
     
     const path = this.flowGraph.createCubicPath(fromPos, toPos, this.fromSocket, this.toSocket);
-    this.element.setAttribute('d', path);
+    
+    // Use requestAnimationFrame for smooth updates on high refresh rate displays
+    if (this.updateRafId) {
+      cancelAnimationFrame(this.updateRafId);
+    }
+    
+    this.updateRafId = requestAnimationFrame(() => {
+      this.element.setAttribute('d', path);
+      this.updateRafId = null;
+    });
   }
   
   /**
@@ -224,6 +236,12 @@ export class Edge {
   }
   
   destroy() {
+    // Cancel any pending updates
+    if (this.updateRafId) {
+      cancelAnimationFrame(this.updateRafId);
+      this.updateRafId = null;
+    }
+    
     // Unregister from sockets
     this.fromSocket.removeConnection(this);
     this.toSocket.removeConnection(this);

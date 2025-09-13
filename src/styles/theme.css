@@ -11,6 +11,11 @@
   --fg-warning: #f59e0b;
   --fg-error: #ef4444;
   
+  /* High refresh rate optimizations */
+  --fg-smooth-edges: true;
+  --fg-gpu-acceleration: true;
+  --fg-will-change: transform, opacity;
+  
   /* Animation customization */
   --fg-animation-flowing-color: #f59e0b;
   --fg-animation-pulsing-color: #f59e0b;
@@ -366,24 +371,43 @@ flow-socket-anchor .socket.out {
 /* ===== CONNECTION STYLES ===== */
 .connection {
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  /* High refresh rate optimizations */
+  will-change: var(--fg-will-change);
+  transform: translateZ(0); /* Force GPU acceleration */
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 .connection:hover {
   stroke-width: 4 !important;
   filter: drop-shadow(0 4px 8px rgba(124,58,237,0.4));
+  transition: stroke-width 0.1s ease-out, filter 0.1s ease-out;
 }
 
 .temp-connection {
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  /* High refresh rate optimizations */
+  will-change: var(--fg-will-change);
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .edge {
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  /* High refresh rate optimizations */
+  will-change: var(--fg-will-change);
+  transform: translateZ(0); /* Force GPU acceleration */
+  backface-visibility: hidden;
+  perspective: 1000px;
+  /* Smooth rendering */
+  shape-rendering: geometricPrecision;
+  text-rendering: optimizeSpeed;
 }
 
 .edge:hover {
   stroke-width: 4 !important;
   filter: drop-shadow(0 4px 8px rgba(124,58,237,0.4));
+  transition: stroke-width 0.1s ease-out, filter 0.1s ease-out;
 }
 
 /* Interactive elements in nodes */
@@ -471,6 +495,10 @@ button.interactive:hover {
   stroke-width: var(--fg-animation-stroke-width) !important;
   filter: drop-shadow(0 0 var(--fg-animation-glow-intensity) var(--fg-animation-flowing-color));
   animation: edgeFlow var(--fg-animation-speed-normal) ease-in-out infinite;
+  /* High refresh rate optimizations */
+  will-change: stroke-dasharray, stroke-dashoffset, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* ===== EXECUTION TRAIL HIGHLIGHTING ===== */

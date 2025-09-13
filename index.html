@@ -268,10 +268,10 @@
           <node-body>
             <div class="title">➕ Add</div>
             <div class="body">
-              <flow-socket type="input" name="a" label="A" data-type="number"></flow-socket>
-              <flow-socket type="input" name="b" label="B" data-type="number"></flow-socket>
+              <flow-socket type="input" name="a" label="A" data-type="number" max-connection="1"></flow-socket>
+              <flow-socket type="input" name="b" label="B" data-type="number" max-connection="1"></flow-socket>
               <div style="height:8px"></div>
-              <flow-socket type="output" name="sum" label="Sum" data-type="number" color="#f59e0b"></flow-socket>
+              <flow-socket type="output" name="sum" label="Sum" data-type="number" color="#f59e0b" max-connection="3"></flow-socket>
             </div>
           </node-body>
         </flow-node-def>
@@ -291,10 +291,10 @@
           <node-body>
             <div class="title">✖️ Multiply</div>
             <div class="body">
-              <flow-socket type="input" name="a" label="A" data-type="number"></flow-socket>
-              <flow-socket type="input" name="b" label="B" data-type="number"></flow-socket>
+              <flow-socket type="input" name="a" label="A" data-type="number" max-connection="1"></flow-socket>
+              <flow-socket type="input" name="b" label="B" data-type="number" max-connection="1"></flow-socket>
               <div style="height:8px"></div>
-              <flow-socket type="output" name="product" label="Product" data-type="number" color="#8b5cf6"></flow-socket>
+              <flow-socket type="output" name="product" label="Product" data-type="number" color="#8b5cf6" max-connection="2"></flow-socket>
             </div>
           </node-body>
         </flow-node-def>
@@ -304,11 +304,11 @@
           <node-body>
             <div class="title">🔀 Split</div>
             <div class="body">
-              <flow-socket type="input" name="input" label="Input" data-type="any"></flow-socket>
+              <flow-socket type="input" name="input" label="Input" data-type="any" max-connection="1"></flow-socket>
               <div style="height:8px"></div>
-              <flow-socket type="output" name="out1" label="Out 1" data-type="any"></flow-socket>
-              <flow-socket type="output" name="out2" label="Out 2" data-type="any"></flow-socket>
-              <flow-socket type="output" name="out3" label="Out 3" data-type="any"></flow-socket>
+              <flow-socket type="output" name="out1" label="Out 1" data-type="any" max-connection="5"></flow-socket>
+              <flow-socket type="output" name="out2" label="Out 2" data-type="any" max-connection="5"></flow-socket>
+              <flow-socket type="output" name="out3" label="Out 3" data-type="any" max-connection="5"></flow-socket>
             </div>
           </node-body>
         </flow-node-def>

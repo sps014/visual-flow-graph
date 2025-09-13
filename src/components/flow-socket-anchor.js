@@ -27,6 +27,7 @@ export class FlowSocketAnchorElement extends LitElement {
     :host {
       display: inline-block;
       position: relative;
+      cursor: crosshair;
     }
     
     ::slotted(.socket) {
@@ -35,7 +36,7 @@ export class FlowSocketAnchorElement extends LitElement {
       height: 16px;
       border-radius: 50%;
       border: 2px solid;
-      cursor: pointer;
+      cursor: crosshair;
       transition: all 0.2s ease;
       position: relative;
       z-index: 10;

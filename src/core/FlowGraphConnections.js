@@ -374,6 +374,11 @@ export class FlowGraphConnections {
           const outputSocket = this.connectionState.fromSocket.type === 'output' ? 
             this.connectionState.fromSocket : socketObj;
           this.updateTempPathColor(outputSocket);
+        } else if (socketObj) {
+          // Provide specific feedback for max connections reached
+          if (socketObj.connections.size >= socketObj.maxConnections) {
+            this.showMaxConnectionsFeedback(socketObj);
+          }
         }
       }
     } else {
@@ -554,6 +559,26 @@ export class FlowGraphConnections {
     if (innerSocket) {
       innerSocket.classList.add('socket-hover');
     }
+  }
+
+  /**
+   * Show visual feedback when socket has reached maximum connections
+   * 
+   * @param {Socket} socket - The socket that has reached max connections
+   * @private
+   */
+  showMaxConnectionsFeedback(socket) {
+    if (!socket.element) return;
+    
+    // Add a visual indicator that max connections reached
+    socket.element.classList.add('socket-max-connections');
+    
+    // Remove the indicator after a short delay
+    setTimeout(() => {
+      if (socket.element) {
+        socket.element.classList.remove('socket-max-connections');
+      }
+    }, 1000);
   }
 
   /**
@@ -795,6 +820,10 @@ export class FlowGraphConnections {
     if (!this.isDataTypeCompatible(fromSocket.dataType, toSocket.dataType)) {
       return false;
     }
+    
+    // Check connection limits
+    if (fromSocket.connections.size >= fromSocket.maxConnections) return false;
+    if (toSocket.connections.size >= toSocket.maxConnections) return false;
     
     // Check if connection already exists
     for (const edge of this.flowGraph.edges.values()) {

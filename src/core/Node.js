@@ -295,6 +295,15 @@ export class Node {
     this.inputs.forEach(socket => {
       const flowSocket = this.element.querySelector(`flow-socket[name="${socket.id}"]`);
       if (flowSocket) {
+        // Parse max-connection attribute from HTML
+        const maxConnections = flowSocket.getAttribute('max-connection');
+        if (maxConnections !== null) {
+          const maxConn = parseInt(maxConnections, 10);
+          if (!isNaN(maxConn) && maxConn > 0) {
+            socket.maxConnections = maxConn;
+          }
+        }
+        
         // First try to find flow-socket-anchor in shadow DOM (default sockets)
         let element = flowSocket.shadowRoot?.querySelector('flow-socket-anchor');
         
@@ -320,6 +329,15 @@ export class Node {
     this.outputs.forEach(socket => {
       const flowSocket = this.element.querySelector(`flow-socket[name="${socket.id}"]`);
       if (flowSocket) {
+        // Parse max-connection attribute from HTML
+        const maxConnections = flowSocket.getAttribute('max-connection');
+        if (maxConnections !== null) {
+          const maxConn = parseInt(maxConnections, 10);
+          if (!isNaN(maxConn) && maxConn > 0) {
+            socket.maxConnections = maxConn;
+          }
+        }
+        
         // First try to find flow-socket-anchor in shadow DOM (default sockets)
         let element = flowSocket.shadowRoot?.querySelector('flow-socket-anchor');
         

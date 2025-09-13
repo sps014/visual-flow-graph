@@ -165,7 +165,7 @@ export class FlowGraphAnimations {
   }
 
   /**
-   * Reset all edge colors to default
+   * Reset all edge colors to their original colors
    */
   resetAllEdgeColors() {
     this.flowGraph.edges.forEach(edge => {
@@ -173,8 +173,8 @@ export class FlowGraphAnimations {
         // Remove all animation and trail classes
         edge.element.classList.remove('trail', 'flowing', 'flowing-fast', 'flowing-slow', 'pulsing', 'data-flow');
         
-        // Reset to default edge styling
-        edge.element.setAttribute('stroke', '#10b981'); // Default green color
+        // Reset to original edge color instead of hardcoded green
+        edge.element.setAttribute('stroke', edge.color || '#10b981'); // Use original color or default green
         edge.element.setAttribute('stroke-width', '2.5'); // Default stroke width
         edge.element.style.filter = 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'; // Default shadow
         edge.element.style.opacity = '1'; // Reset opacity

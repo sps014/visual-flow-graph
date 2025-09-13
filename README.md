@@ -3,6 +3,8 @@
 A modern, HTML-based visual scripting library for creating interactive node-based graphs directly in the browser.
 
 <img width="1184" height="562" alt="Image" src="https://github.com/user-attachments/assets/f9e9b938-6f30-4ecb-b7b8-e1b4034e8857" />
+
+
 ## Features
 
 - **🎯 Declarative HTML** - Define graphs using intuitive HTML syntax
@@ -19,6 +21,10 @@ A modern, HTML-based visual scripting library for creating interactive node-base
 - **🎨 Custom Nodes** - Create nodes with custom styling and shapes
 - **🔗 Edge Selection** - Select and manage connections
 - **⌨️ Keyboard Shortcuts** - Copy, paste, delete, and selection shortcuts
+
+  
+## ⚡ Async Execution
+![Image](https://github.com/user-attachments/assets/09dcbc1e-54fa-4e4b-9ef1-03cac3c1d0a8)
 
 ## Quick Start
 

@@ -32,8 +32,8 @@ A modern, HTML-based visual scripting library for creating interactive node-base
 <!DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flowgraph@latest/dist/flowgraph.css">
-  <script type="module" src="https://cdn.jsdelivr.net/npm/flowgraph@latest/dist/flowgraph.es.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sps014/visual-flow-graph@main/published/flowgraph.css">
+  <script type="module" src="https://cdn.jsdelivr.net/gh/sps014/visual-flow-graph@main/published/flowgraph.es.js"></script>
 </head>
 <body>
   <flow-graph theme="dark">

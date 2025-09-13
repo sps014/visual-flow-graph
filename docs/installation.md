@@ -13,8 +13,8 @@ The easiest way to get started is using the bundled distribution from a CDN:
   <meta charset="utf-8">
   <title>My FlowGraph App</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flowgraph@latest/dist/flowgraph.css">
-  <script type="module" src="https://cdn.jsdelivr.net/npm/flowgraph@latest/dist/flowgraph.es.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sps014/visual-flow-graph@main/published/flowgraph.css">
+  <script type="module" src="https://cdn.jsdelivr.net/gh/sps014/visual-flow-graph@main/published/flowgraph.es.js"></script>
 </head>
 <body>
   <flow-graph theme="dark">

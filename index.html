@@ -629,6 +629,37 @@
     await waitForFlowGraph();
     console.log('FlowGraph loaded with', flowGraphElement.flowGraph.nodes.size, 'nodes');
     
+    // Add programmatic node template to test context menu
+    flowGraphElement.flowGraph.addNodeTemplate('programmatic.test', {
+      name: 'programmatic.test',
+      label: 'Programmatic Test',
+      category: 'Programmatic',
+      icon: '🧪',
+      description: 'Added via addNodeTemplate() - should appear in context menu',
+      inputs: [
+        { id: 'input1', label: 'Input 1', type: 'any' },
+        { id: 'input2', label: 'Input 2', type: 'any' }
+      ],
+      outputs: [
+        { id: 'output1', label: 'Output 1', type: 'any' },
+        { id: 'output2', label: 'Output 2', type: 'any' }
+      ],
+      html: `
+        <node-body>
+          <div class="title">🧪 Programmatic Test</div>
+          <div class="body">
+            <flow-socket type="input" name="input1" label="Input 1"></flow-socket>
+            <flow-socket type="input" name="input2" label="Input 2"></flow-socket>
+            <div style="height:8px"></div>
+            <flow-socket type="output" name="output1" label="Output 1"></flow-socket>
+            <flow-socket type="output" name="output2" label="Output 2"></flow-socket>
+          </div>
+        </node-body>
+      `
+    });
+    
+    console.log('Added programmatic node template. Available templates:', Array.from(flowGraphElement.flowGraph.templates.keys()));
+    
     // Setup auto-expand for custom nodes
     function setupAutoExpand() {
       const autoExpandInputs = document.querySelectorAll('.auto-expand');

@@ -629,6 +629,11 @@ export class FlowGraph extends EventTarget {
    */
   addNodeTemplate(name, template) {
     this.templates.set(name, template);
+    
+    // Emit event to notify that a new template was added
+    this.dispatchEvent(new CustomEvent('template:added', {
+      detail: { name, template }
+    }));
   }
 
   /**

@@ -2,6 +2,7 @@
 
 A modern, HTML-based visual scripting library for creating interactive node-based graphs directly in the browser.
 
+<img width="1184" height="562" alt="Image" src="https://github.com/user-attachments/assets/f9e9b938-6f30-4ecb-b7b8-e1b4034e8857" />
 ## Features
 
 - **🎯 Declarative HTML** - Define graphs using intuitive HTML syntax

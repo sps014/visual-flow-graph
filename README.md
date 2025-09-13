@@ -1,4 +1,4 @@
-# FlowGraph
+# Visual Flow Graph
 
 A modern, HTML-based visual scripting library for creating interactive node-based graphs directly in the browser.
 

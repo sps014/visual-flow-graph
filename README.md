@@ -60,6 +60,7 @@ A modern, HTML-based visual scripting library for creating interactive node-base
 ## Documentation
 
 📚 **[View Complete Documentation](https://sps014.github.io/visual-flow-graph/)**
+🖍️ **[Live Demo](https://sps014.github.io/visual-flow-graph/demo.html)**
 
 ## Installation
 

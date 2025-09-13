@@ -140,6 +140,10 @@ export class FlowGraphElement extends LitElement {
       this.dispatchEvent(new CustomEvent("edge:create", { detail: e.detail }));
     });
 
+    this.flowGraph.addEventListener("edge:connection:failed", (e) => {
+      this.dispatchEvent(new CustomEvent("edge:connection:failed", { detail: e.detail }));
+    });
+
     // Add right-click handler for context menu
     this.addEventListener(
       "contextmenu",

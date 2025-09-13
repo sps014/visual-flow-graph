@@ -8,9 +8,85 @@
   html, body {
     height: 100%; 
     margin: 0; 
+    padding: 0;
     font-family: 'Inter', 'Roboto', system-ui, sans-serif; 
     color: #fff;
     overflow: hidden;
+    box-sizing: border-box;
+  }
+  
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  
+  /* Notification System */
+  .notification-container {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    z-index: 10001;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+  }
+  
+  .notification {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    border-left: 4px solid #fca5a5;
+    min-width: 300px;
+    max-width: 400px;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: auto;
+    position: relative;
+  }
+  
+  .notification.show {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  
+  .notification.hide {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  
+  .notification-title {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .notification-message {
+    font-size: 13px;
+    opacity: 0.9;
+    line-height: 1.4;
+  }
+  
+  .notification-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+  
+  .notification-close:hover {
+    opacity: 1;
   }
   
   #app {
@@ -19,6 +95,7 @@
     width: 100vw; 
     overflow: hidden; 
     display: flex;
+    box-sizing: border-box;
   }
 
   flow-context-menu {
@@ -109,7 +186,10 @@
     </p>
   </div>
   
-  <div id="app" style="margin-top: 80px;">
+  <!-- Notification Container -->
+  <div class="notification-container" id="notification-container"></div>
+  
+  <div id="app" style="padding-top: 80px;">
     <!-- Graph execution controls -->
     <div style="position: absolute; top: 10px; left: 10px; z-index: 1000; display: flex; gap: 10px;">
       <button id="execute-graph-btn" style="
@@ -526,6 +606,57 @@
   </div>
   
   <script type="module">
+    // Notification system
+    function showNotification(title, message, duration = 4000) {
+      const container = document.getElementById('notification-container');
+      
+      // Create notification element
+      const notification = document.createElement('div');
+      notification.className = 'notification';
+      
+      notification.innerHTML = `
+        <div class="notification-title">
+          <span>❌</span>
+          <span>${title}</span>
+          <button class="notification-close" onclick="dismissNotification(this)">&times;</button>
+        </div>
+        <div class="notification-message">${message}</div>
+      `;
+      
+      // Add to container
+      container.appendChild(notification);
+      
+      // Trigger animation
+      setTimeout(() => {
+        notification.classList.add('show');
+      }, 10);
+      
+      // Auto-dismiss after duration
+      setTimeout(() => {
+        dismissNotification(notification.querySelector('.notification-close'));
+      }, duration);
+      
+      return notification;
+    }
+    
+    function dismissNotification(closeButton) {
+      const notification = closeButton.closest('.notification');
+      if (notification) {
+        notification.classList.add('hide');
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 300);
+      }
+    }
+
+    // Status display function (for backward compatibility)
+    function updateStatus(message, type = 'info') {
+      // For now, just show as notification
+      showNotification('Status', message, 3000);
+    }
+
     // Wait for custom elements to be defined
     await customElements.whenDefined('flow-graph');
     
@@ -543,8 +674,8 @@
     // Listen for edge connection failure events
     flowGraphElement.addEventListener('edge:connection:failed', (e) => {
       console.warn('Connection failed:', e.detail.reason);
-      // Show error in the existing status display
-      updateStatus(`❌ Connection Failed: ${e.detail.reason}`, 'error');
+      // Show error notification
+      showNotification('Connection Failed', e.detail.reason, 5000);
     });
     
     

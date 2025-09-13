@@ -20,6 +20,7 @@ FlowGraph emits events for all user interactions and state changes.
 | `edge:select` | Edge selected | `{ edgeId, edge }` |
 | `edge:deselect` | Edge deselected | `{ edgeId, edge }` |
 | `edge:delete` | Edge deleted | `{ edgeId, edge }` |
+| `edge:connection:failed` | Connection attempt failed | `{ fromSocket, toSocket, reason }` |
 
 ## Viewport Events
 

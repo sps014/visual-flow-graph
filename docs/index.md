@@ -42,6 +42,8 @@
 
 FlowGraph is a modern, HTML-based visual scripting library that lets you create interactive node-based graphs using simple HTML elements. Perfect for data flow programming, workflow design, and visual logic building.
 
+<img width="1184" height="562" alt="Image" src="https://github.com/user-attachments/assets/f9e9b938-6f30-4ecb-b7b8-e1b4034e8857" />
+
 ### Key Features
 
 - **🎯 Declarative HTML** - Define graphs using intuitive HTML syntax

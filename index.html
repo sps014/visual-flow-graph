@@ -559,6 +559,10 @@
     flowGraphElement.addEventListener('edge:deselect', (e) => {
       //console.log('🔗 Edge deselected:', e.detail.edgeId);
     });
+
+    flowGraphElement.addEventListener('edge:connection:failed', (e) => {
+        //console.log('❌ Connection failed:', e.detail.reason);
+    });
     
     // Viewport events
     flowGraphElement.addEventListener('viewport:change', (e) => {

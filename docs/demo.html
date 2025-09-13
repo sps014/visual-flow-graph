@@ -2,91 +2,15 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>FlowGraph - Interactive Demo</title>
+  <title>FlowGraph - Lit Example</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
   html, body {
     height: 100%; 
     margin: 0; 
-    padding: 0;
     font-family: 'Inter', 'Roboto', system-ui, sans-serif; 
     color: #fff;
     overflow: hidden;
-    box-sizing: border-box;
-  }
-  
-  *, *::before, *::after {
-    box-sizing: border-box;
-  }
-  
-  /* Notification System */
-  .notification-container {
-    position: fixed;
-    top: 100px;
-    right: 20px;
-    z-index: 10001;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    pointer-events: none;
-  }
-  
-  .notification {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: white;
-    padding: 12px 16px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-    border-left: 4px solid #fca5a5;
-    min-width: 300px;
-    max-width: 400px;
-    opacity: 0;
-    transform: translateX(100%);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    pointer-events: auto;
-    position: relative;
-  }
-  
-  .notification.show {
-    opacity: 1;
-    transform: translateX(0);
-  }
-  
-  .notification.hide {
-    opacity: 0;
-    transform: translateX(100%);
-  }
-  
-  .notification-title {
-    font-weight: 600;
-    font-size: 14px;
-    margin-bottom: 4px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .notification-message {
-    font-size: 13px;
-    opacity: 0.9;
-    line-height: 1.4;
-  }
-  
-  .notification-close {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-    font-size: 16px;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-  }
-  
-  .notification-close:hover {
-    opacity: 1;
   }
   
   #app {
@@ -95,7 +19,6 @@
     width: 100vw; 
     overflow: hidden; 
     display: flex;
-    box-sizing: border-box;
   }
 
   flow-context-menu {
@@ -177,19 +100,7 @@
   <script type="module" src="https://cdn.jsdelivr.net/gh/sps014/visual-flow-graph@main/published/flowgraph.es.js"></script>
 </head>
 <body>
-  <!-- Demo Header -->
-  <div style="position: fixed; top: 0; left: 0; right: 0; background: #1a1a1a; color: white; padding: 10px; z-index: 10000; text-align: center; border-bottom: 1px solid #333;">
-    <h2 style="margin: 0; font-size: 18px;">🎮 FlowGraph Interactive Demo</h2>
-    <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.8;">
-      Drag nodes, create connections, and explore the visual scripting interface. 
-      <a href="index.html" style="color: #4CAF50; text-decoration: none;">← Back to Documentation</a>
-    </p>
-  </div>
-  
-  <!-- Notification Container -->
-  <div class="notification-container" id="notification-container"></div>
-  
-  <div id="app" style="padding-top: 80px;">
+  <div id="app">
     <!-- Graph execution controls -->
     <div style="position: absolute; top: 10px; left: 10px; z-index: 1000; display: flex; gap: 10px;">
       <button id="execute-graph-btn" style="
@@ -606,57 +517,6 @@
   </div>
   
   <script type="module">
-    // Notification system
-    function showNotification(title, message, duration = 4000) {
-      const container = document.getElementById('notification-container');
-      
-      // Create notification element
-      const notification = document.createElement('div');
-      notification.className = 'notification';
-      
-      notification.innerHTML = `
-        <div class="notification-title">
-          <span>❌</span>
-          <span>${title}</span>
-          <button class="notification-close" onclick="dismissNotification(this)">&times;</button>
-        </div>
-        <div class="notification-message">${message}</div>
-      `;
-      
-      // Add to container
-      container.appendChild(notification);
-      
-      // Trigger animation
-      setTimeout(() => {
-        notification.classList.add('show');
-      }, 10);
-      
-      // Auto-dismiss after duration
-      setTimeout(() => {
-        dismissNotification(notification.querySelector('.notification-close'));
-      }, duration);
-      
-      return notification;
-    }
-    
-    function dismissNotification(closeButton) {
-      const notification = closeButton.closest('.notification');
-      if (notification) {
-        notification.classList.add('hide');
-        setTimeout(() => {
-          if (notification.parentNode) {
-            notification.parentNode.removeChild(notification);
-          }
-        }, 300);
-      }
-    }
-
-    // Status display function (for backward compatibility)
-    function updateStatus(message, type = 'info') {
-      // For now, just show as notification
-      showNotification('Status', message, 3000);
-    }
-
     // Wait for custom elements to be defined
     await customElements.whenDefined('flow-graph');
     
@@ -671,12 +531,6 @@
       //console.log('Edge created:', e.detail.edge);
     });
 
-    // Listen for edge connection failure events
-    flowGraphElement.addEventListener('edge:connection:failed', (e) => {
-      console.warn('Connection failed:', e.detail.reason);
-      // Show error notification
-      showNotification('Connection Failed', e.detail.reason, 5000);
-    });
     
     
     // Node selection events

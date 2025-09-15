@@ -361,6 +361,315 @@ export class Node {
     
     // Size change detection is now handled at the graph level for better performance
   }
+
+  /**
+   * Add a new socket to the node dynamically.
+   * 
+   * @param {Object} socketConfig - Configuration for the new socket
+   * @param {string} socketConfig.id - Unique identifier for the socket
+   * @param {string} socketConfig.type - Socket type: 'input' or 'output'
+   * @param {string} [socketConfig.dataType='any'] - Data type this socket accepts/provides
+   * @param {string} [socketConfig.label] - Display label for the socket
+   * @param {number} [socketConfig.maxConnections] - Maximum number of connections allowed
+   * @param {string} [socketConfig.color] - Socket color
+   * @param {string} [socketConfig.size] - Socket size
+   * @returns {Socket} The created socket instance
+   * @throws {Error} If socket ID already exists
+   * 
+   * @example
+   * ```javascript
+   * const newSocket = node.addSocket({
+   *   id: 'newOutput',
+   *   type: 'output',
+   *   dataType: 'number',
+   *   label: 'New Output'
+   * });
+   * ```
+   */
+  addSocket(socketConfig) {
+    const { id, type, dataType = 'any', label, maxConnections, color, size } = socketConfig;
+    
+    // Check if socket already exists
+    if (this.inputs.has(id) || this.outputs.has(id)) {
+      throw new Error(`Socket with ID '${id}' already exists`);
+    }
+    
+    // Create the socket
+    const socket = new Socket(this, {
+      id,
+      type,
+      dataType,
+      label: label || id,
+      maxConnections
+    });
+    
+    // Add to appropriate collection
+    if (type === 'input') {
+      this.inputs.set(id, socket);
+    } else if (type === 'output') {
+      this.outputs.set(id, socket);
+    } else {
+      throw new Error(`Invalid socket type: ${type}. Must be 'input' or 'output'`);
+    }
+    
+    // Create DOM element for the socket
+    this.createSocketElement(socket, { color, size });
+    
+    // Update node height if needed
+    this.updateNodeHeight();
+    
+    // Dispatch event
+    this.flowGraph.container.dispatchEvent(
+      new CustomEvent('socket:add', {
+        detail: { node: this, socket }
+      })
+    );
+    
+    return socket;
+  }
+
+  /**
+   * Add a new input socket to the node dynamically.
+   * 
+   * @param {string} id - Unique identifier for the socket
+   * @param {Object} [config={}] - Additional socket configuration
+   * @param {string} [config.dataType='any'] - Data type this socket accepts
+   * @param {string} [config.label] - Display label for the socket
+   * @param {number} [config.maxConnections] - Maximum number of connections allowed
+   * @param {string} [config.color] - Socket color
+   * @param {string} [config.size] - Socket size
+   * @returns {Socket} The created input socket instance
+   * 
+   * @example
+   * ```javascript
+   * const inputSocket = node.addInputSocket('newInput', {
+   *   dataType: 'string',
+   *   label: 'Text Input'
+   * });
+   * ```
+   */
+  addInputSocket(id, config = {}) {
+    return this.addSocket({
+      id,
+      type: 'input',
+      ...config
+    });
+  }
+
+  /**
+   * Add a new output socket to the node dynamically.
+   * 
+   * @param {string} id - Unique identifier for the socket
+   * @param {Object} [config={}] - Additional socket configuration
+   * @param {string} [config.dataType='any'] - Data type this socket provides
+   * @param {string} [config.label] - Display label for the socket
+   * @param {number} [config.maxConnections] - Maximum number of connections allowed
+   * @param {string} [config.color] - Socket color
+   * @param {string} [config.size] - Socket size
+   * @returns {Socket} The created output socket instance
+   * 
+   * @example
+   * ```javascript
+   * const outputSocket = node.addOutputSocket('newOutput', {
+   *   dataType: 'number',
+   *   label: 'Result'
+   * });
+   * ```
+   */
+  addOutputSocket(id, config = {}) {
+    return this.addSocket({
+      id,
+      type: 'output',
+      ...config
+    });
+  }
+
+  /**
+   * Remove a socket from the node dynamically.
+   * 
+   * @param {string} socketId - The ID of the socket to remove
+   * @param {string} [type] - Socket type ('input' or 'output'). If not provided, will search both
+   * @returns {boolean} True if the socket was found and removed, false otherwise
+   * 
+   * @example
+   * ```javascript
+   * const removed = node.removeSocket('oldOutput');
+   * ```
+   */
+  removeSocket(socketId, type = null) {
+    let socket = null;
+    let socketType = null;
+    
+    // Find the socket
+    if (type === 'input' || type === null) {
+      socket = this.inputs.get(socketId);
+      if (socket) socketType = 'input';
+    }
+    
+    if (!socket && (type === 'output' || type === null)) {
+      socket = this.outputs.get(socketId);
+      if (socket) socketType = 'output';
+    }
+    
+    if (!socket) {
+      return false;
+    }
+    
+    // Remove all connections to this socket
+    const connections = Array.from(socket.connections);
+    connections.forEach(edge => {
+      this.flowGraph.removeEdge(edge.id);
+    });
+    
+    // Remove socket element from DOM
+    this.removeSocketElement(socket);
+    
+    // Remove from collection
+    if (socketType === 'input') {
+      this.inputs.delete(socketId);
+    } else {
+      this.outputs.delete(socketId);
+    }
+    
+    // Update node height
+    this.updateNodeHeight();
+    
+    // Dispatch event
+    this.flowGraph.container.dispatchEvent(
+      new CustomEvent('socket:remove', {
+        detail: { node: this, socketId, socketType }
+      })
+    );
+    
+    return true;
+  }
+
+  /**
+   * Create DOM element for a socket dynamically.
+   * 
+   * @param {Socket} socket - The socket instance
+   * @param {Object} [options={}] - Additional options
+   * @param {string} [options.color] - Socket color
+   * @param {string} [options.size] - Socket size
+   * @private
+   */
+  createSocketElement(socket, options = {}) {
+    const { color, size } = options;
+    
+    // Create flow-socket element
+    const flowSocket = document.createElement('flow-socket');
+    flowSocket.setAttribute('type', socket.type);
+    flowSocket.setAttribute('name', socket.id);
+    flowSocket.setAttribute('label', socket.label);
+    flowSocket.setAttribute('data-type', socket.dataType);
+    
+    if (socket.maxConnections !== undefined) {
+      flowSocket.setAttribute('max-connection', socket.maxConnections.toString());
+    }
+    
+    if (color) {
+      flowSocket.setAttribute('color', color);
+    }
+    
+    if (size) {
+      flowSocket.setAttribute('size', size);
+    }
+    
+    // Find the body element to insert the socket
+    const bodyElement = this.element.querySelector('.body');
+    if (!bodyElement) {
+      console.warn('Could not find .body element to insert socket');
+      return;
+    }
+    
+    // Insert the socket element in the correct position
+    // For inputs, insert before the control buttons
+    // For outputs, insert after the control buttons
+    const controlButtons = bodyElement.querySelector('.socket-control-btn')?.parentElement;
+    
+    if (socket.type === 'input') {
+      if (controlButtons) {
+        bodyElement.insertBefore(flowSocket, controlButtons);
+      } else {
+        bodyElement.appendChild(flowSocket);
+      }
+    } else {
+      // For outputs, insert at the end
+      bodyElement.appendChild(flowSocket);
+    }
+    
+    // Wait for the component to render, then link the socket
+    requestAnimationFrame(() => {
+      this.linkSingleSocketElement(socket, flowSocket);
+    });
+  }
+
+  /**
+   * Link a single socket element to its DOM representation.
+   * 
+   * @param {Socket} socket - The socket instance
+   * @param {HTMLElement} flowSocket - The flow-socket DOM element
+   * @private
+   */
+  linkSingleSocketElement(socket, flowSocket) {
+    // Parse max-connection attribute from HTML
+    const maxConnections = flowSocket.getAttribute('max-connection');
+    if (maxConnections !== null) {
+      const maxConn = parseInt(maxConnections, 10);
+      if (!isNaN(maxConn) && maxConn > 0) {
+        socket.maxConnections = maxConn;
+      }
+    }
+    
+    // Find the socket anchor element
+    let element = flowSocket.shadowRoot?.querySelector('flow-socket-anchor');
+    if (!element) {
+      element = flowSocket.querySelector('flow-socket-anchor');
+    }
+    
+    if (element) {
+      socket.element = element;
+      element._socket = socket;
+      socket.setupContextMenu();
+    } else {
+      console.warn(`Socket element not found for socket ${socket.id}`);
+    }
+  }
+
+  /**
+   * Remove socket element from DOM.
+   * 
+   * @param {Socket} socket - The socket instance
+   * @private
+   */
+  removeSocketElement(socket) {
+    const flowSocket = this.element.querySelector(`flow-socket[name="${socket.id}"]`);
+    if (flowSocket) {
+      flowSocket.remove();
+    }
+  }
+
+  /**
+   * Update node height based on the number of sockets.
+   * 
+   * @private
+   */
+  updateNodeHeight() {
+    const totalSockets = this.inputs.size + this.outputs.size;
+    const baseHeight = 100;
+    const socketHeight = 28; // Increased height per socket for better spacing
+    const minHeight = 80;
+    const maxHeight = 800; // Increased max height to allow more sockets
+    
+    const newHeight = Math.max(minHeight, Math.min(maxHeight, baseHeight + (totalSockets * socketHeight)));
+    
+    if (Math.abs(newHeight - this.height) > 5) { // Only update if significant change
+      this.height = newHeight;
+      if (this.element) {
+        this.element.style.height = `${this.height}px`;
+      }
+    }
+  }
   
   /**
    * Check if an element is interactive and should not trigger node dragging

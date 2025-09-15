@@ -473,6 +473,28 @@
           </node-body>
         </flow-node-def>
         
+        <!-- Dynamic Socket Node - Demonstrates runtime socket creation/removal -->
+        <flow-node-def name="dynamic.sockets" label="Dynamic Sockets" width="200" height="140" category="Dynamic" description="Add/remove sockets at runtime" icon="⚡" 
+                       color-bg="linear-gradient(90deg, rgba(16,185,129,0.15), transparent)" color-text="#10b981" onExecute="dynamicSocketExample">
+          <node-body>
+            <div class="title">⚡ Dynamic Sockets</div>
+            <div class="body">
+              <!-- Initial socket -->
+              <flow-socket type="input" name="input1" label="Input 1" data-type="any"></flow-socket>
+              
+              <!-- Control buttons -->
+              <div style="margin: 8px 0; display: flex; gap: 4px; flex-wrap: wrap;">
+                <button class="socket-control-btn" data-action="add-input" style="font-size: 10px; padding: 2px 6px; background: #10b981; color: white; border: none; border-radius: 3px; cursor: pointer;">+ Input</button>
+                <button class="socket-control-btn" data-action="add-output" style="font-size: 10px; padding: 2px 6px; background: #3b82f6; color: white; border: none; border-radius: 3px; cursor: pointer;">+ Output</button>
+                <button class="socket-control-btn" data-action="remove-last" style="font-size: 10px; padding: 2px 6px; background: #ef4444; color: white; border: none; border-radius: 3px; cursor: pointer;">- Last</button>
+              </div>
+              
+              <!-- Initial output -->
+              <flow-socket type="output" name="output1" label="Output 1" data-type="any" color="#10b981"></flow-socket>
+            </div>
+          </node-body>
+        </flow-node-def>
+        
         
       </flow-definitions>
       
@@ -496,6 +518,9 @@
         
         <!-- Custom styled node - demonstrating the new node customization system -->
         <flow-node type="custom.minimal" id="n14" x="500" y="550"></flow-node>
+        
+        <!-- Dynamic socket node - demonstrates runtime socket creation/removal -->
+        <flow-node type="dynamic.sockets" id="n15" x="700" y="550"></flow-node>
       </flow-nodes>
       
       <flow-edges>
@@ -717,6 +742,194 @@
       setupAutoExpand();
     }, 500);
     
+    // Setup socket control event handlers for dynamic socket nodes
+    function setupSocketControls() {
+      const socketControlBtns = document.querySelectorAll('.socket-control-btn');
+      
+      socketControlBtns.forEach((btn) => {
+        // Remove any existing listeners by cloning the button
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+        
+        newBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation(); // Prevent node dragging
+          
+          const action = newBtn.getAttribute('data-action');
+          
+          // Find the node element using multiple strategies
+          let nodeElement = newBtn.closest('.flow-node') || 
+                           newBtn.closest('[data-id]') ||
+                           findNodeByButton(newBtn);
+          
+          if (!nodeElement) return;
+          
+          // Find the node instance
+          const nodeId = nodeElement.id || nodeElement.getAttribute('data-id');
+          const node = flowGraphElement.flowGraph?.nodes.get(nodeId);
+          
+          if (!node) return;
+          
+          // Execute the action
+          switch (action) {
+            case 'add-input':
+              addDynamicSocket(node, 'input');
+              break;
+            case 'add-output':
+              addDynamicSocket(node, 'output');
+              break;
+            case 'remove-last':
+              removeLastDynamicSocket(node);
+              break;
+          }
+        });
+      });
+    }
+    
+    // Helper function to find node by button element
+    function findNodeByButton(button) {
+      let current = button.parentElement;
+      while (current) {
+        if (current.hasAttribute('data-id')) {
+          return current;
+        }
+        current = current.parentElement;
+      }
+      
+      // Fallback: search all nodes
+      const allNodes = document.querySelectorAll('[data-id]');
+      for (const node of allNodes) {
+        if (node.querySelector('.socket-control-btn') === button) {
+          return node;
+        }
+      }
+      return null;
+    }
+    
+    // Function to add a dynamic socket
+    function addDynamicSocket(node, type) {
+      try {
+        const socketCount = type === 'input' ? node.inputs.size : node.outputs.size;
+        const socketId = `${type}${socketCount + 1}`;
+        const label = `${type === 'input' ? 'Input' : 'Output'} ${socketCount + 1}`;
+        
+        const socket = node.addSocket({
+          id: socketId,
+          type: type,
+          dataType: 'any',
+          label: label,
+          color: type === 'input' ? '#10b981' : '#3b82f6'
+        });
+        
+        // Wait for DOM to update, then show visual feedback and re-setup controls
+        setTimeout(() => {
+          if (socket.element) {
+            socket.element.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+              socket.element.style.transform = 'scale(1)';
+            }, 200);
+          }
+          
+          // Re-setup socket controls to ensure they work with updated DOM
+          setupSocketControls();
+        }, 100);
+        
+      } catch (error) {
+        console.error(`Error adding ${type} socket:`, error);
+      }
+    }
+    
+    // Function to remove the last dynamic socket
+    function removeLastDynamicSocket(node) {
+      try {
+        // Find the last socket (highest numbered)
+        let lastSocketId = null;
+        let lastSocketType = null;
+        let maxNumber = 0;
+        
+        // Check input sockets
+        for (const [socketId] of node.inputs) {
+          const match = socketId.match(/^input(\d+)$/);
+          if (match) {
+            const number = parseInt(match[1]);
+            if (number > maxNumber) {
+              maxNumber = number;
+              lastSocketId = socketId;
+              lastSocketType = 'input';
+            }
+          }
+        }
+        
+        // Check output sockets
+        for (const [socketId] of node.outputs) {
+          const match = socketId.match(/^output(\d+)$/);
+          if (match) {
+            const number = parseInt(match[1]);
+            if (number > maxNumber) {
+              maxNumber = number;
+              lastSocketId = socketId;
+              lastSocketType = 'output';
+            }
+          }
+        }
+        
+        if (lastSocketId && lastSocketType) {
+          const removed = node.removeSocket(lastSocketId, lastSocketType);
+          if (removed) {
+            // Re-setup socket controls after removal
+            setTimeout(() => {
+              setupSocketControls();
+            }, 100);
+          }
+        }
+      } catch (error) {
+        console.error('Error removing socket:', error);
+      }
+    }
+    
+    // Setup socket controls when nodes are created
+    flowGraphElement.flowGraph.addEventListener('node:create', () => {
+      setTimeout(setupSocketControls, 200);
+    });
+    
+    // Use event delegation as a fallback
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('socket-control-btn')) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const action = e.target.getAttribute('data-action');
+        const nodeElement = e.target.closest('.flow-node') || 
+                           e.target.closest('[data-id]') ||
+                           findNodeByButton(e.target);
+        
+        if (!nodeElement) return;
+        
+        // Find the node instance
+        const nodeId = nodeElement.id || nodeElement.getAttribute('data-id');
+        const node = flowGraphElement.flowGraph?.nodes.get(nodeId);
+        
+        if (!node) return;
+        
+        // Execute the action
+        switch (action) {
+          case 'add-input':
+            addDynamicSocket(node, 'input');
+            break;
+          case 'add-output':
+            addDynamicSocket(node, 'output');
+            break;
+          case 'remove-last':
+            removeLastDynamicSocket(node);
+            break;
+        }
+      }
+    });
+    
+    // Initial setup
+    setTimeout(setupSocketControls, 500);
+    setTimeout(setupSocketControls, 1000);
+    
     
     // Async onExecuteMethod functions for all flow-node-def elements
     // Make functions globally accessible
@@ -920,6 +1133,30 @@
       context.setOutput(0, result);
       
       console.log('✅ Minimal processing complete:', result);
+    };
+    
+    // Dynamic Socket Node execution function
+    window.dynamicSocketExample = async function(context) {
+      console.log('⚡ Dynamic socket example:', context);
+      
+      // Get input values from all input sockets
+      const inputValues = [];
+      for (let i = 0; i < context.inputs.size; i++) {
+        inputValues.push(context.getInput(i));
+      }
+      
+      // Simulate processing
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Process all inputs and set all outputs
+      const result = `Processed ${inputValues.length} inputs`;
+      
+      // Set output values for all output sockets
+      for (let i = 0; i < context.outputs.size; i++) {
+        context.setOutput(i, `${result} - Output ${i + 1}`);
+      }
+      
+      console.log('✅ Dynamic socket processing complete:', result);
     };
     
     

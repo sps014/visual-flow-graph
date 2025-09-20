@@ -103,13 +103,19 @@ export class FlowGraphDrag {
       }
     }
     
-    // Update edges for all moved nodes
+    // Update edges for all moved nodes - collect all nodes and update in one call
     requestAnimationFrame(() => {
+      const nodesToUpdate = new Set();
       for (const nodeId of this.flowGraph.selection.getSelection()) {
         const node = this.flowGraph.nodes.get(nodeId);
         if (node) {
-          this.flowGraph.updateEdgesForNode(node);
+          nodesToUpdate.add(node);
         }
+      }
+      
+      // Update all edges for all moved nodes in a single call
+      if (nodesToUpdate.size > 0) {
+        this.flowGraph.throttledUpdates.edgeUpdate(nodesToUpdate);
       }
     });
   }

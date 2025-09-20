@@ -360,6 +360,7 @@ export class FlowGraph extends EventTarget {
     let lastCall = 0;
     let rafId = null;
     let pendingArgs = null;
+    let accumulatedNodes = null;
     
     return function(...args) {
       const now = performance.now();
@@ -380,12 +381,24 @@ export class FlowGraph extends EventTarget {
         cancelAnimationFrame(rafId);
       }
       
-      pendingArgs = args;
+      // For edge updates, accumulate nodes instead of overwriting
+      if (func === this.batchUpdateEdges && args.length > 0 && args[0] instanceof Set) {
+        if (!accumulatedNodes) {
+          accumulatedNodes = new Set();
+        }
+        // Merge the new nodes with accumulated ones
+        args[0].forEach(node => accumulatedNodes.add(node));
+        pendingArgs = [accumulatedNodes];
+      } else {
+        pendingArgs = args;
+      }
+      
       rafId = requestAnimationFrame((currentTime) => {
         lastCall = currentTime;
         func.apply(this, pendingArgs);
         rafId = null;
         pendingArgs = null;
+        accumulatedNodes = null;
       });
     };
   }

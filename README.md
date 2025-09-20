@@ -32,27 +32,67 @@ A modern, HTML-based visual scripting library for creating interactive node-base
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8">
+  <title>FlowGraph Quickstart</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    html, body {
+      height: 100%; 
+      margin: 0; 
+      font-family: 'Inter', 'Roboto', system-ui, sans-serif; 
+      color: #fff;
+      overflow: hidden;
+    }
+    
+    #app {
+      position: relative; 
+      height: 100vh; 
+      width: 100vw; 
+      overflow: hidden; 
+      display: flex;
+    }
+  </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sps014/visual-flow-graph@main/published/flowgraph.css">
   <script type="module" src="https://cdn.jsdelivr.net/gh/sps014/visual-flow-graph@main/published/flowgraph.es.js"></script>
 </head>
 <body>
-  <flow-graph theme="dark">
-    <flow-definitions>
-      <flow-node-def name="data.number" label="Number" width="160" height="100">
-        <node-body>
-          <div class="title">🔢 Number</div>
-          <div class="body">
-            <input type="number" data-key="num:value" value="0">
-            <flow-socket type="output" name="value" label="Value"></flow-socket>
-          </div>
-        </node-body>
-      </flow-node-def>
-    </flow-definitions>
+  <div id="app">
+    <flow-graph theme="dark">
+      <flow-definitions>
+        <flow-node-def name="data.number" label="Number" width="160" height="100" onExecute="loadData">
+          <node-body>
+            <div class="title">🔢 Number</div>
+            <div class="body">
+              <input type="number" class="input-box" data-key="num:value" value="0" placeholder="Enter value">
+              <flow-socket type="output" name="value" label="Value" data-type="number"></flow-socket>
+            </div>
+          </node-body>
+        </flow-node-def>
+      </flow-definitions>
+      
+      <flow-nodes>
+        <flow-node type="data.number" id="n1" x="100" y="100"></flow-node>
+      </flow-nodes>
+    </flow-graph>
+  </div>
+  
+  <script type="module">
+    // Wait for custom elements to be defined
+    await customElements.whenDefined('flow-graph');
     
-    <flow-nodes>
-      <flow-node type="data.number" id="n1" x="100" y="100"></flow-node>
-    </flow-nodes>
-  </flow-graph>
+    // Add execution handler for the number node
+    window.loadData = async function(context) {
+      console.log('🔢 Loading data for Number node:', context);
+      
+      // Use the new data binding system
+      const value = parseInt(context.getData('num')) || 0;
+      
+      console.log('Number value:', value);
+      
+      // Set output value (index 0 for first output socket)
+      context.setOutput(0, value);
+    };
+  </script>
 </body>
 </html>
 ```

@@ -6,7 +6,7 @@ var m = (l, t, e) => Lt(l, typeof t != "symbol" ? t + "" : t, e);
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const q = globalThis, st = q.ShadowRoot && (q.ShadyCSS === void 0 || q.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, ot = Symbol(), dt = /* @__PURE__ */ new WeakMap();
+const U = globalThis, st = U.ShadowRoot && (U.ShadyCSS === void 0 || U.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, ot = Symbol(), dt = /* @__PURE__ */ new WeakMap();
 let xt = class {
   constructor(t, e, s) {
     if (this._$cssResult$ = !0, s !== ot) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
@@ -35,7 +35,7 @@ const Dt = (l) => new xt(typeof l == "string" ? l : l + "", void 0, ot), S = (l,
 }, It = (l, t) => {
   if (st) l.adoptedStyleSheets = t.map((e) => e instanceof CSSStyleSheet ? e : e.styleSheet);
   else for (const e of t) {
-    const s = document.createElement("style"), o = q.litNonce;
+    const s = document.createElement("style"), o = U.litNonce;
     o !== void 0 && s.setAttribute("nonce", o), s.textContent = e.cssText, l.appendChild(s);
   }
 }, ut = st ? (l) => l : (l) => l instanceof CSSStyleSheet ? ((t) => {
@@ -48,7 +48,7 @@ const Dt = (l) => new xt(typeof l == "string" ? l : l + "", void 0, ot), S = (l,
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const { is: Rt, defineProperty: zt, getOwnPropertyDescriptor: Ot, getOwnPropertyNames: qt, getOwnPropertySymbols: Ut, getPrototypeOf: Ht } = Object, E = globalThis, pt = E.trustedTypes, Bt = pt ? pt.emptyScript : "", B = E.reactiveElementPolyfillSupport, P = (l, t) => l, K = { toAttribute(l, t) {
+const { is: Rt, defineProperty: zt, getOwnPropertyDescriptor: Ot, getOwnPropertyNames: Ut, getOwnPropertySymbols: qt, getPrototypeOf: Ht } = Object, E = globalThis, pt = E.trustedTypes, Bt = pt ? pt.emptyScript : "", B = E.reactiveElementPolyfillSupport, P = (l, t) => l, K = { toAttribute(l, t) {
   switch (t) {
     case Boolean:
       l = l ? Bt : null;
@@ -113,7 +113,7 @@ let G = class extends HTMLElement {
   static finalize() {
     if (this.hasOwnProperty(P("finalized"))) return;
     if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(P("properties"))) {
-      const e = this.properties, s = [...qt(e), ...Ut(e)];
+      const e = this.properties, s = [...Ut(e), ...qt(e)];
       for (const o of s) this.createProperty(o, e[o]);
     }
     const t = this[Symbol.metadata];
@@ -287,7 +287,7 @@ G.elementStyles = [], G.shadowRootOptions = { mode: "open" }, G[P("elementProper
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const _ = globalThis, U = _.trustedTypes, mt = U ? U.createPolicy("lit-html", { createHTML: (l) => l }) : void 0, kt = "$lit$", x = `lit$${Math.random().toFixed(9).slice(2)}$`, Ct = "?" + x, Ft = `<${Ct}>`, A = document, L = () => A.createComment(""), D = (l) => l === null || typeof l != "object" && typeof l != "function", it = Array.isArray, Yt = (l) => it(l) || typeof (l == null ? void 0 : l[Symbol.iterator]) == "function", F = `[ 	
+const _ = globalThis, q = _.trustedTypes, mt = q ? q.createPolicy("lit-html", { createHTML: (l) => l }) : void 0, kt = "$lit$", x = `lit$${Math.random().toFixed(9).slice(2)}$`, Ct = "?" + x, Ft = `<${Ct}>`, A = document, L = () => A.createComment(""), D = (l) => l === null || typeof l != "object" && typeof l != "function", it = Array.isArray, Yt = (l) => it(l) || typeof (l == null ? void 0 : l[Symbol.iterator]) == "function", F = `[ 	
 \f\r]`, M = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, gt = /-->/g, wt = />/g, k = RegExp(`>|${F}(?:([^\\s"'>=/]+)(${F}*=${F}*(?:[^ 	
 \f\r"'\`<>=]|("|')|))|$)`, "g"), yt = /'/g, vt = /"/g, $t = /^(?:script|style|textarea|title)$/i, Xt = (l) => (t, ...e) => ({ _$litType$: l, strings: t, values: e }), w = Xt(1), N = Symbol.for("lit-noChange"), g = Symbol.for("lit-nothing"), St = /* @__PURE__ */ new WeakMap(), C = A.createTreeWalker(A, 129);
 function At(l, t) {
@@ -325,7 +325,7 @@ class I {
         if ($t.test(o.tagName)) {
           const d = o.textContent.split(x), p = d.length - 1;
           if (p > 0) {
-            o.textContent = U ? U.emptyScript : "";
+            o.textContent = q ? q.emptyScript : "";
             for (let f = 0; f < p; f++) o.append(d[f], L()), C.nextNode(), r.push({ type: 2, index: ++i });
             o.append(d[p], L());
           }
@@ -2874,10 +2874,12 @@ class le {
       }
     }
     requestAnimationFrame(() => {
-      for (const n of this.flowGraph.selection.getSelection()) {
-        const a = this.flowGraph.nodes.get(n);
-        a && this.flowGraph.updateEdgesForNode(a);
+      const n = /* @__PURE__ */ new Set();
+      for (const a of this.flowGraph.selection.getSelection()) {
+        const r = this.flowGraph.nodes.get(a);
+        r && n.add(r);
       }
+      n.size > 0 && this.flowGraph.throttledUpdates.edgeUpdate(n);
     });
   }
   /**
@@ -3154,15 +3156,15 @@ class he extends EventTarget {
    * @private
    */
   createAdaptiveThrottledFunction(t) {
-    let e = 0, s = null, o = null;
-    return function(...i) {
-      const n = performance.now(), a = n - e, r = 1e3 / this.displayRefreshRate;
-      if (a >= r) {
-        e = n, t.apply(this, i);
+    let e = 0, s = null, o = null, i = null;
+    return function(...n) {
+      const a = performance.now(), r = a - e, c = 1e3 / this.displayRefreshRate;
+      if (r >= c) {
+        e = a, t.apply(this, n);
         return;
       }
-      s && cancelAnimationFrame(s), o = i, s = requestAnimationFrame((c) => {
-        e = c, t.apply(this, o), s = null, o = null;
+      s && cancelAnimationFrame(s), t === this.batchUpdateEdges && n.length > 0 && n[0] instanceof Set ? (i || (i = /* @__PURE__ */ new Set()), n[0].forEach((h) => i.add(h)), o = [i]) : o = n, s = requestAnimationFrame((h) => {
+        e = h, t.apply(this, o), s = null, o = null, i = null;
       });
     };
   }

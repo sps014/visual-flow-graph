@@ -6,18 +6,18 @@ var m = (l, t, e) => Lt(l, typeof t != "symbol" ? t + "" : t, e);
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const U = globalThis, et = U.ShadowRoot && (U.ShadyCSS === void 0 || U.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, st = Symbol(), ht = /* @__PURE__ */ new WeakMap();
+const q = globalThis, st = q.ShadowRoot && (q.ShadyCSS === void 0 || q.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, ot = Symbol(), dt = /* @__PURE__ */ new WeakMap();
 let xt = class {
   constructor(t, e, s) {
-    if (this._$cssResult$ = !0, s !== st) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
+    if (this._$cssResult$ = !0, s !== ot) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
     this.cssText = t, this.t = e;
   }
   get styleSheet() {
     let t = this.o;
     const e = this.t;
-    if (et && t === void 0) {
+    if (st && t === void 0) {
       const s = e !== void 0 && e.length === 1;
-      s && (t = ht.get(e)), t === void 0 && ((this.o = t = new CSSStyleSheet()).replaceSync(this.cssText), s && ht.set(e, t));
+      s && (t = dt.get(e)), t === void 0 && ((this.o = t = new CSSStyleSheet()).replaceSync(this.cssText), s && dt.set(e, t));
     }
     return t;
   }
@@ -25,20 +25,20 @@ let xt = class {
     return this.cssText;
   }
 };
-const Dt = (l) => new xt(typeof l == "string" ? l : l + "", void 0, st), S = (l, ...t) => {
+const Dt = (l) => new xt(typeof l == "string" ? l : l + "", void 0, ot), S = (l, ...t) => {
   const e = l.length === 1 ? l[0] : t.reduce((s, o, i) => s + ((n) => {
     if (n._$cssResult$ === !0) return n.cssText;
     if (typeof n == "number") return n;
     throw Error("Value passed to 'css' function must be a 'css' function result: " + n + ". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.");
   })(o) + l[i + 1], l[0]);
-  return new xt(e, l, st);
+  return new xt(e, l, ot);
 }, It = (l, t) => {
-  if (et) l.adoptedStyleSheets = t.map((e) => e instanceof CSSStyleSheet ? e : e.styleSheet);
+  if (st) l.adoptedStyleSheets = t.map((e) => e instanceof CSSStyleSheet ? e : e.styleSheet);
   else for (const e of t) {
-    const s = document.createElement("style"), o = U.litNonce;
+    const s = document.createElement("style"), o = q.litNonce;
     o !== void 0 && s.setAttribute("nonce", o), s.textContent = e.cssText, l.appendChild(s);
   }
-}, dt = et ? (l) => l : (l) => l instanceof CSSStyleSheet ? ((t) => {
+}, ut = st ? (l) => l : (l) => l instanceof CSSStyleSheet ? ((t) => {
   let e = "";
   for (const s of t.cssRules) e += s.cssText;
   return Dt(e);
@@ -48,7 +48,7 @@ const Dt = (l) => new xt(typeof l == "string" ? l : l + "", void 0, st), S = (l,
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const { is: Rt, defineProperty: zt, getOwnPropertyDescriptor: Ot, getOwnPropertyNames: Ut, getOwnPropertySymbols: qt, getPrototypeOf: Ht } = Object, E = globalThis, ut = E.trustedTypes, Bt = ut ? ut.emptyScript : "", B = E.reactiveElementPolyfillSupport, P = (l, t) => l, V = { toAttribute(l, t) {
+const { is: Rt, defineProperty: zt, getOwnPropertyDescriptor: Ot, getOwnPropertyNames: qt, getOwnPropertySymbols: Ut, getPrototypeOf: Ht } = Object, E = globalThis, pt = E.trustedTypes, Bt = pt ? pt.emptyScript : "", B = E.reactiveElementPolyfillSupport, P = (l, t) => l, K = { toAttribute(l, t) {
   switch (t) {
     case Boolean:
       l = l ? Bt : null;
@@ -76,7 +76,7 @@ const { is: Rt, defineProperty: zt, getOwnPropertyDescriptor: Ot, getOwnProperty
       }
   }
   return e;
-} }, Et = (l, t) => !Rt(l, t), pt = { attribute: !0, type: String, converter: V, reflect: !1, useDefault: !1, hasChanged: Et };
+} }, Et = (l, t) => !Rt(l, t), ft = { attribute: !0, type: String, converter: K, reflect: !1, useDefault: !1, hasChanged: Et };
 Symbol.metadata ?? (Symbol.metadata = Symbol("metadata")), E.litPropertyMetadata ?? (E.litPropertyMetadata = /* @__PURE__ */ new WeakMap());
 let G = class extends HTMLElement {
   static addInitializer(t) {
@@ -85,7 +85,7 @@ let G = class extends HTMLElement {
   static get observedAttributes() {
     return this.finalize(), this._$Eh && [...this._$Eh.keys()];
   }
-  static createProperty(t, e = pt) {
+  static createProperty(t, e = ft) {
     if (e.state && (e.attribute = !1), this._$Ei(), this.prototype.hasOwnProperty(t) && ((e = Object.create(e)).wrapped = !0), this.elementProperties.set(t, e), !e.noAccessor) {
       const s = Symbol(), o = this.getPropertyDescriptor(t, s, e);
       o !== void 0 && zt(this.prototype, t, o);
@@ -103,7 +103,7 @@ let G = class extends HTMLElement {
     }, configurable: !0, enumerable: !0 };
   }
   static getPropertyOptions(t) {
-    return this.elementProperties.get(t) ?? pt;
+    return this.elementProperties.get(t) ?? ft;
   }
   static _$Ei() {
     if (this.hasOwnProperty(P("elementProperties"))) return;
@@ -113,7 +113,7 @@ let G = class extends HTMLElement {
   static finalize() {
     if (this.hasOwnProperty(P("finalized"))) return;
     if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(P("properties"))) {
-      const e = this.properties, s = [...Ut(e), ...qt(e)];
+      const e = this.properties, s = [...qt(e), ...Ut(e)];
       for (const o of s) this.createProperty(o, e[o]);
     }
     const t = this[Symbol.metadata];
@@ -132,8 +132,8 @@ let G = class extends HTMLElement {
     const e = [];
     if (Array.isArray(t)) {
       const s = new Set(t.flat(1 / 0).reverse());
-      for (const o of s) e.unshift(dt(o));
-    } else t !== void 0 && e.push(dt(t));
+      for (const o of s) e.unshift(ut(o));
+    } else t !== void 0 && e.push(ut(t));
     return e;
   }
   static _$Eu(t, e) {
@@ -187,7 +187,7 @@ let G = class extends HTMLElement {
     var i;
     const s = this.constructor.elementProperties.get(t), o = this.constructor._$Eu(t, s);
     if (o !== void 0 && s.reflect === !0) {
-      const n = (((i = s.converter) == null ? void 0 : i.toAttribute) !== void 0 ? s.converter : V).toAttribute(e, s.type);
+      const n = (((i = s.converter) == null ? void 0 : i.toAttribute) !== void 0 ? s.converter : K).toAttribute(e, s.type);
       this._$Em = t, n == null ? this.removeAttribute(o) : this.setAttribute(o, n), this._$Em = null;
     }
   }
@@ -195,7 +195,7 @@ let G = class extends HTMLElement {
     var i, n;
     const s = this.constructor, o = s._$Eh.get(t);
     if (o !== void 0 && this._$Em !== o) {
-      const a = s.getPropertyOptions(o), r = typeof a.converter == "function" ? { fromAttribute: a.converter } : ((i = a.converter) == null ? void 0 : i.fromAttribute) !== void 0 ? a.converter : V;
+      const a = s.getPropertyOptions(o), r = typeof a.converter == "function" ? { fromAttribute: a.converter } : ((i = a.converter) == null ? void 0 : i.fromAttribute) !== void 0 ? a.converter : K;
       this._$Em = o;
       const c = r.fromAttribute(e, a.type);
       this[o] = c ?? ((n = this._$Ej) == null ? void 0 : n.get(o)) ?? c, this._$Em = null;
@@ -287,12 +287,12 @@ G.elementStyles = [], G.shadowRootOptions = { mode: "open" }, G[P("elementProper
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const _ = globalThis, q = _.trustedTypes, ft = q ? q.createPolicy("lit-html", { createHTML: (l) => l }) : void 0, kt = "$lit$", x = `lit$${Math.random().toFixed(9).slice(2)}$`, Ct = "?" + x, Ft = `<${Ct}>`, A = document, L = () => A.createComment(""), D = (l) => l === null || typeof l != "object" && typeof l != "function", ot = Array.isArray, Yt = (l) => ot(l) || typeof (l == null ? void 0 : l[Symbol.iterator]) == "function", F = `[ 	
-\f\r]`, M = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, mt = /-->/g, gt = />/g, k = RegExp(`>|${F}(?:([^\\s"'>=/]+)(${F}*=${F}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`, "g"), wt = /'/g, yt = /"/g, $t = /^(?:script|style|textarea|title)$/i, Xt = (l) => (t, ...e) => ({ _$litType$: l, strings: t, values: e }), w = Xt(1), N = Symbol.for("lit-noChange"), g = Symbol.for("lit-nothing"), vt = /* @__PURE__ */ new WeakMap(), C = A.createTreeWalker(A, 129);
+const _ = globalThis, U = _.trustedTypes, mt = U ? U.createPolicy("lit-html", { createHTML: (l) => l }) : void 0, kt = "$lit$", x = `lit$${Math.random().toFixed(9).slice(2)}$`, Ct = "?" + x, Ft = `<${Ct}>`, A = document, L = () => A.createComment(""), D = (l) => l === null || typeof l != "object" && typeof l != "function", it = Array.isArray, Yt = (l) => it(l) || typeof (l == null ? void 0 : l[Symbol.iterator]) == "function", F = `[ 	
+\f\r]`, M = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, gt = /-->/g, wt = />/g, k = RegExp(`>|${F}(?:([^\\s"'>=/]+)(${F}*=${F}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`, "g"), yt = /'/g, vt = /"/g, $t = /^(?:script|style|textarea|title)$/i, Xt = (l) => (t, ...e) => ({ _$litType$: l, strings: t, values: e }), w = Xt(1), N = Symbol.for("lit-noChange"), g = Symbol.for("lit-nothing"), St = /* @__PURE__ */ new WeakMap(), C = A.createTreeWalker(A, 129);
 function At(l, t) {
-  if (!ot(l) || !l.hasOwnProperty("raw")) throw Error("invalid template strings array");
-  return ft !== void 0 ? ft.createHTML(t) : t;
+  if (!it(l) || !l.hasOwnProperty("raw")) throw Error("invalid template strings array");
+  return mt !== void 0 ? mt.createHTML(t) : t;
 }
 const Vt = (l, t) => {
   const e = l.length - 1, s = [];
@@ -300,7 +300,7 @@ const Vt = (l, t) => {
   for (let a = 0; a < e; a++) {
     const r = l[a];
     let c, h, d = -1, p = 0;
-    for (; p < r.length && (n.lastIndex = p, h = n.exec(r), h !== null); ) p = n.lastIndex, n === M ? h[1] === "!--" ? n = mt : h[1] !== void 0 ? n = gt : h[2] !== void 0 ? ($t.test(h[2]) && (o = RegExp("</" + h[2], "g")), n = k) : h[3] !== void 0 && (n = k) : n === k ? h[0] === ">" ? (n = o ?? M, d = -1) : h[1] === void 0 ? d = -2 : (d = n.lastIndex - h[2].length, c = h[1], n = h[3] === void 0 ? k : h[3] === '"' ? yt : wt) : n === yt || n === wt ? n = k : n === mt || n === gt ? n = M : (n = k, o = void 0);
+    for (; p < r.length && (n.lastIndex = p, h = n.exec(r), h !== null); ) p = n.lastIndex, n === M ? h[1] === "!--" ? n = gt : h[1] !== void 0 ? n = wt : h[2] !== void 0 ? ($t.test(h[2]) && (o = RegExp("</" + h[2], "g")), n = k) : h[3] !== void 0 && (n = k) : n === k ? h[0] === ">" ? (n = o ?? M, d = -1) : h[1] === void 0 ? d = -2 : (d = n.lastIndex - h[2].length, c = h[1], n = h[3] === void 0 ? k : h[3] === '"' ? vt : yt) : n === vt || n === yt ? n = k : n === gt || n === wt ? n = M : (n = k, o = void 0);
     const f = n === k && l[a + 1].startsWith("/>") ? " " : "";
     i += n === M ? r + Ft : d >= 0 ? (s.push(c), r.slice(0, d) + kt + r.slice(d) + x + f) : r + x + (d === -2 ? a : f);
   }
@@ -325,7 +325,7 @@ class I {
         if ($t.test(o.tagName)) {
           const d = o.textContent.split(x), p = d.length - 1;
           if (p > 0) {
-            o.textContent = q ? q.emptyScript : "";
+            o.textContent = U ? U.emptyScript : "";
             for (let f = 0; f < p; f++) o.append(d[f], L()), C.nextNode(), r.push({ type: 2, index: ++i });
             o.append(d[p], L());
           }
@@ -419,11 +419,11 @@ class R {
     }
   }
   _$AC(t) {
-    let e = vt.get(t.strings);
-    return e === void 0 && vt.set(t.strings, e = new I(t)), e;
+    let e = St.get(t.strings);
+    return e === void 0 && St.set(t.strings, e = new I(t)), e;
   }
   k(t) {
-    ot(this._$AH) || (this._$AH = [], this._$AR());
+    it(this._$AH) || (this._$AH = [], this._$AR());
     const e = this._$AH;
     let s, o = 0;
     for (const i of t) o === e.length ? e.push(s = new R(this.O(L()), this.O(L()), this, this.options)) : s = e[o], s._$AI(i), o++;
@@ -554,7 +554,7 @@ y._$litElement$ = !0, y.finalized = !0, (bt = $.litElementHydrateSupport) == nul
 const X = $.litElementPolyfillSupport;
 X == null || X({ LitElement: y });
 ($.litElementVersions ?? ($.litElementVersions = [])).push("4.2.1");
-class St {
+class V {
   /**
    * Creates a new Socket instance.
    * 
@@ -879,7 +879,7 @@ class te {
    */
   createSockets() {
     this.template && (this.template.inputs.forEach((t) => {
-      const e = new St(this, {
+      const e = new V(this, {
         id: t.id,
         type: "input",
         dataType: t.type,
@@ -887,7 +887,7 @@ class te {
       });
       this.inputs.set(t.id, e);
     }), this.template.outputs.forEach((t) => {
-      const e = new St(this, {
+      const e = new V(this, {
         id: t.id,
         type: "output",
         dataType: t.type,
@@ -926,6 +926,188 @@ class te {
       } else
         console.warn(`Flow-socket not found for socket ${t.id}`);
     });
+  }
+  /**
+   * Add a new socket to the node dynamically.
+   * 
+   * @param {Object} socketConfig - Configuration for the new socket
+   * @param {string} socketConfig.id - Unique identifier for the socket
+   * @param {string} socketConfig.type - Socket type: 'input' or 'output'
+   * @param {string} [socketConfig.dataType='any'] - Data type this socket accepts/provides
+   * @param {string} [socketConfig.label] - Display label for the socket
+   * @param {number} [socketConfig.maxConnections] - Maximum number of connections allowed
+   * @param {string} [socketConfig.color] - Socket color
+   * @param {string} [socketConfig.size] - Socket size
+   * @returns {Socket} The created socket instance
+   * @throws {Error} If socket ID already exists
+   * 
+   * @example
+   * ```javascript
+   * const newSocket = node.addSocket({
+   *   id: 'newOutput',
+   *   type: 'output',
+   *   dataType: 'number',
+   *   label: 'New Output'
+   * });
+   * ```
+   */
+  addSocket(t) {
+    const { id: e, type: s, dataType: o = "any", label: i, maxConnections: n, color: a, size: r } = t;
+    if (this.inputs.has(e) || this.outputs.has(e))
+      throw new Error(`Socket with ID '${e}' already exists`);
+    const c = new V(this, {
+      id: e,
+      type: s,
+      dataType: o,
+      label: i || e,
+      maxConnections: n
+    });
+    if (s === "input")
+      this.inputs.set(e, c);
+    else if (s === "output")
+      this.outputs.set(e, c);
+    else
+      throw new Error(`Invalid socket type: ${s}. Must be 'input' or 'output'`);
+    return this.createSocketElement(c, { color: a, size: r }), this.updateNodeHeight(), this.flowGraph.container.dispatchEvent(
+      new CustomEvent("socket:add", {
+        detail: { node: this, socket: c }
+      })
+    ), c;
+  }
+  /**
+   * Add a new input socket to the node dynamically.
+   * 
+   * @param {string} id - Unique identifier for the socket
+   * @param {Object} [config={}] - Additional socket configuration
+   * @param {string} [config.dataType='any'] - Data type this socket accepts
+   * @param {string} [config.label] - Display label for the socket
+   * @param {number} [config.maxConnections] - Maximum number of connections allowed
+   * @param {string} [config.color] - Socket color
+   * @param {string} [config.size] - Socket size
+   * @returns {Socket} The created input socket instance
+   * 
+   * @example
+   * ```javascript
+   * const inputSocket = node.addInputSocket('newInput', {
+   *   dataType: 'string',
+   *   label: 'Text Input'
+   * });
+   * ```
+   */
+  addInputSocket(t, e = {}) {
+    return this.addSocket({
+      id: t,
+      type: "input",
+      ...e
+    });
+  }
+  /**
+   * Add a new output socket to the node dynamically.
+   * 
+   * @param {string} id - Unique identifier for the socket
+   * @param {Object} [config={}] - Additional socket configuration
+   * @param {string} [config.dataType='any'] - Data type this socket provides
+   * @param {string} [config.label] - Display label for the socket
+   * @param {number} [config.maxConnections] - Maximum number of connections allowed
+   * @param {string} [config.color] - Socket color
+   * @param {string} [config.size] - Socket size
+   * @returns {Socket} The created output socket instance
+   * 
+   * @example
+   * ```javascript
+   * const outputSocket = node.addOutputSocket('newOutput', {
+   *   dataType: 'number',
+   *   label: 'Result'
+   * });
+   * ```
+   */
+  addOutputSocket(t, e = {}) {
+    return this.addSocket({
+      id: t,
+      type: "output",
+      ...e
+    });
+  }
+  /**
+   * Remove a socket from the node dynamically.
+   * 
+   * @param {string} socketId - The ID of the socket to remove
+   * @param {string} [type] - Socket type ('input' or 'output'). If not provided, will search both
+   * @returns {boolean} True if the socket was found and removed, false otherwise
+   * 
+   * @example
+   * ```javascript
+   * const removed = node.removeSocket('oldOutput');
+   * ```
+   */
+  removeSocket(t, e = null) {
+    let s = null, o = null;
+    return (e === "input" || e === null) && (s = this.inputs.get(t), s && (o = "input")), !s && (e === "output" || e === null) && (s = this.outputs.get(t), s && (o = "output")), s ? (Array.from(s.connections).forEach((n) => {
+      this.flowGraph.removeEdge(n.id);
+    }), this.removeSocketElement(s), o === "input" ? this.inputs.delete(t) : this.outputs.delete(t), this.updateNodeHeight(), this.flowGraph.container.dispatchEvent(
+      new CustomEvent("socket:remove", {
+        detail: { node: this, socketId: t, socketType: o }
+      })
+    ), !0) : !1;
+  }
+  /**
+   * Create DOM element for a socket dynamically.
+   * 
+   * @param {Socket} socket - The socket instance
+   * @param {Object} [options={}] - Additional options
+   * @param {string} [options.color] - Socket color
+   * @param {string} [options.size] - Socket size
+   * @private
+   */
+  createSocketElement(t, e = {}) {
+    var r;
+    const { color: s, size: o } = e, i = document.createElement("flow-socket");
+    i.setAttribute("type", t.type), i.setAttribute("name", t.id), i.setAttribute("label", t.label), i.setAttribute("data-type", t.dataType), t.maxConnections !== void 0 && i.setAttribute("max-connection", t.maxConnections.toString()), s && i.setAttribute("color", s), o && i.setAttribute("size", o);
+    const n = this.element.querySelector(".body");
+    if (!n) {
+      console.warn("Could not find .body element to insert socket");
+      return;
+    }
+    const a = (r = n.querySelector(".socket-control-btn")) == null ? void 0 : r.parentElement;
+    t.type === "input" && a ? n.insertBefore(i, a) : n.appendChild(i), requestAnimationFrame(() => {
+      this.linkSingleSocketElement(t, i);
+    });
+  }
+  /**
+   * Link a single socket element to its DOM representation.
+   * 
+   * @param {Socket} socket - The socket instance
+   * @param {HTMLElement} flowSocket - The flow-socket DOM element
+   * @private
+   */
+  linkSingleSocketElement(t, e) {
+    var i;
+    const s = e.getAttribute("max-connection");
+    if (s !== null) {
+      const n = parseInt(s, 10);
+      !isNaN(n) && n > 0 && (t.maxConnections = n);
+    }
+    let o = (i = e.shadowRoot) == null ? void 0 : i.querySelector("flow-socket-anchor");
+    o || (o = e.querySelector("flow-socket-anchor")), o ? (t.element = o, o._socket = t, t.setupContextMenu()) : console.warn(`Socket element not found for socket ${t.id}`);
+  }
+  /**
+   * Remove socket element from DOM.
+   * 
+   * @param {Socket} socket - The socket instance
+   * @private
+   */
+  removeSocketElement(t) {
+    const e = this.element.querySelector(`flow-socket[name="${t.id}"]`);
+    e && e.remove();
+  }
+  /**
+   * Update node height based on the number of sockets.
+   * 
+   * @private
+   */
+  updateNodeHeight() {
+    const t = this.inputs.size + this.outputs.size, n = Math.max(80, Math.min(800, 100 + t * 28));
+    Math.abs(n - this.height) > 5 && (this.height = n, this.element && (this.element.style.height = `${this.height}px`));
   }
   /**
    * Check if an element is interactive and should not trigger node dragging
@@ -3614,7 +3796,7 @@ class he extends EventTarget {
     this.resizeObserver && (this.resizeObserver.disconnect(), this.resizeObserver = null), this.domBatcher.destroy(), this.domCache.clear(), this.nodeEdgeIndex.clear(), this.functionPool.clear(), this.connections.destroy(), this.animationBatcher.rafId && cancelAnimationFrame(this.animationBatcher.rafId), this.edgeUpdateRafId && cancelAnimationFrame(this.edgeUpdateRafId), this.clear(), this.surface.remove();
   }
 }
-class K extends y {
+class j extends y {
   constructor() {
     super(), this.visible = !1, this.x = 0, this.y = 0, this.nodeDefinitions = [], this.onNodeAdd = null, this.searchTerm = "", this.minWidth = 200, this.maxWidth = 300;
   }
@@ -3720,7 +3902,7 @@ class K extends y {
  * @static
  * @type {Object}
  */
-m(K, "properties", {
+m(j, "properties", {
   /** @type {Boolean} Whether the context menu is visible */
   visible: { type: Boolean },
   /** @type {Number} X position of the context menu */
@@ -3737,7 +3919,7 @@ m(K, "properties", {
   minWidth: { type: Number },
   /** @type {Number} Maximum width of the context menu */
   maxWidth: { type: Number }
-}), m(K, "styles", S`
+}), m(j, "styles", S`
     :host {
       position: fixed;
       z-index: 10000;
@@ -3908,8 +4090,8 @@ m(K, "properties", {
       background: var(--fg-accent, #7c3aed);
     }
   `);
-customElements.define("flow-context-menu", K);
-class j extends y {
+customElements.define("flow-context-menu", j);
+class W extends y {
   /**
    * Creates a new FlowGraphElement instance.
    * Initializes default property values and sets up the component.
@@ -3928,6 +4110,8 @@ class j extends y {
       this.dispatchEvent(new CustomEvent("node:create", { detail: t.detail }));
     }), this.flowGraph.addEventListener("edge:create", (t) => {
       this.dispatchEvent(new CustomEvent("edge:create", { detail: t.detail }));
+    }), this.flowGraph.addEventListener("edge:connection:failed", (t) => {
+      this.dispatchEvent(new CustomEvent("edge:connection:failed", { detail: t.detail }));
     }), this.addEventListener(
       "contextmenu",
       this.handleViewportRightClick.bind(this)
@@ -3950,17 +4134,17 @@ class j extends y {
     t.querySelectorAll("flow-node-def").forEach((s) => {
       const o = s.getAttribute("name"), i = s.getAttribute("label") || o, n = parseInt(s.getAttribute("width")) || 160, a = parseInt(s.getAttribute("height")) || 100, r = s.getAttribute("category") || "General", c = s.getAttribute("description") || "", h = s.getAttribute("icon") || "", d = s.getAttribute("onExecute"), p = s.getAttribute("custom-class"), f = {}, u = s.getAttribute("color-bg"), v = s.getAttribute("color-text");
       u && (f.background = u), v && (f.color = v);
-      const b = s.querySelector("node-body"), z = s.querySelectorAll("flow-socket"), it = [], nt = [];
+      const b = s.querySelector("node-body"), z = s.querySelectorAll("flow-socket"), nt = [], rt = [];
       Array.from(z).forEach((O) => {
-        const rt = O.getAttribute("name"), at = O.getAttribute("type"), lt = O.getAttribute("label"), ct = O.getAttribute("data-type") || "any";
-        at === "input" ? it.push({
-          id: rt,
-          label: lt,
-          type: ct
-        }) : at === "output" && nt.push({
-          id: rt,
-          label: lt,
-          type: ct
+        const at = O.getAttribute("name"), lt = O.getAttribute("type"), ct = O.getAttribute("label"), ht = O.getAttribute("data-type") || "any";
+        lt === "input" ? nt.push({
+          id: at,
+          label: ct,
+          type: ht
+        }) : lt === "output" && rt.push({
+          id: at,
+          label: ct,
+          type: ht
         });
       });
       const Pt = {
@@ -3975,8 +4159,8 @@ class j extends y {
         customClass: p,
         colorPatch: Object.keys(f).length > 0 ? f : null,
         html: b ? b.innerHTML : null,
-        inputs: it,
-        outputs: nt
+        inputs: nt,
+        outputs: rt
       };
       this.flowGraph.addNodeTemplate(o, Pt);
     });
@@ -4167,7 +4351,7 @@ class j extends y {
  * @static
  * @type {Object}
  */
-m(j, "properties", {
+m(W, "properties", {
   /** @type {String} Visual theme for the flow graph */
   theme: { type: String },
   /** @type {Boolean} Whether to snap nodes to a grid */
@@ -4187,7 +4371,7 @@ m(j, "properties", {
  * @static
  * @type {CSSResult}
  */
-m(j, "styles", S`
+m(W, "styles", S`
     :host {
       background-color: #f8f9fa;
       background-image: 
@@ -4205,44 +4389,7 @@ m(j, "styles", S`
         /* Minor grid */ 0 0; /* Minor grid */
     }
   `);
-customElements.define("flow-graph", j);
-class W extends y {
-  /**
-   * Renders the component template.
-   * This component acts as a simple slot container.
-   * 
-   * @returns {TemplateResult} The rendered template
-   * @override
-   */
-  render() {
-    return w`<slot></slot>`;
-  }
-}
-/**
- * Lit properties configuration for the component.
- * @static
- * @type {Object}
- */
-m(W, "properties", {
-  /** @type {String} The name/type identifier for this node definition */
-  name: { type: String },
-  /** @type {String} Display label for the node */
-  label: { type: String },
-  /** @type {Number} Default width of nodes created from this definition */
-  width: { type: Number },
-  /** @type {Number} Default height of nodes created from this definition */
-  height: { type: Number }
-}), /**
- * CSS styles for the component.
- * @static
- * @type {CSSResult}
- */
-m(W, "styles", S`
-    :host {
-      display: none !important;
-    }
-  `);
-customElements.define("flow-node-def", W);
+customElements.define("flow-graph", W);
 class Z extends y {
   /**
    * Renders the component template.
@@ -4261,6 +4408,43 @@ class Z extends y {
  * @type {Object}
  */
 m(Z, "properties", {
+  /** @type {String} The name/type identifier for this node definition */
+  name: { type: String },
+  /** @type {String} Display label for the node */
+  label: { type: String },
+  /** @type {Number} Default width of nodes created from this definition */
+  width: { type: Number },
+  /** @type {Number} Default height of nodes created from this definition */
+  height: { type: Number }
+}), /**
+ * CSS styles for the component.
+ * @static
+ * @type {CSSResult}
+ */
+m(Z, "styles", S`
+    :host {
+      display: none !important;
+    }
+  `);
+customElements.define("flow-node-def", Z);
+class J extends y {
+  /**
+   * Renders the component template.
+   * This component acts as a simple slot container.
+   * 
+   * @returns {TemplateResult} The rendered template
+   * @override
+   */
+  render() {
+    return w`<slot></slot>`;
+  }
+}
+/**
+ * Lit properties configuration for the component.
+ * @static
+ * @type {Object}
+ */
+m(J, "properties", {
   /** @type {String} The type identifier for this node */
   type: { type: String },
   /** @type {String} Unique identifier for this node */
@@ -4276,13 +4460,13 @@ m(Z, "properties", {
  * @static
  * @type {CSSResult}
  */
-m(Z, "styles", S`
+m(J, "styles", S`
     :host {
       display: none !important;
     }
   `);
-customElements.define("flow-node", Z);
-class J extends y {
+customElements.define("flow-node", J);
+class Q extends y {
   constructor() {
     super(), this.type = "output", this.name = "", this.label = "", this.color = "", this.size = "", this.customClass = "", this.dataType = "any";
   }
@@ -4579,7 +4763,7 @@ class J extends y {
  * @static
  * @type {Object}
  */
-m(J, "properties", {
+m(Q, "properties", {
   /** @type {String} Socket type: 'input' or 'output' */
   type: { type: String },
   /** @type {String} Socket name/identifier */
@@ -4599,7 +4783,7 @@ m(J, "properties", {
  * @static
  * @type {CSSResult}
  */
-m(J, "styles", S`
+m(Q, "styles", S`
     :host {
       display: flex;
       align-items: center;
@@ -4638,7 +4822,7 @@ m(J, "styles", S`
     }
     
   `);
-customElements.define("flow-socket", J);
+customElements.define("flow-socket", Q);
 class Gt extends y {
   /**
    * Renders the component template.
@@ -4729,7 +4913,7 @@ m(Gt, "styles", S`
     }
   `);
 customElements.define("flow-socket-anchor", Gt);
-class Q extends y {
+class tt extends y {
   /**
    * Renders the component template.
    * This component acts as a simple slot container.
@@ -4746,7 +4930,7 @@ class Q extends y {
  * @static
  * @type {Object}
  */
-m(Q, "properties", {
+m(tt, "properties", {
   /** @type {String} Source socket identifier (format: nodeId:socketId) */
   from: { type: String },
   /** @type {String} Target socket identifier (format: nodeId:socketId) */
@@ -4762,12 +4946,12 @@ m(Q, "properties", {
  * @static
  * @type {CSSResult}
  */
-m(Q, "styles", S`
+m(tt, "styles", S`
     :host {
       display: none !important;
     }
   `);
-customElements.define("flow-edge", Q);
+customElements.define("flow-edge", tt);
 class Nt extends y {
   /**
    * Renders the component template.
@@ -4837,7 +5021,7 @@ m(Mt, "styles", S`
     }
   `);
 customElements.define("flow-edges", Mt);
-class tt extends y {
+class et extends y {
   /**
    * Renders the component template.
    * This component acts as a simple slot container.
@@ -4854,7 +5038,7 @@ class tt extends y {
  * @static
  * @type {Object}
  */
-m(tt, "properties", {
+m(et, "properties", {
   /** @type {String} Type of background: 'grid', 'solid', 'pattern' */
   type: { type: String },
   /** @type {String} Background color */
@@ -4864,28 +5048,28 @@ m(tt, "properties", {
  * @static
  * @type {CSSResult}
  */
-m(tt, "styles", S`
+m(et, "styles", S`
     :host {
       display: none !important;
     }
   `);
-customElements.define("flow-background", tt);
+customElements.define("flow-background", et);
 export {
   se as Edge,
-  tt as FlowBackgroundElement,
-  K as FlowContextMenu,
+  et as FlowBackgroundElement,
+  j as FlowContextMenu,
   Nt as FlowDefinitionsElement,
-  Q as FlowEdgeElement,
+  tt as FlowEdgeElement,
   Mt as FlowEdgesElement,
   he as FlowGraph,
-  j as FlowGraphElement,
-  W as FlowNodeDefElement,
-  Z as FlowNodeElement,
+  W as FlowGraphElement,
+  Z as FlowNodeDefElement,
+  J as FlowNodeElement,
   Tt as FlowNodesElement,
   Gt as FlowSocketAnchorElement,
-  J as FlowSocketElement,
+  Q as FlowSocketElement,
   te as Node,
-  St as Socket,
+  V as Socket,
   oe as Viewport
 };
 //# sourceMappingURL=flowgraph.es.js.map

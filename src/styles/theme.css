@@ -16,6 +16,11 @@
   --fg-gpu-acceleration: true;
   --fg-will-change: transform, opacity;
   
+  /* Dragging performance optimizations */
+  --fg-drag-will-change: transform, left, top;
+  --fg-drag-gpu-layer: true;
+  --fg-drag-composite: true;
+  
   /* Animation customization */
   --fg-animation-flowing-color: #f59e0b;
   --fg-animation-pulsing-color: #f59e0b;
@@ -176,11 +181,12 @@ flow-graph {
   box-shadow: 
     0 8px 32px rgba(2,6,23,0.6),
     inset 0 1px 0 rgba(255,255,255,0.05);
+  /* Use transform for positioning to avoid layout recalculations */
+  transform: translate3d(0, 0, 0);
   transform-origin: 0 0;
   user-select: none;
   cursor: grab;
   backdrop-filter: blur(8px);
-  transform: translateZ(0);
 }
 
 .node.dragging { 
@@ -189,7 +195,11 @@ flow-graph {
   box-shadow: 
     0 12px 48px rgba(2,6,23,0.8),
     inset 0 1px 0 rgba(255,255,255,0.1);
-  transform: scale(1.02);
+  /* Performance optimizations for dragging */
+  will-change: var(--fg-drag-will-change);
+  transform: translateZ(0) scale(1.02);
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 .node.selected {
@@ -596,10 +606,13 @@ button.interactive:hover {
 /* ===== DRAGGING STYLES ===== */
 .node.dragging {
   opacity: 1;
-  transform: scale(1.02);
+  transform: translateZ(0) scale(1.02);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   z-index: 1000;
-  transform: translateZ(0);
+  /* Performance optimizations */
+  will-change: var(--fg-drag-will-change);
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 /* ===== CONTEXT MENU STYLES ===== */

@@ -188,10 +188,10 @@ export class FlowGraph extends EventTarget {
     /** @type {number|null} RAF ID for edge updates */
     this.edgeUpdateRafId = null;
     
-    /** @type {Object} Throttled update functions */
+    /** @type {Object} Direct update functions - no throttling */
     this.throttledUpdates = {
-      edgeUpdate: this.createAdaptiveThrottledFunction(this.batchUpdateEdges.bind(this)),
-      nodeUpdate: this.createAdaptiveThrottledFunction(this.batchUpdateNodes.bind(this))
+      edgeUpdate: this.batchUpdateEdges.bind(this),
+      nodeUpdate: this.batchUpdateNodes.bind(this)
     };
     
     /** @type {number} Display refresh rate detection */
@@ -348,80 +348,6 @@ export class FlowGraph extends EventTarget {
     return Math.min(Math.max(refreshRate, 60), 240);
   }
 
-  /**
-   * Create adaptive throttled function for high refresh rate displays.
-   * OPTIMIZED: Automatically adjusts to display refresh rate.
-   * 
-   * @param {Function} func - Function to throttle
-   * @returns {Function} Adaptive throttled function
-   * @private
-   */
-  createAdaptiveThrottledFunction(func) {
-    let lastCall = 0;
-    let rafId = null;
-    let pendingArgs = null;
-    let accumulatedNodes = null;
-    
-    return function(...args) {
-      const now = performance.now();
-      const timeSinceLastCall = now - lastCall;
-      
-      // Calculate optimal throttle interval based on refresh rate
-      const optimalInterval = 1000 / this.displayRefreshRate;
-      
-      // If enough time has passed, call immediately
-      if (timeSinceLastCall >= optimalInterval) {
-        lastCall = now;
-        func.apply(this, args);
-        return;
-      }
-      
-      // Otherwise, schedule for next frame
-      if (rafId) {
-        cancelAnimationFrame(rafId);
-      }
-      
-      // For edge updates, accumulate nodes instead of overwriting
-      if (func === this.batchUpdateEdges && args.length > 0 && args[0] instanceof Set) {
-        if (!accumulatedNodes) {
-          accumulatedNodes = new Set();
-        }
-        // Merge the new nodes with accumulated ones
-        args[0].forEach(node => accumulatedNodes.add(node));
-        pendingArgs = [accumulatedNodes];
-      } else {
-        pendingArgs = args;
-      }
-      
-      rafId = requestAnimationFrame((currentTime) => {
-        lastCall = currentTime;
-        func.apply(this, pendingArgs);
-        rafId = null;
-        pendingArgs = null;
-        accumulatedNodes = null;
-      });
-    };
-  }
-
-  /**
-   * Create throttled function for performance optimization.
-   * Implements optimization from report: Throttled updates.
-   * 
-   * @param {Function} func - Function to throttle
-   * @param {number} limit - Throttle limit in ms
-   * @returns {Function} Throttled function
-   * @private
-   */
-  createThrottledFunction(func, limit) {
-    let inThrottle;
-    return function(...args) {
-      if (!inThrottle) {
-        func.apply(this, args);
-        inThrottle = true;
-        setTimeout(() => inThrottle = false, limit);
-      }
-    };
-  }
 
   /**
    * Batch update edges for better performance.
@@ -893,7 +819,7 @@ export class FlowGraph extends EventTarget {
     // Use spatial index for efficient lookup - O(log n) instead of O(n)
     const connectedEdges = this.nodeEdgeIndex.get(node);
     if (connectedEdges) {
-      // Use throttled update for better performance
+      // Update edges immediately - no throttling
       this.throttledUpdates.edgeUpdate(new Set([node]));
     }
   }
@@ -901,12 +827,12 @@ export class FlowGraph extends EventTarget {
   /**
    * Update the visual path of all edges in the graph.
    * Useful for refreshing edge positions after initial load.
-   * OPTIMIZED: Uses throttled batching for better performance.
+   * OPTIMIZED: Uses immediate batching for better performance.
    *
    * @public
    */
   updateAllEdges() {
-    // Use throttled batch update for better performance
+    // Update all edges immediately - no throttling
     this.throttledUpdates.edgeUpdate(new Set());
   }
 

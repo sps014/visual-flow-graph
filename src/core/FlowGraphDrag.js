@@ -33,6 +33,12 @@ export class FlowGraphDrag {
     
     /** @type {Object|null} Current multi-drag state */
     this.multiDragState = null;
+    
+    /** @type {Set<Node>} Accumulated nodes for batched edge updates */
+    this.pendingEdgeUpdates = new Set();
+    
+    /** @type {number|null} RAF ID for batched edge updates */
+    this.edgeUpdateRafId = null;
   }
 
   /**
@@ -87,7 +93,7 @@ export class FlowGraphDrag {
     const worldDeltaX = deltaX / this.flowGraph.viewport.scale;
     const worldDeltaY = deltaY / this.flowGraph.viewport.scale;
     
-    // Update all selected nodes
+    // Update all selected nodes using transform for better performance
     for (const nodeId of this.flowGraph.selection.getSelection()) {
       const node = this.flowGraph.nodes.get(nodeId);
       if (node) {
@@ -98,25 +104,39 @@ export class FlowGraphDrag {
         // Update position without firing events (we'll fire one batch event)
         node.x = newX;
         node.y = newY;
-        node.element.style.left = newX + 'px';
-        node.element.style.top = newY + 'px';
+        
+        // Use transform instead of left/top to avoid layout recalculations
+        node.element.style.transform = `translate3d(${newX}px, ${newY}px, 0)`;
       }
     }
     
-    // Update edges for all moved nodes - collect all nodes and update in one call
-    requestAnimationFrame(() => {
-      const nodesToUpdate = new Set();
-      for (const nodeId of this.flowGraph.selection.getSelection()) {
-        const node = this.flowGraph.nodes.get(nodeId);
-        if (node) {
-          nodesToUpdate.add(node);
-        }
+    // Collect nodes for batched edge updates
+    for (const nodeId of this.flowGraph.selection.getSelection()) {
+      const node = this.flowGraph.nodes.get(nodeId);
+      if (node) {
+        this.pendingEdgeUpdates.add(node);
       }
-      
-      // Update all edges for all moved nodes in a single call
-      if (nodesToUpdate.size > 0) {
-        this.flowGraph.throttledUpdates.edgeUpdate(nodesToUpdate);
+    }
+    
+    // Schedule batched edge update to reduce layout thrashing
+    this.scheduleBatchedEdgeUpdate();
+  }
+
+  /**
+   * Schedule batched edge update to reduce layout thrashing
+   * @private
+   */
+  scheduleBatchedEdgeUpdate() {
+    if (this.edgeUpdateRafId) {
+      return; // Already scheduled
+    }
+    
+    this.edgeUpdateRafId = requestAnimationFrame(() => {
+      if (this.pendingEdgeUpdates.size > 0) {
+        this.flowGraph.batchUpdateEdges(this.pendingEdgeUpdates);
+        this.pendingEdgeUpdates.clear();
       }
+      this.edgeUpdateRafId = null;
     });
   }
 
@@ -125,6 +145,18 @@ export class FlowGraphDrag {
    */
   endMultiDrag() {
     if (!this.multiDragState || !this.multiDragState.active) return;
+    
+    // Process any remaining edge updates immediately
+    if (this.pendingEdgeUpdates.size > 0) {
+      this.flowGraph.batchUpdateEdges(this.pendingEdgeUpdates);
+      this.pendingEdgeUpdates.clear();
+    }
+    
+    // Cancel any pending edge updates
+    if (this.edgeUpdateRafId) {
+      cancelAnimationFrame(this.edgeUpdateRafId);
+      this.edgeUpdateRafId = null;
+    }
     
     // Fire move events for all moved nodes and remove dragging class
     for (const nodeId of this.flowGraph.selection.getSelection()) {
@@ -147,3 +179,4 @@ export class FlowGraphDrag {
     this.multiDragState = null;
   }
 }
+

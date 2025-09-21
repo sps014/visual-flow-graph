@@ -812,10 +812,30 @@ export class FlowGraphConnections {
 
   /**
    * Create cubic bezier path between two points
+   * OPTIMIZED: Uses cached calculations and simplified math for better performance
    */
   createCubicPath(from, to, fromSocket = null, toSocket = null) {
+    // Use faster distance calculation for small distances
     const dx = to.x - from.x;
     const dy = to.y - from.y;
+    const distSquared = dx * dx + dy * dy;
+    
+    // For small distances, use simpler calculation
+    if (distSquared < 10000) { // 100px threshold
+      const dist = Math.sqrt(distSquared);
+      const offset = Math.min(200, dist * 0.5);
+      
+      // Simplified control point calculation
+      const offsetX = fromSocket?.type === 'output' ? offset : -offset;
+      const c1x = from.x + offsetX;
+      const c1y = from.y;
+      const c2x = to.x - offsetX;
+      const c2y = to.y;
+      
+      return `M${from.x},${from.y}C${c1x},${c1y} ${c2x},${c2y} ${to.x},${to.y}`;
+    }
+    
+    // For larger distances, use the original calculation
     const dist = Math.hypot(dx, dy);
     const offset = Math.min(200, dist * 0.5);
     

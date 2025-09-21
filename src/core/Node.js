@@ -126,8 +126,7 @@ export class Node {
     }
     
     this.element.className = classes.join(' ');
-    this.element.style.left = this.x + 'px';
-    this.element.style.top = this.y + 'px';
+    this.element.style.transform = `translate3d(${this.x}px, ${this.y}px, 0)`;
     this.element.dataset.id = this.id;
     
     // Add category-based styling
@@ -955,13 +954,11 @@ export class Node {
     // Use optimized animation batching for position updates
     if (this.flowGraph && this.flowGraph.scheduleAnimationUpdate) {
       this.flowGraph.scheduleAnimationUpdate(this.element, {
-        left: x + 'px',
-        top: y + 'px'
+        transform: `translate3d(${x}px, ${y}px, 0)`
       });
     } else {
-      // Fallback for direct updates
-      this.element.style.left = x + 'px';
-      this.element.style.top = y + 'px';
+      // Fallback for direct updates - use transform for better performance
+      this.element.style.transform = `translate3d(${x}px, ${y}px, 0)`;
     }
     
     // Fire move event

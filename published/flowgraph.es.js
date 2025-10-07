@@ -1,15 +1,15 @@
 var _t = Object.defineProperty;
-var Lt = (l, t, e) => t in l ? _t(l, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : l[t] = e;
-var m = (l, t, e) => Lt(l, typeof t != "symbol" ? t + "" : t, e);
+var Dt = (l, t, e) => t in l ? _t(l, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : l[t] = e;
+var m = (l, t, e) => Dt(l, typeof t != "symbol" ? t + "" : t, e);
 /**
  * @license
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const U = globalThis, st = U.ShadowRoot && (U.ShadyCSS === void 0 || U.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, ot = Symbol(), dt = /* @__PURE__ */ new WeakMap();
+const U = globalThis, st = U.ShadowRoot && (U.ShadyCSS === void 0 || U.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, it = Symbol(), dt = /* @__PURE__ */ new WeakMap();
 let xt = class {
   constructor(t, e, s) {
-    if (this._$cssResult$ = !0, s !== ot) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
+    if (this._$cssResult$ = !0, s !== it) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
     this.cssText = t, this.t = e;
   }
   get styleSheet() {
@@ -25,23 +25,23 @@ let xt = class {
     return this.cssText;
   }
 };
-const Dt = (l) => new xt(typeof l == "string" ? l : l + "", void 0, ot), S = (l, ...t) => {
-  const e = l.length === 1 ? l[0] : t.reduce((s, o, i) => s + ((n) => {
+const Lt = (l) => new xt(typeof l == "string" ? l : l + "", void 0, it), S = (l, ...t) => {
+  const e = l.length === 1 ? l[0] : t.reduce((s, i, o) => s + ((n) => {
     if (n._$cssResult$ === !0) return n.cssText;
     if (typeof n == "number") return n;
     throw Error("Value passed to 'css' function must be a 'css' function result: " + n + ". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.");
-  })(o) + l[i + 1], l[0]);
-  return new xt(e, l, ot);
+  })(i) + l[o + 1], l[0]);
+  return new xt(e, l, it);
 }, It = (l, t) => {
   if (st) l.adoptedStyleSheets = t.map((e) => e instanceof CSSStyleSheet ? e : e.styleSheet);
   else for (const e of t) {
-    const s = document.createElement("style"), o = U.litNonce;
-    o !== void 0 && s.setAttribute("nonce", o), s.textContent = e.cssText, l.appendChild(s);
+    const s = document.createElement("style"), i = U.litNonce;
+    i !== void 0 && s.setAttribute("nonce", i), s.textContent = e.cssText, l.appendChild(s);
   }
 }, ut = st ? (l) => l : (l) => l instanceof CSSStyleSheet ? ((t) => {
   let e = "";
   for (const s of t.cssRules) e += s.cssText;
-  return Dt(e);
+  return Lt(e);
 })(l) : l;
 /**
  * @license
@@ -87,19 +87,19 @@ let G = class extends HTMLElement {
   }
   static createProperty(t, e = ft) {
     if (e.state && (e.attribute = !1), this._$Ei(), this.prototype.hasOwnProperty(t) && ((e = Object.create(e)).wrapped = !0), this.elementProperties.set(t, e), !e.noAccessor) {
-      const s = Symbol(), o = this.getPropertyDescriptor(t, s, e);
-      o !== void 0 && zt(this.prototype, t, o);
+      const s = Symbol(), i = this.getPropertyDescriptor(t, s, e);
+      i !== void 0 && zt(this.prototype, t, i);
     }
   }
   static getPropertyDescriptor(t, e, s) {
-    const { get: o, set: i } = Ot(this.prototype, t) ?? { get() {
+    const { get: i, set: o } = Ot(this.prototype, t) ?? { get() {
       return this[e];
     }, set(n) {
       this[e] = n;
     } };
-    return { get: o, set(n) {
-      const a = o == null ? void 0 : o.call(this);
-      i == null || i.call(this, n), this.requestUpdate(t, a, s);
+    return { get: i, set(n) {
+      const a = i == null ? void 0 : i.call(this);
+      o == null || o.call(this, n), this.requestUpdate(t, a, s);
     }, configurable: !0, enumerable: !0 };
   }
   static getPropertyOptions(t) {
@@ -114,17 +114,17 @@ let G = class extends HTMLElement {
     if (this.hasOwnProperty(P("finalized"))) return;
     if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(P("properties"))) {
       const e = this.properties, s = [...Ut(e), ...qt(e)];
-      for (const o of s) this.createProperty(o, e[o]);
+      for (const i of s) this.createProperty(i, e[i]);
     }
     const t = this[Symbol.metadata];
     if (t !== null) {
       const e = litPropertyMetadata.get(t);
-      if (e !== void 0) for (const [s, o] of e) this.elementProperties.set(s, o);
+      if (e !== void 0) for (const [s, i] of e) this.elementProperties.set(s, i);
     }
     this._$Eh = /* @__PURE__ */ new Map();
     for (const [e, s] of this.elementProperties) {
-      const o = this._$Eu(e, s);
-      o !== void 0 && this._$Eh.set(o, e);
+      const i = this._$Eu(e, s);
+      i !== void 0 && this._$Eh.set(i, e);
     }
     this.elementStyles = this.finalizeStyles(this.styles);
   }
@@ -132,7 +132,7 @@ let G = class extends HTMLElement {
     const e = [];
     if (Array.isArray(t)) {
       const s = new Set(t.flat(1 / 0).reverse());
-      for (const o of s) e.unshift(ut(o));
+      for (const i of s) e.unshift(ut(i));
     } else t !== void 0 && e.push(ut(t));
     return e;
   }
@@ -184,34 +184,34 @@ let G = class extends HTMLElement {
     this._$AK(t, s);
   }
   _$ET(t, e) {
-    var i;
-    const s = this.constructor.elementProperties.get(t), o = this.constructor._$Eu(t, s);
-    if (o !== void 0 && s.reflect === !0) {
-      const n = (((i = s.converter) == null ? void 0 : i.toAttribute) !== void 0 ? s.converter : K).toAttribute(e, s.type);
-      this._$Em = t, n == null ? this.removeAttribute(o) : this.setAttribute(o, n), this._$Em = null;
+    var o;
+    const s = this.constructor.elementProperties.get(t), i = this.constructor._$Eu(t, s);
+    if (i !== void 0 && s.reflect === !0) {
+      const n = (((o = s.converter) == null ? void 0 : o.toAttribute) !== void 0 ? s.converter : K).toAttribute(e, s.type);
+      this._$Em = t, n == null ? this.removeAttribute(i) : this.setAttribute(i, n), this._$Em = null;
     }
   }
   _$AK(t, e) {
-    var i, n;
-    const s = this.constructor, o = s._$Eh.get(t);
-    if (o !== void 0 && this._$Em !== o) {
-      const a = s.getPropertyOptions(o), r = typeof a.converter == "function" ? { fromAttribute: a.converter } : ((i = a.converter) == null ? void 0 : i.fromAttribute) !== void 0 ? a.converter : K;
-      this._$Em = o;
+    var o, n;
+    const s = this.constructor, i = s._$Eh.get(t);
+    if (i !== void 0 && this._$Em !== i) {
+      const a = s.getPropertyOptions(i), r = typeof a.converter == "function" ? { fromAttribute: a.converter } : ((o = a.converter) == null ? void 0 : o.fromAttribute) !== void 0 ? a.converter : K;
+      this._$Em = i;
       const c = r.fromAttribute(e, a.type);
-      this[o] = c ?? ((n = this._$Ej) == null ? void 0 : n.get(o)) ?? c, this._$Em = null;
+      this[i] = c ?? ((n = this._$Ej) == null ? void 0 : n.get(i)) ?? c, this._$Em = null;
     }
   }
   requestUpdate(t, e, s) {
-    var o;
+    var i;
     if (t !== void 0) {
-      const i = this.constructor, n = this[t];
-      if (s ?? (s = i.getPropertyOptions(t)), !((s.hasChanged ?? Et)(n, e) || s.useDefault && s.reflect && n === ((o = this._$Ej) == null ? void 0 : o.get(t)) && !this.hasAttribute(i._$Eu(t, s)))) return;
+      const o = this.constructor, n = this[t];
+      if (s ?? (s = o.getPropertyOptions(t)), !((s.hasChanged ?? Et)(n, e) || s.useDefault && s.reflect && n === ((i = this._$Ej) == null ? void 0 : i.get(t)) && !this.hasAttribute(o._$Eu(t, s)))) return;
       this.C(t, e, s);
     }
     this.isUpdatePending === !1 && (this._$ES = this._$EP());
   }
-  C(t, e, { useDefault: s, reflect: o, wrapped: i }, n) {
-    s && !(this._$Ej ?? (this._$Ej = /* @__PURE__ */ new Map())).has(t) && (this._$Ej.set(t, n ?? e ?? this[t]), i !== !0 || n !== void 0) || (this._$AL.has(t) || (this.hasUpdated || s || (e = void 0), this._$AL.set(t, e)), o === !0 && this._$Em !== t && (this._$Eq ?? (this._$Eq = /* @__PURE__ */ new Set())).add(t));
+  C(t, e, { useDefault: s, reflect: i, wrapped: o }, n) {
+    s && !(this._$Ej ?? (this._$Ej = /* @__PURE__ */ new Map())).has(t) && (this._$Ej.set(t, n ?? e ?? this[t]), o !== !0 || n !== void 0) || (this._$AL.has(t) || (this.hasUpdated || s || (e = void 0), this._$AL.set(t, e)), i === !0 && this._$Em !== t && (this._$Eq ?? (this._$Eq = /* @__PURE__ */ new Set())).add(t));
   }
   async _$EP() {
     this.isUpdatePending = !0;
@@ -231,24 +231,24 @@ let G = class extends HTMLElement {
     if (!this.isUpdatePending) return;
     if (!this.hasUpdated) {
       if (this.renderRoot ?? (this.renderRoot = this.createRenderRoot()), this._$Ep) {
-        for (const [i, n] of this._$Ep) this[i] = n;
+        for (const [o, n] of this._$Ep) this[o] = n;
         this._$Ep = void 0;
       }
-      const o = this.constructor.elementProperties;
-      if (o.size > 0) for (const [i, n] of o) {
-        const { wrapped: a } = n, r = this[i];
-        a !== !0 || this._$AL.has(i) || r === void 0 || this.C(i, void 0, n, r);
+      const i = this.constructor.elementProperties;
+      if (i.size > 0) for (const [o, n] of i) {
+        const { wrapped: a } = n, r = this[o];
+        a !== !0 || this._$AL.has(o) || r === void 0 || this.C(o, void 0, n, r);
       }
     }
     let t = !1;
     const e = this._$AL;
     try {
-      t = this.shouldUpdate(e), t ? (this.willUpdate(e), (s = this._$EO) == null || s.forEach((o) => {
-        var i;
-        return (i = o.hostUpdate) == null ? void 0 : i.call(o);
+      t = this.shouldUpdate(e), t ? (this.willUpdate(e), (s = this._$EO) == null || s.forEach((i) => {
+        var o;
+        return (o = i.hostUpdate) == null ? void 0 : o.call(i);
       }), this.update(e)) : this._$EM();
-    } catch (o) {
-      throw t = !1, this._$EM(), o;
+    } catch (i) {
+      throw t = !1, this._$EM(), i;
     }
     t && this._$AE(e);
   }
@@ -257,8 +257,8 @@ let G = class extends HTMLElement {
   _$AE(t) {
     var e;
     (e = this._$EO) == null || e.forEach((s) => {
-      var o;
-      return (o = s.hostUpdated) == null ? void 0 : o.call(s);
+      var i;
+      return (i = s.hostUpdated) == null ? void 0 : i.call(s);
     }), this.hasUpdated || (this.hasUpdated = !0, this.firstUpdated(t)), this.updated(t);
   }
   _$EM() {
@@ -287,55 +287,55 @@ G.elementStyles = [], G.shadowRootOptions = { mode: "open" }, G[P("elementProper
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const _ = globalThis, q = _.trustedTypes, mt = q ? q.createPolicy("lit-html", { createHTML: (l) => l }) : void 0, kt = "$lit$", x = `lit$${Math.random().toFixed(9).slice(2)}$`, Ct = "?" + x, Ft = `<${Ct}>`, A = document, L = () => A.createComment(""), D = (l) => l === null || typeof l != "object" && typeof l != "function", it = Array.isArray, Yt = (l) => it(l) || typeof (l == null ? void 0 : l[Symbol.iterator]) == "function", F = `[ 	
+const _ = globalThis, q = _.trustedTypes, mt = q ? q.createPolicy("lit-html", { createHTML: (l) => l }) : void 0, kt = "$lit$", x = `lit$${Math.random().toFixed(9).slice(2)}$`, Ct = "?" + x, Ft = `<${Ct}>`, A = document, D = () => A.createComment(""), L = (l) => l === null || typeof l != "object" && typeof l != "function", ot = Array.isArray, Yt = (l) => ot(l) || typeof (l == null ? void 0 : l[Symbol.iterator]) == "function", F = `[ 	
 \f\r]`, M = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, gt = /-->/g, wt = />/g, k = RegExp(`>|${F}(?:([^\\s"'>=/]+)(${F}*=${F}*(?:[^ 	
 \f\r"'\`<>=]|("|')|))|$)`, "g"), yt = /'/g, vt = /"/g, $t = /^(?:script|style|textarea|title)$/i, Xt = (l) => (t, ...e) => ({ _$litType$: l, strings: t, values: e }), w = Xt(1), N = Symbol.for("lit-noChange"), g = Symbol.for("lit-nothing"), St = /* @__PURE__ */ new WeakMap(), C = A.createTreeWalker(A, 129);
 function At(l, t) {
-  if (!it(l) || !l.hasOwnProperty("raw")) throw Error("invalid template strings array");
+  if (!ot(l) || !l.hasOwnProperty("raw")) throw Error("invalid template strings array");
   return mt !== void 0 ? mt.createHTML(t) : t;
 }
 const Vt = (l, t) => {
   const e = l.length - 1, s = [];
-  let o, i = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", n = M;
+  let i, o = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", n = M;
   for (let a = 0; a < e; a++) {
     const r = l[a];
     let c, h, d = -1, p = 0;
-    for (; p < r.length && (n.lastIndex = p, h = n.exec(r), h !== null); ) p = n.lastIndex, n === M ? h[1] === "!--" ? n = gt : h[1] !== void 0 ? n = wt : h[2] !== void 0 ? ($t.test(h[2]) && (o = RegExp("</" + h[2], "g")), n = k) : h[3] !== void 0 && (n = k) : n === k ? h[0] === ">" ? (n = o ?? M, d = -1) : h[1] === void 0 ? d = -2 : (d = n.lastIndex - h[2].length, c = h[1], n = h[3] === void 0 ? k : h[3] === '"' ? vt : yt) : n === vt || n === yt ? n = k : n === gt || n === wt ? n = M : (n = k, o = void 0);
+    for (; p < r.length && (n.lastIndex = p, h = n.exec(r), h !== null); ) p = n.lastIndex, n === M ? h[1] === "!--" ? n = gt : h[1] !== void 0 ? n = wt : h[2] !== void 0 ? ($t.test(h[2]) && (i = RegExp("</" + h[2], "g")), n = k) : h[3] !== void 0 && (n = k) : n === k ? h[0] === ">" ? (n = i ?? M, d = -1) : h[1] === void 0 ? d = -2 : (d = n.lastIndex - h[2].length, c = h[1], n = h[3] === void 0 ? k : h[3] === '"' ? vt : yt) : n === vt || n === yt ? n = k : n === gt || n === wt ? n = M : (n = k, i = void 0);
     const f = n === k && l[a + 1].startsWith("/>") ? " " : "";
-    i += n === M ? r + Ft : d >= 0 ? (s.push(c), r.slice(0, d) + kt + r.slice(d) + x + f) : r + x + (d === -2 ? a : f);
+    o += n === M ? r + Ft : d >= 0 ? (s.push(c), r.slice(0, d) + kt + r.slice(d) + x + f) : r + x + (d === -2 ? a : f);
   }
-  return [At(l, i + (l[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), s];
+  return [At(l, o + (l[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), s];
 };
 class I {
   constructor({ strings: t, _$litType$: e }, s) {
-    let o;
+    let i;
     this.parts = [];
-    let i = 0, n = 0;
+    let o = 0, n = 0;
     const a = t.length - 1, r = this.parts, [c, h] = Vt(t, e);
     if (this.el = I.createElement(c, s), C.currentNode = this.el.content, e === 2 || e === 3) {
       const d = this.el.content.firstChild;
       d.replaceWith(...d.childNodes);
     }
-    for (; (o = C.nextNode()) !== null && r.length < a; ) {
-      if (o.nodeType === 1) {
-        if (o.hasAttributes()) for (const d of o.getAttributeNames()) if (d.endsWith(kt)) {
-          const p = h[n++], f = o.getAttribute(d).split(x), u = /([.?@])?(.*)/.exec(p);
-          r.push({ type: 1, index: i, name: u[2], strings: f, ctor: u[1] === "." ? jt : u[1] === "?" ? Wt : u[1] === "@" ? Zt : H }), o.removeAttribute(d);
-        } else d.startsWith(x) && (r.push({ type: 6, index: i }), o.removeAttribute(d));
-        if ($t.test(o.tagName)) {
-          const d = o.textContent.split(x), p = d.length - 1;
+    for (; (i = C.nextNode()) !== null && r.length < a; ) {
+      if (i.nodeType === 1) {
+        if (i.hasAttributes()) for (const d of i.getAttributeNames()) if (d.endsWith(kt)) {
+          const p = h[n++], f = i.getAttribute(d).split(x), u = /([.?@])?(.*)/.exec(p);
+          r.push({ type: 1, index: o, name: u[2], strings: f, ctor: u[1] === "." ? jt : u[1] === "?" ? Wt : u[1] === "@" ? Zt : H }), i.removeAttribute(d);
+        } else d.startsWith(x) && (r.push({ type: 6, index: o }), i.removeAttribute(d));
+        if ($t.test(i.tagName)) {
+          const d = i.textContent.split(x), p = d.length - 1;
           if (p > 0) {
-            o.textContent = q ? q.emptyScript : "";
-            for (let f = 0; f < p; f++) o.append(d[f], L()), C.nextNode(), r.push({ type: 2, index: ++i });
-            o.append(d[p], L());
+            i.textContent = q ? q.emptyScript : "";
+            for (let f = 0; f < p; f++) i.append(d[f], D()), C.nextNode(), r.push({ type: 2, index: ++o });
+            i.append(d[p], D());
           }
         }
-      } else if (o.nodeType === 8) if (o.data === Ct) r.push({ type: 2, index: i });
+      } else if (i.nodeType === 8) if (i.data === Ct) r.push({ type: 2, index: o });
       else {
         let d = -1;
-        for (; (d = o.data.indexOf(x, d + 1)) !== -1; ) r.push({ type: 7, index: i }), d += x.length - 1;
+        for (; (d = i.data.indexOf(x, d + 1)) !== -1; ) r.push({ type: 7, index: o }), d += x.length - 1;
       }
-      i++;
+      o++;
     }
   }
   static createElement(t, e) {
@@ -346,9 +346,9 @@ class I {
 function T(l, t, e = l, s) {
   var n, a;
   if (t === N) return t;
-  let o = s !== void 0 ? (n = e._$Co) == null ? void 0 : n[s] : e._$Cl;
-  const i = D(t) ? void 0 : t._$litDirective$;
-  return (o == null ? void 0 : o.constructor) !== i && ((a = o == null ? void 0 : o._$AO) == null || a.call(o, !1), i === void 0 ? o = void 0 : (o = new i(l), o._$AT(l, e, s)), s !== void 0 ? (e._$Co ?? (e._$Co = []))[s] = o : e._$Cl = o), o !== void 0 && (t = T(l, o._$AS(l, t.values), o, s)), t;
+  let i = s !== void 0 ? (n = e._$Co) == null ? void 0 : n[s] : e._$Cl;
+  const o = L(t) ? void 0 : t._$litDirective$;
+  return (i == null ? void 0 : i.constructor) !== o && ((a = i == null ? void 0 : i._$AO) == null || a.call(i, !1), o === void 0 ? i = void 0 : (i = new o(l), i._$AT(l, e, s)), s !== void 0 ? (e._$Co ?? (e._$Co = []))[s] = i : e._$Cl = i), i !== void 0 && (t = T(l, i._$AS(l, t.values), i, s)), t;
 }
 class Kt {
   constructor(t, e) {
@@ -361,17 +361,17 @@ class Kt {
     return this._$AM._$AU;
   }
   u(t) {
-    const { el: { content: e }, parts: s } = this._$AD, o = ((t == null ? void 0 : t.creationScope) ?? A).importNode(e, !0);
-    C.currentNode = o;
-    let i = C.nextNode(), n = 0, a = 0, r = s[0];
+    const { el: { content: e }, parts: s } = this._$AD, i = ((t == null ? void 0 : t.creationScope) ?? A).importNode(e, !0);
+    C.currentNode = i;
+    let o = C.nextNode(), n = 0, a = 0, r = s[0];
     for (; r !== void 0; ) {
       if (n === r.index) {
         let c;
-        r.type === 2 ? c = new R(i, i.nextSibling, this, t) : r.type === 1 ? c = new r.ctor(i, r.name, r.strings, this, t) : r.type === 6 && (c = new Jt(i, this, t)), this._$AV.push(c), r = s[++a];
+        r.type === 2 ? c = new R(o, o.nextSibling, this, t) : r.type === 1 ? c = new r.ctor(o, r.name, r.strings, this, t) : r.type === 6 && (c = new Jt(o, this, t)), this._$AV.push(c), r = s[++a];
       }
-      n !== (r == null ? void 0 : r.index) && (i = C.nextNode(), n++);
+      n !== (r == null ? void 0 : r.index) && (o = C.nextNode(), n++);
     }
-    return C.currentNode = A, o;
+    return C.currentNode = A, i;
   }
   p(t) {
     let e = 0;
@@ -383,8 +383,8 @@ class R {
     var t;
     return ((t = this._$AM) == null ? void 0 : t._$AU) ?? this._$Cv;
   }
-  constructor(t, e, s, o) {
-    this.type = 2, this._$AH = g, this._$AN = void 0, this._$AA = t, this._$AB = e, this._$AM = s, this.options = o, this._$Cv = (o == null ? void 0 : o.isConnected) ?? !0;
+  constructor(t, e, s, i) {
+    this.type = 2, this._$AH = g, this._$AN = void 0, this._$AA = t, this._$AB = e, this._$AM = s, this.options = i, this._$Cv = (i == null ? void 0 : i.isConnected) ?? !0;
   }
   get parentNode() {
     let t = this._$AA.parentNode;
@@ -398,7 +398,7 @@ class R {
     return this._$AB;
   }
   _$AI(t, e = this) {
-    t = T(this, t, e), D(t) ? t === g || t == null || t === "" ? (this._$AH !== g && this._$AR(), this._$AH = g) : t !== this._$AH && t !== N && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : Yt(t) ? this.k(t) : this._(t);
+    t = T(this, t, e), L(t) ? t === g || t == null || t === "" ? (this._$AH !== g && this._$AR(), this._$AH = g) : t !== this._$AH && t !== N && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : Yt(t) ? this.k(t) : this._(t);
   }
   O(t) {
     return this._$AA.parentNode.insertBefore(t, this._$AB);
@@ -407,14 +407,14 @@ class R {
     this._$AH !== t && (this._$AR(), this._$AH = this.O(t));
   }
   _(t) {
-    this._$AH !== g && D(this._$AH) ? this._$AA.nextSibling.data = t : this.T(A.createTextNode(t)), this._$AH = t;
+    this._$AH !== g && L(this._$AH) ? this._$AA.nextSibling.data = t : this.T(A.createTextNode(t)), this._$AH = t;
   }
   $(t) {
-    var i;
-    const { values: e, _$litType$: s } = t, o = typeof s == "number" ? this._$AC(t) : (s.el === void 0 && (s.el = I.createElement(At(s.h, s.h[0]), this.options)), s);
-    if (((i = this._$AH) == null ? void 0 : i._$AD) === o) this._$AH.p(e);
+    var o;
+    const { values: e, _$litType$: s } = t, i = typeof s == "number" ? this._$AC(t) : (s.el === void 0 && (s.el = I.createElement(At(s.h, s.h[0]), this.options)), s);
+    if (((o = this._$AH) == null ? void 0 : o._$AD) === i) this._$AH.p(e);
     else {
-      const n = new Kt(o, this), a = n.u(this.options);
+      const n = new Kt(i, this), a = n.u(this.options);
       n.p(e), this.T(a), this._$AH = n;
     }
   }
@@ -423,17 +423,17 @@ class R {
     return e === void 0 && St.set(t.strings, e = new I(t)), e;
   }
   k(t) {
-    it(this._$AH) || (this._$AH = [], this._$AR());
+    ot(this._$AH) || (this._$AH = [], this._$AR());
     const e = this._$AH;
-    let s, o = 0;
-    for (const i of t) o === e.length ? e.push(s = new R(this.O(L()), this.O(L()), this, this.options)) : s = e[o], s._$AI(i), o++;
-    o < e.length && (this._$AR(s && s._$AB.nextSibling, o), e.length = o);
+    let s, i = 0;
+    for (const o of t) i === e.length ? e.push(s = new R(this.O(D()), this.O(D()), this, this.options)) : s = e[i], s._$AI(o), i++;
+    i < e.length && (this._$AR(s && s._$AB.nextSibling, i), e.length = i);
   }
   _$AR(t = this._$AA.nextSibling, e) {
     var s;
     for ((s = this._$AP) == null ? void 0 : s.call(this, !1, !0, e); t !== this._$AB; ) {
-      const o = t.nextSibling;
-      t.remove(), t = o;
+      const i = t.nextSibling;
+      t.remove(), t = i;
     }
   }
   setConnected(t) {
@@ -448,19 +448,19 @@ class H {
   get _$AU() {
     return this._$AM._$AU;
   }
-  constructor(t, e, s, o, i) {
-    this.type = 1, this._$AH = g, this._$AN = void 0, this.element = t, this.name = e, this._$AM = o, this.options = i, s.length > 2 || s[0] !== "" || s[1] !== "" ? (this._$AH = Array(s.length - 1).fill(new String()), this.strings = s) : this._$AH = g;
+  constructor(t, e, s, i, o) {
+    this.type = 1, this._$AH = g, this._$AN = void 0, this.element = t, this.name = e, this._$AM = i, this.options = o, s.length > 2 || s[0] !== "" || s[1] !== "" ? (this._$AH = Array(s.length - 1).fill(new String()), this.strings = s) : this._$AH = g;
   }
-  _$AI(t, e = this, s, o) {
-    const i = this.strings;
+  _$AI(t, e = this, s, i) {
+    const o = this.strings;
     let n = !1;
-    if (i === void 0) t = T(this, t, e, 0), n = !D(t) || t !== this._$AH && t !== N, n && (this._$AH = t);
+    if (o === void 0) t = T(this, t, e, 0), n = !L(t) || t !== this._$AH && t !== N, n && (this._$AH = t);
     else {
       const a = t;
       let r, c;
-      for (t = i[0], r = 0; r < i.length - 1; r++) c = T(this, a[s + r], e, r), c === N && (c = this._$AH[r]), n || (n = !D(c) || c !== this._$AH[r]), c === g ? t = g : t !== g && (t += (c ?? "") + i[r + 1]), this._$AH[r] = c;
+      for (t = o[0], r = 0; r < o.length - 1; r++) c = T(this, a[s + r], e, r), c === N && (c = this._$AH[r]), n || (n = !L(c) || c !== this._$AH[r]), c === g ? t = g : t !== g && (t += (c ?? "") + o[r + 1]), this._$AH[r] = c;
     }
-    n && !o && this.j(t);
+    n && !i && this.j(t);
   }
   j(t) {
     t === g ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, t ?? "");
@@ -483,13 +483,13 @@ class Wt extends H {
   }
 }
 class Zt extends H {
-  constructor(t, e, s, o, i) {
-    super(t, e, s, o, i), this.type = 5;
+  constructor(t, e, s, i, o) {
+    super(t, e, s, i, o), this.type = 5;
   }
   _$AI(t, e = this) {
     if ((t = T(this, t, e, 0) ?? g) === N) return;
-    const s = this._$AH, o = t === g && s !== g || t.capture !== s.capture || t.once !== s.once || t.passive !== s.passive, i = t !== g && (s === g || o);
-    o && this.element.removeEventListener(this.name, this, s), i && this.element.addEventListener(this.name, this, t), this._$AH = t;
+    const s = this._$AH, i = t === g && s !== g || t.capture !== s.capture || t.once !== s.once || t.passive !== s.passive, o = t !== g && (s === g || i);
+    i && this.element.removeEventListener(this.name, this, s), o && this.element.addEventListener(this.name, this, t), this._$AH = t;
   }
   handleEvent(t) {
     var e;
@@ -511,12 +511,12 @@ const Y = _.litHtmlPolyfillSupport;
 Y == null || Y(I, R), (_.litHtmlVersions ?? (_.litHtmlVersions = [])).push("3.3.1");
 const Qt = (l, t, e) => {
   const s = (e == null ? void 0 : e.renderBefore) ?? t;
-  let o = s._$litPart$;
-  if (o === void 0) {
-    const i = (e == null ? void 0 : e.renderBefore) ?? null;
-    s._$litPart$ = o = new R(t.insertBefore(L(), i), i, void 0, e ?? {});
+  let i = s._$litPart$;
+  if (i === void 0) {
+    const o = (e == null ? void 0 : e.renderBefore) ?? null;
+    s._$litPart$ = i = new R(t.insertBefore(D(), o), o, void 0, e ?? {});
   }
-  return o._$AI(l), o;
+  return i._$AI(l), i;
 };
 /**
  * @license
@@ -625,8 +625,8 @@ class V {
     const t = this.element.getBoundingClientRect(), e = this.node.flowGraph.surface.getBoundingClientRect();
     let s = t.width / 2;
     this.type === "output" ? s = t.width / 2 : this.type === "input" && (s = -t.width / 2);
-    const o = (t.left + t.width / 2 + s - e.left - this.node.flowGraph.viewport.x) / this.node.flowGraph.viewport.scale, i = (t.top + t.height / 2 - e.top - this.node.flowGraph.viewport.y) / this.node.flowGraph.viewport.scale;
-    return { x: o, y: i };
+    const i = (t.left + t.width / 2 + s - e.left - this.node.flowGraph.viewport.x) / this.node.flowGraph.viewport.scale, o = (t.top + t.height / 2 - e.top - this.node.flowGraph.viewport.y) / this.node.flowGraph.viewport.scale;
+    return { x: i, y: o };
   }
   setupContextMenu() {
     this.element && this.element.addEventListener("contextmenu", (t) => {
@@ -647,7 +647,7 @@ class V {
       z-index: 10000;
       min-width: 120px;
       padding: 4px 0;
-    `, this.connections.forEach((i) => {
+    `, this.connections.forEach((o) => {
       var c, h, d;
       const n = document.createElement("div");
       n.className = "context-menu-item", n.style.cssText = `
@@ -659,24 +659,24 @@ class V {
         align-items: center;
         gap: 8px;
       `;
-      const a = ((c = i.fromSocket) == null ? void 0 : c.node) === this.node ? (h = i.toSocket) == null ? void 0 : h.node : (d = i.fromSocket) == null ? void 0 : d.node, r = (a == null ? void 0 : a.label) || (a == null ? void 0 : a.type) || "node";
+      const a = ((c = o.fromSocket) == null ? void 0 : c.node) === this.node ? (h = o.toSocket) == null ? void 0 : h.node : (d = o.fromSocket) == null ? void 0 : d.node, r = (a == null ? void 0 : a.label) || (a == null ? void 0 : a.type) || "node";
       n.innerHTML = `
         <span style="color: var(--fg-error);">🗑️</span>
         <span>Delete connection to ${r}</span>
       `, n.addEventListener("click", () => {
-        this.node.flowGraph.removeEdge(i.id), this.hideContextMenu();
+        this.node.flowGraph.removeEdge(o.id), this.hideContextMenu();
       }), n.addEventListener("mouseenter", () => {
         n.style.background = "var(--fg-accent)", n.style.color = "white";
       }), n.addEventListener("mouseleave", () => {
         n.style.background = "transparent", n.style.color = "var(--fg-text)";
       }), s.appendChild(n);
     }), this.connections.size > 1) {
-      const i = document.createElement("div");
-      i.style.cssText = `
+      const o = document.createElement("div");
+      o.style.cssText = `
         height: 1px;
         background: var(--fg-muted);
         margin: 4px 0;
-      `, s.appendChild(i);
+      `, s.appendChild(o);
       const n = document.createElement("div");
       n.className = "context-menu-item", n.style.cssText = `
         padding: 8px 12px;
@@ -701,11 +701,11 @@ class V {
       }), s.appendChild(n);
     }
     document.body.appendChild(s), this.contextMenu = s;
-    const o = (i) => {
-      s.contains(i.target) || (this.hideContextMenu(), document.removeEventListener("click", o));
+    const i = (o) => {
+      s.contains(o.target) || (this.hideContextMenu(), document.removeEventListener("click", i));
     };
     setTimeout(() => {
-      document.addEventListener("click", o);
+      document.addEventListener("click", i);
     }, 0);
   }
   hideContextMenu() {
@@ -766,8 +766,8 @@ class V {
    */
   colorToRgba(t, e) {
     if (t.startsWith("#")) {
-      const s = t.slice(1), o = parseInt(s.slice(0, 2), 16), i = parseInt(s.slice(2, 4), 16), n = parseInt(s.slice(4, 6), 16);
-      return `rgba(${o}, ${i}, ${n}, ${e})`;
+      const s = t.slice(1), i = parseInt(s.slice(0, 2), 16), o = parseInt(s.slice(2, 4), 16), n = parseInt(s.slice(4, 6), 16);
+      return `rgba(${i}, ${o}, ${n}, ${e})`;
     }
     if (t.startsWith("rgb")) {
       const s = t.match(/\d+/g);
@@ -829,12 +829,12 @@ class te {
    */
   createDataKeyMap() {
     this.element.querySelectorAll("[data-key]").forEach((e) => {
-      const s = e.getAttribute("data-key"), o = this.parseDataKey(s);
+      const s = e.getAttribute("data-key"), i = this.parseDataKey(s);
       this.dataKeyMap.set(
-        o.key,
+        i.key,
         {
           el: e,
-          property: o.property
+          property: i.property
         }
       );
     });
@@ -903,26 +903,26 @@ class te {
       var s;
       const e = this.element.querySelector(`flow-socket[name="${t.id}"]`);
       if (e) {
-        const o = e.getAttribute("max-connection");
-        if (o !== null) {
-          const n = parseInt(o, 10);
+        const i = e.getAttribute("max-connection");
+        if (i !== null) {
+          const n = parseInt(i, 10);
           !isNaN(n) && n > 0 && (t.maxConnections = n);
         }
-        let i = (s = e.shadowRoot) == null ? void 0 : s.querySelector("flow-socket-anchor");
-        i || (i = e.querySelector("flow-socket-anchor")), i ? (t.element = i, i._socket = t, t.setupContextMenu()) : console.warn(`Socket element not found for socket ${t.id} - flow-socket found but no flow-socket-anchor`);
+        let o = (s = e.shadowRoot) == null ? void 0 : s.querySelector("flow-socket-anchor");
+        o || (o = e.querySelector("flow-socket-anchor")), o ? (t.element = o, o._socket = t, t.setupContextMenu()) : console.warn(`Socket element not found for socket ${t.id} - flow-socket found but no flow-socket-anchor`);
       } else
         console.warn(`Flow-socket not found for socket ${t.id}`);
     }), this.outputs.forEach((t) => {
       var s;
       const e = this.element.querySelector(`flow-socket[name="${t.id}"]`);
       if (e) {
-        const o = e.getAttribute("max-connection");
-        if (o !== null) {
-          const n = parseInt(o, 10);
+        const i = e.getAttribute("max-connection");
+        if (i !== null) {
+          const n = parseInt(i, 10);
           !isNaN(n) && n > 0 && (t.maxConnections = n);
         }
-        let i = (s = e.shadowRoot) == null ? void 0 : s.querySelector("flow-socket-anchor");
-        i || (i = e.querySelector("flow-socket-anchor")), i ? (t.element = i, i._socket = t, t.setupContextMenu()) : console.warn(`Socket element not found for socket ${t.id} - flow-socket found but no flow-socket-anchor`);
+        let o = (s = e.shadowRoot) == null ? void 0 : s.querySelector("flow-socket-anchor");
+        o || (o = e.querySelector("flow-socket-anchor")), o ? (t.element = o, o._socket = t, t.setupContextMenu()) : console.warn(`Socket element not found for socket ${t.id} - flow-socket found but no flow-socket-anchor`);
       } else
         console.warn(`Flow-socket not found for socket ${t.id}`);
     });
@@ -952,14 +952,14 @@ class te {
    * ```
    */
   addSocket(t) {
-    const { id: e, type: s, dataType: o = "any", label: i, maxConnections: n, color: a, size: r } = t;
+    const { id: e, type: s, dataType: i = "any", label: o, maxConnections: n, color: a, size: r } = t;
     if (this.inputs.has(e) || this.outputs.has(e))
       throw new Error(`Socket with ID '${e}' already exists`);
     const c = new V(this, {
       id: e,
       type: s,
-      dataType: o,
-      label: i || e,
+      dataType: i,
+      label: o || e,
       maxConnections: n
     });
     if (s === "input")
@@ -1041,12 +1041,12 @@ class te {
    * ```
    */
   removeSocket(t, e = null) {
-    let s = null, o = null;
-    return (e === "input" || e === null) && (s = this.inputs.get(t), s && (o = "input")), !s && (e === "output" || e === null) && (s = this.outputs.get(t), s && (o = "output")), s ? (Array.from(s.connections).forEach((n) => {
+    let s = null, i = null;
+    return (e === "input" || e === null) && (s = this.inputs.get(t), s && (i = "input")), !s && (e === "output" || e === null) && (s = this.outputs.get(t), s && (i = "output")), s ? (Array.from(s.connections).forEach((n) => {
       this.flowGraph.removeEdge(n.id);
-    }), this.removeSocketElement(s), o === "input" ? this.inputs.delete(t) : this.outputs.delete(t), this.updateNodeHeight(), this.flowGraph.container.dispatchEvent(
+    }), this.removeSocketElement(s), i === "input" ? this.inputs.delete(t) : this.outputs.delete(t), this.updateNodeHeight(), this.flowGraph.container.dispatchEvent(
       new CustomEvent("socket:remove", {
-        detail: { node: this, socketId: t, socketType: o }
+        detail: { node: this, socketId: t, socketType: i }
       })
     ), !0) : !1;
   }
@@ -1061,16 +1061,16 @@ class te {
    */
   createSocketElement(t, e = {}) {
     var r;
-    const { color: s, size: o } = e, i = document.createElement("flow-socket");
-    i.setAttribute("type", t.type), i.setAttribute("name", t.id), i.setAttribute("label", t.label), i.setAttribute("data-type", t.dataType), t.maxConnections !== void 0 && i.setAttribute("max-connection", t.maxConnections.toString()), s && i.setAttribute("color", s), o && i.setAttribute("size", o);
+    const { color: s, size: i } = e, o = document.createElement("flow-socket");
+    o.setAttribute("type", t.type), o.setAttribute("name", t.id), o.setAttribute("label", t.label), o.setAttribute("data-type", t.dataType), t.maxConnections !== void 0 && o.setAttribute("max-connection", t.maxConnections.toString()), s && o.setAttribute("color", s), i && o.setAttribute("size", i);
     const n = this.element.querySelector(".body");
     if (!n) {
       console.warn("Could not find .body element to insert socket");
       return;
     }
     const a = (r = n.querySelector(".socket-control-btn")) == null ? void 0 : r.parentElement;
-    t.type === "input" && a ? n.insertBefore(i, a) : n.appendChild(i), requestAnimationFrame(() => {
-      this.linkSingleSocketElement(t, i);
+    t.type === "input" && a ? n.insertBefore(o, a) : n.appendChild(o), requestAnimationFrame(() => {
+      this.linkSingleSocketElement(t, o);
     });
   }
   /**
@@ -1081,14 +1081,14 @@ class te {
    * @private
    */
   linkSingleSocketElement(t, e) {
-    var i;
+    var o;
     const s = e.getAttribute("max-connection");
     if (s !== null) {
       const n = parseInt(s, 10);
       !isNaN(n) && n > 0 && (t.maxConnections = n);
     }
-    let o = (i = e.shadowRoot) == null ? void 0 : i.querySelector("flow-socket-anchor");
-    o || (o = e.querySelector("flow-socket-anchor")), o ? (t.element = o, o._socket = t, t.setupContextMenu()) : console.warn(`Socket element not found for socket ${t.id}`);
+    let i = (o = e.shadowRoot) == null ? void 0 : o.querySelector("flow-socket-anchor");
+    i || (i = e.querySelector("flow-socket-anchor")), i ? (t.element = i, i._socket = t, t.setupContextMenu()) : console.warn(`Socket element not found for socket ${t.id}`);
   }
   /**
    * Remove socket element from DOM.
@@ -1120,43 +1120,43 @@ class te {
     if (e && e !== t) {
       const s = e.shadowRoot;
       if (s && s.contains(t)) {
-        const o = s.querySelector("flow-socket-anchor");
-        if (o && (o.contains(t) || t === o) || t.classList.contains("socket"))
+        const i = s.querySelector("flow-socket-anchor");
+        if (i && (i.contains(t) || t === i) || t.classList.contains("socket"))
           return !0;
       }
     }
     return !!(t.tagName === "FLOW-SOCKET" || t.matches("input, textarea, select, button, a[href]") || t.isContentEditable);
   }
   setupDragging() {
-    let t = !1, e = 0, s = null, o = {
+    let t = !1, e = 0, s = null, i = {
       timer: null,
       startTime: 0,
       threshold: 500,
       // 500ms for long press
       moved: !1
     };
-    const i = (u) => {
+    const o = (u) => {
       if (this.isInteractiveElement(u.target)) return;
       if (u.pointerType === "touch") {
         e = Date.now();
         return;
       }
       const v = u.ctrlKey || u.metaKey;
-      this.flowGraph.selectNode(this.id, v), this.flowGraph.selection.has(this.id) && (t = !0, this.element.classList.add("dragging"), this.flowGraph.startMultiDrag(u, this), u.preventDefault(), u.stopPropagation());
+      this.flowGraph.selectNode(this.id, v), this.flowGraph.selection.has(this.id) && (t = !0, this.element.classList.add("dragging"), this.flowGraph.startMultiDrag(u, this), this.flowGraph.container.addEventListener("mousemove", n), this.flowGraph.container.addEventListener("mouseup", a), u.preventDefault(), u.stopPropagation());
     }, n = (u) => {
       if (u.pointerType === "touch" && !t) {
-        Date.now() - e > 50 && (this.flowGraph.selectNode(this.id, !1), this.flowGraph.selection.has(this.id) && (t = !0, this.element.classList.add("dragging"), this.flowGraph.startMultiDrag(u, this)));
+        Date.now() - e > 50 && (this.flowGraph.selectNode(this.id, !1), this.flowGraph.selection.has(this.id) && (t = !0, this.element.classList.add("dragging"), this.flowGraph.startMultiDrag(u, this), this.flowGraph.container.addEventListener("mousemove", n), this.flowGraph.container.addEventListener("mouseup", a)));
         return;
       }
       t && (this.flowGraph.updateMultiDrag(u), u.preventDefault());
     }, a = (u) => {
-      t && (t = !1, this.element.classList.remove("dragging"), this.flowGraph.endMultiDrag());
+      t && (t = !1, this.element.classList.remove("dragging"), this.flowGraph.container.removeEventListener("mousemove", n), this.flowGraph.container.removeEventListener("mouseup", a), this.flowGraph.endMultiDrag());
     }, r = (u, v, b) => {
-      c(), o.target = u, o.startTime = Date.now(), o.moved = !1, o.timer = setTimeout(() => {
-        o.moved || h(u, v, b);
-      }, o.threshold);
+      c(), i.target = u, i.startTime = Date.now(), i.moved = !1, i.timer = setTimeout(() => {
+        i.moved || h(u, v, b);
+      }, i.threshold);
     }, c = () => {
-      o.timer && (clearTimeout(o.timer), o.timer = null), o.moved = !1;
+      i.timer && (clearTimeout(i.timer), i.timer = null), i.moved = !1;
     }, h = (u, v, b) => {
       this.element.classList.add("long-press-active");
       const z = this.flowGraph.container.querySelector("flow-graph");
@@ -1175,7 +1175,7 @@ class te {
       const v = u.touches[0];
       r(u.target, v.clientX, v.clientY);
     }, p = (u) => {
-      if (o.target && (o.moved = !0, c()), !t) {
+      if (i.target && (i.moved = !0, c()), !t) {
         if (this.flowGraph.connections.socketInteractionActive || s && this.isInteractiveElement(s))
           return;
         Date.now() - e > 50 && (this.flowGraph.selectNode(this.id, !1), this.flowGraph.selection.has(this.id) && (t = !0, this.element.classList.add("dragging"), this.flowGraph.startMultiDrag(u.touches[0], this), u.preventDefault()));
@@ -1190,16 +1190,15 @@ class te {
       t = !1, this.element.classList.remove("dragging"), s = null, this.flowGraph.endMultiDrag();
     };
     this.eventHandlers = {
-      mousedown: i,
-      mousemove: n,
-      mouseup: a,
+      mousedown: o,
+      // Note: mousemove and mouseup are now attached to document dynamically during drag
       touchstart: d,
       touchmove: p,
       touchend: f,
       dblclick: (u) => {
         u.preventDefault(), u.stopPropagation(), this.execute();
       }
-    }, this.element.addEventListener("mousedown", this.eventHandlers.mousedown), this.element.addEventListener("mousemove", this.eventHandlers.mousemove), this.element.addEventListener("mouseup", this.eventHandlers.mouseup), this.element.addEventListener("touchstart", this.eventHandlers.touchstart, { passive: !0 }), this.element.addEventListener("touchmove", this.eventHandlers.touchmove, { passive: !1 }), this.element.addEventListener("touchend", this.eventHandlers.touchend, { passive: !0 }), this.element.addEventListener("dblclick", this.eventHandlers.dblclick);
+    }, this.containerMoveHandler = n, this.containerUpHandler = a, this.element.addEventListener("mousedown", this.eventHandlers.mousedown, { passive: !1 }), this.element.addEventListener("touchstart", this.eventHandlers.touchstart, { passive: !0 }), this.element.addEventListener("touchmove", this.eventHandlers.touchmove, { passive: !1 }), this.element.addEventListener("touchend", this.eventHandlers.touchend, { passive: !0 }), this.element.addEventListener("dblclick", this.eventHandlers.dblclick, { passive: !1 });
   }
   setPosition(t, e) {
     const s = { x: this.x, y: this.y };
@@ -1264,10 +1263,10 @@ class te {
       element: this.element,
       inputs: this.inputs,
       outputs: this.outputs,
-      setOutput: (s, o) => this.setOutputValue(s, o),
+      setOutput: (s, i) => this.setOutputValue(s, i),
       getInput: (s) => this.getInputValue(s),
       getData: (s) => this.getData(s),
-      setData: (s, o) => this.setData(s, o)
+      setData: (s, i) => this.setData(s, i)
     };
     try {
       const s = await t(e);
@@ -1302,9 +1301,9 @@ class te {
    * ```
    */
   setOutputValue(t, e) {
-    const o = Array.from(this.outputs.values())[t];
-    o ? (o.value = e, this.flowGraph.activateOutputSocket(this.id, t), o.connections.forEach((i) => {
-      i.toSocket && (i.toSocket.value = e);
+    const i = Array.from(this.outputs.values())[t];
+    i ? (i.value = e, this.flowGraph.activateOutputSocket(this.id, t), i.connections.forEach((o) => {
+      o.toSocket && (o.toSocket.value = e);
     })) : console.warn(`Output socket [${t}] not found for node ${this.id}`);
   }
   /**
@@ -1373,8 +1372,8 @@ class te {
   setData(t, e) {
     const s = this.dataKeyMap.get(t).el;
     if (!s) return !1;
-    const { property: o } = this.parseDataKey(t);
-    return s[o] = e, !0;
+    const { property: i } = this.parseDataKey(t);
+    return s[i] = e, !0;
   }
   /**
    * Get all data values from all data-bound elements as an object.
@@ -1430,7 +1429,7 @@ class te {
     t !== void 0 && (this.width = t, this.element && (this.element.style.width = `${t}px`)), e !== void 0 && (this.height = e, this.element && (this.element.style.height = `${e}px`)), this.flowGraph && this.flowGraph.updateEdgesForNode(this);
   }
   destroy() {
-    this.element && this.eventHandlers && (this.element.removeEventListener("mousedown", this.eventHandlers.mousedown), this.element.removeEventListener("mousemove", this.eventHandlers.mousemove), this.element.removeEventListener("mouseup", this.eventHandlers.mouseup), this.element.removeEventListener("touchstart", this.eventHandlers.touchstart), this.element.removeEventListener("touchmove", this.eventHandlers.touchmove), this.element.removeEventListener("touchend", this.eventHandlers.touchend), this.element.removeEventListener("dblclick", this.eventHandlers.dblclick)), this.element && (this.flowGraph && this.flowGraph.domBatcher ? this.flowGraph.domBatcher.scheduleNodeDelete(this.element) : this.element.remove()), this.inputs.clear(), this.outputs.clear(), this.dataKeyMap.clear(), this.eventHandlers = null, this.flowGraph = null, this.element = null, this.template = null;
+    this.element && this.eventHandlers && (this.element.removeEventListener("mousedown", this.eventHandlers.mousedown), this.element.removeEventListener("touchstart", this.eventHandlers.touchstart), this.element.removeEventListener("touchmove", this.eventHandlers.touchmove), this.element.removeEventListener("touchend", this.eventHandlers.touchend), this.element.removeEventListener("dblclick", this.eventHandlers.dblclick)), this.containerMoveHandler && this.flowGraph && this.flowGraph.container && this.flowGraph.container.removeEventListener("mousemove", this.containerMoveHandler), this.containerUpHandler && this.flowGraph && this.flowGraph.container && this.flowGraph.container.removeEventListener("mouseup", this.containerUpHandler), this.element && (this.flowGraph && this.flowGraph.domBatcher ? this.flowGraph.domBatcher.scheduleNodeDelete(this.element) : this.element.remove()), this.inputs.clear(), this.outputs.clear(), this.dataKeyMap.clear(), this.eventHandlers = null, this.flowGraph = null, this.element = null, this.template = null;
   }
 }
 function ee(l) {
@@ -1438,12 +1437,12 @@ function ee(l) {
   let t = l.querySelector(".socket") || l.querySelector('span[style*="border-color"]') || l;
   const e = t.getAttribute("style");
   if (e) {
-    const i = e.match(/border-color:\s*([^;]+)/);
-    if (i)
-      return i[1].trim();
+    const o = e.match(/border-color:\s*([^;]+)/);
+    if (o)
+      return o[1].trim();
   }
-  const o = window.getComputedStyle(t).borderColor;
-  return o && o !== "rgba(0, 0, 0, 0)" ? o : "#10b981";
+  const i = window.getComputedStyle(t).borderColor;
+  return i && i !== "rgba(0, 0, 0, 0)" ? i : "#10b981";
 }
 class se {
   /**
@@ -1565,7 +1564,7 @@ class se {
     this.updateRafId && (cancelAnimationFrame(this.updateRafId), this.updateRafId = null), this.fromSocket.removeConnection(this), this.toSocket.removeConnection(this), this.element && this.element.remove();
   }
 }
-class oe {
+class ie {
   /**
    * Creates a new Viewport instance.
    * 
@@ -1608,12 +1607,12 @@ class oe {
    */
   startPan(t) {
     this.panState.isPanning = !0, this.panState.startX = t.clientX, this.panState.startY = t.clientY, this.panState.startViewportX = this.x, this.panState.startViewportY = this.y, this.surface.style.cursor = "grabbing";
-    const e = (o) => {
+    const e = (i) => {
       if (this.panState.isPanning) {
-        const i = o.clientX - this.panState.startX, n = o.clientY - this.panState.startY, a = this.panState.startViewportX + i, r = this.panState.startViewportY + n;
+        const o = i.clientX - this.panState.startX, n = i.clientY - this.panState.startY, a = this.panState.startViewportX + o, r = this.panState.startViewportY + n;
         this.panBy(a - this.x, r - this.y);
       }
-    }, s = (o) => {
+    }, s = (i) => {
       this.panState.isPanning = !1, this.surface.style.cursor = "", this.surface.removeEventListener("mousemove", e), this.surface.removeEventListener("mouseup", s), this.flowGraph && this.flowGraph.container.dispatchEvent(new CustomEvent("viewport:pan", {
         detail: { x: this.x, y: this.y, scale: this.scale }
       }));
@@ -1622,20 +1621,20 @@ class oe {
   }
   handleWheel(t) {
     t.preventDefault();
-    const e = this.surface.getBoundingClientRect(), s = t.clientX - e.left, o = t.clientY - e.top, i = t.deltaY > 0 ? 0.9 : 1.1;
-    this.zoomAt(s, o, i);
+    const e = this.surface.getBoundingClientRect(), s = t.clientX - e.left, i = t.clientY - e.top, o = t.deltaY > 0 ? 0.9 : 1.1;
+    this.zoomAt(s, i, o);
   }
   /**
    * Handle touch start for panning and gestures
    */
   handleTouchStart(t) {
     if (this.touchState.lastTouches = Array.from(t.touches), t.touches.length === 1) {
-      const e = t.touches[0], s = e.target.closest(".node"), o = e.target.classList.contains("socket");
-      if (!s && !o) {
-        const i = Date.now(), n = i - this.touchState.lastTapTime, a = Math.sqrt(
+      const e = t.touches[0], s = e.target.closest(".node"), i = e.target.classList.contains("socket");
+      if (!s && !i) {
+        const o = Date.now(), n = o - this.touchState.lastTapTime, a = Math.sqrt(
           Math.pow(e.clientX - this.touchState.lastTapX, 2) + Math.pow(e.clientY - this.touchState.lastTapY, 2)
         );
-        n < 300 && a < 50 ? this.handleDoubleTap(e) : this.startPan(e), this.touchState.lastTapTime = i, this.touchState.lastTapX = e.clientX, this.touchState.lastTapY = e.clientY;
+        n < 300 && a < 50 ? this.handleDoubleTap(e) : this.startPan(e), this.touchState.lastTapTime = o, this.touchState.lastTapX = e.clientX, this.touchState.lastTapY = e.clientY;
       }
     } else t.touches.length === 2 && this.startPinchZoom(t);
   }
@@ -1644,8 +1643,8 @@ class oe {
    */
   handleTouchMove(t) {
     if (this.touchState.lastTouches = Array.from(t.touches), t.touches.length === 1 && this.panState.isPanning) {
-      const e = t.touches[0], s = e.clientX - this.panState.startX, o = e.clientY - this.panState.startY, i = this.panState.startViewportX + s, n = this.panState.startViewportY + o;
-      this.panBy(i - this.x, n - this.y), t.preventDefault();
+      const e = t.touches[0], s = e.clientX - this.panState.startX, i = e.clientY - this.panState.startY, o = this.panState.startViewportX + s, n = this.panState.startViewportY + i;
+      this.panBy(o - this.x, n - this.y), t.preventDefault();
     } else t.touches.length === 2 && this.touchState.isPinching && (this.updatePinchZoom(t), t.preventDefault());
   }
   /**
@@ -1660,35 +1659,35 @@ class oe {
       })));
     else if (t.touches.length === 1 && this.touchState.isPinching) {
       this.touchState.isPinching = !1;
-      const e = t.touches[0], s = e.target.closest(".node"), o = e.target.classList.contains("socket");
-      !s && !o && this.startPan(e);
+      const e = t.touches[0], s = e.target.closest(".node"), i = e.target.classList.contains("socket");
+      !s && !i && this.startPan(e);
     }
   }
   /**
    * Handle double tap gesture
    */
   handleDoubleTap(t) {
-    const e = this.surface.getBoundingClientRect(), s = t.clientX - e.left, o = t.clientY - e.top;
-    this.scale > 1.5 ? this.zoomTo(1, s, o) : this.zoomTo(2, s, o);
+    const e = this.surface.getBoundingClientRect(), s = t.clientX - e.left, i = t.clientY - e.top;
+    this.scale > 1.5 ? this.zoomTo(1, s, i) : this.zoomTo(2, s, i);
   }
   /**
    * Start pinch zoom gesture
    */
   startPinchZoom(t) {
     if (t.touches.length !== 2) return;
-    const e = t.touches[0], s = t.touches[1], o = Math.sqrt(
+    const e = t.touches[0], s = t.touches[1], i = Math.sqrt(
       Math.pow(s.clientX - e.clientX, 2) + Math.pow(s.clientY - e.clientY, 2)
-    ), i = (e.clientX + s.clientX) / 2, n = (e.clientY + s.clientY) / 2;
-    this.touchState.isPinching = !0, this.touchState.initialDistance = o, this.touchState.initialScale = this.scale, this.touchState.initialCenterX = i, this.touchState.initialCenterY = n, this.touchState.initialViewportX = this.x, this.touchState.initialViewportY = this.y, this.panState.isPanning = !1;
+    ), o = (e.clientX + s.clientX) / 2, n = (e.clientY + s.clientY) / 2;
+    this.touchState.isPinching = !0, this.touchState.initialDistance = i, this.touchState.initialScale = this.scale, this.touchState.initialCenterX = o, this.touchState.initialCenterY = n, this.touchState.initialViewportX = this.x, this.touchState.initialViewportY = this.y, this.panState.isPanning = !1;
   }
   /**
    * Update pinch zoom gesture
    */
   updatePinchZoom(t) {
     if (t.touches.length !== 2 || !this.touchState.isPinching) return;
-    const e = t.touches[0], s = t.touches[1], i = Math.sqrt(
+    const e = t.touches[0], s = t.touches[1], o = Math.sqrt(
       Math.pow(s.clientX - e.clientX, 2) + Math.pow(s.clientY - e.clientY, 2)
-    ) / this.touchState.initialDistance, n = this.touchState.initialScale * i, a = Math.max(this.minScale, Math.min(this.maxScale, n)), r = (e.clientX + s.clientX) / 2, c = (e.clientY + s.clientY) / 2, h = this.surface.getBoundingClientRect(), d = (r - h.left - this.touchState.initialViewportX) / this.touchState.initialScale, p = (c - h.top - this.touchState.initialViewportY) / this.touchState.initialScale;
+    ) / this.touchState.initialDistance, n = this.touchState.initialScale * o, a = Math.max(this.minScale, Math.min(this.maxScale, n)), r = (e.clientX + s.clientX) / 2, c = (e.clientY + s.clientY) / 2, h = this.surface.getBoundingClientRect(), d = (r - h.left - this.touchState.initialViewportX) / this.touchState.initialScale, p = (c - h.top - this.touchState.initialViewportY) / this.touchState.initialScale;
     r - h.left - d * a, c - h.top - p * a, this.zoomTo(a, r - h.left, c - h.top);
   }
   /**
@@ -1739,10 +1738,10 @@ class oe {
     this.x += t, this.y += e, this.updateTransform();
   }
   zoomAt(t, e, s) {
-    const o = Math.max(this.minScale, Math.min(this.maxScale, this.scale * s));
-    if (o !== this.scale) {
-      const i = o / this.scale;
-      this.x = t - (t - this.x) * i, this.y = e - (e - this.y) * i, this.scale = o, this.updateTransform(), this.flowGraph && this.flowGraph.container.dispatchEvent(new CustomEvent("viewport:zoom", {
+    const i = Math.max(this.minScale, Math.min(this.maxScale, this.scale * s));
+    if (i !== this.scale) {
+      const o = i / this.scale;
+      this.x = t - (t - this.x) * o, this.y = e - (e - this.y) * o, this.scale = i, this.updateTransform(), this.flowGraph && this.flowGraph.container.dispatchEvent(new CustomEvent("viewport:zoom", {
         detail: { scale: this.scale, x: this.x, y: this.y }
       }));
     }
@@ -1754,14 +1753,14 @@ class oe {
    * @param {number} centerY - Y coordinate of the zoom center
    */
   zoomTo(t, e, s) {
-    const i = Math.max(this.minScale, Math.min(this.maxScale, t)) / this.scale;
-    this.zoomAt(e, s, i);
+    const o = Math.max(this.minScale, Math.min(this.maxScale, t)) / this.scale;
+    this.zoomAt(e, s, o);
   }
   updateTransform() {
     const t = `translate(${this.x}px, ${this.y}px) scale(${this.scale})`;
     this.contentContainer.style.transform = t;
-    const e = this.flowGraph.container, s = getComputedStyle(e), o = parseInt(s.getPropertyValue("--fg-grid-main-size")) || 50, i = parseInt(s.getPropertyValue("--fg-grid-minor-size")) || 10;
-    e.style.backgroundPosition = `${this.x % o}px ${this.y % o}px, ${this.x % o}px ${this.y % o}px, ${this.x % i}px ${this.y % i}px, ${this.x % i}px ${this.y % i}px`, this.flowGraph && this.flowGraph.container.dispatchEvent(new CustomEvent("viewport:change", {
+    const e = this.flowGraph.container, s = getComputedStyle(e), i = parseInt(s.getPropertyValue("--fg-grid-main-size")) || 50, o = parseInt(s.getPropertyValue("--fg-grid-minor-size")) || 10;
+    e.style.backgroundPosition = `${this.x % i}px ${this.y % i}px, ${this.x % i}px ${this.y % i}px, ${this.x % o}px ${this.y % o}px, ${this.x % o}px ${this.y % o}px`, this.flowGraph && this.flowGraph.container.dispatchEvent(new CustomEvent("viewport:change", {
       detail: {
         x: this.x,
         y: this.y,
@@ -1797,7 +1796,7 @@ class oe {
     this.x = t.x || 0, this.y = t.y || 0, this.scale = t.scale || 1, this.updateTransform();
   }
 }
-class ie {
+class oe {
   /**
    * Creates a new FlowGraphAnimations instance.
    * 
@@ -1924,8 +1923,8 @@ class ie {
    */
   startNodeAnimations(t, e) {
     t.inputs.forEach((s) => {
-      s.connections.forEach((o) => {
-        e.has(o.id) || (this.startEdgeAnimation(o), e.add(o.id));
+      s.connections.forEach((i) => {
+        e.has(i.id) || (this.startEdgeAnimation(i), e.add(i.id));
       });
     });
   }
@@ -1934,8 +1933,8 @@ class ie {
    */
   stopNodeAnimations(t, e) {
     t.inputs.forEach((s) => {
-      s.connections.forEach((o) => {
-        e.has(o.id) && (this.stopEdgeAnimation(o), this.addToExecutionTrail(o), e.delete(o.id));
+      s.connections.forEach((i) => {
+        e.has(i.id) && (this.stopEdgeAnimation(i), this.addToExecutionTrail(i), e.delete(i.id));
       });
     });
   }
@@ -1978,9 +1977,9 @@ class ie {
    * This is used for conditional nodes where only certain branches should be animated
    */
   animateOutputEdges(t, e, s) {
-    !e || e.length === 0 || e.forEach((o) => {
-      const i = t.outputs.get(o);
-      i && i.connections.forEach((n) => {
+    !e || e.length === 0 || e.forEach((i) => {
+      const o = t.outputs.get(i);
+      o && o.connections.forEach((n) => {
         s.has(n.id) || (this.startEdgeAnimation(n), s.add(n.id));
       });
     });
@@ -2019,7 +2018,7 @@ class ne {
     }
     let e = 0;
     const s = /* @__PURE__ */ new Set();
-    let o = null;
+    let i = null;
     for (const n of t) {
       const a = this.flowGraph.nodes.get(n);
       if (a && a.template && a.template.onExecute) {
@@ -2028,37 +2027,37 @@ class ne {
         try {
           this.flowGraph.animations.highlightExecutingNode(a, !0), this.flowGraph.animations.animationConfig.enabled && this.flowGraph.animations.startNodeAnimations(a, s), await a.execute(), e++, this.flowGraph.animations.animationConfig.enabled && this.flowGraph.animations.stopNodeAnimations(a, s), this.flowGraph.animations.highlightExecutingNode(a, !1);
         } catch (c) {
-          console.error(`Error executing node ${n}:`, c), o = c, this.flowGraph.animations.highlightExecutingNode(a, !1), this.flowGraph.animations.animationConfig.enabled && this.flowGraph.animations.stopAllAnimations(s);
+          console.error(`Error executing node ${n}:`, c), i = c, this.flowGraph.animations.highlightExecutingNode(a, !1), this.flowGraph.animations.animationConfig.enabled && this.flowGraph.animations.stopAllAnimations(s);
           break;
         }
       }
     }
     this.flowGraph.animations.animationConfig.enabled && this.flowGraph.animations.stopAllAnimations(s), this.flowGraph.animations.clearAllNodeHighlighting();
-    const i = this.flowGraph.animations.getTrailDuration();
-    if (i > 0 && setTimeout(() => {
+    const o = this.flowGraph.animations.getTrailDuration();
+    if (o > 0 && setTimeout(() => {
       this.flowGraph.animations.resetAllEdgeColors();
-    }, i), this.flowGraph.container.dispatchEvent(new CustomEvent("graph:execute:complete", {
+    }, o), this.flowGraph.container.dispatchEvent(new CustomEvent("graph:execute:complete", {
       detail: {
         executedNodes: e,
         totalNodes: t.length,
-        error: o,
+        error: i,
         timestamp: Date.now()
       }
-    })), o)
-      throw o;
+    })), i)
+      throw i;
   }
   /**
    * Get execution order using topological sort
    */
   getExecutionOrder() {
-    const t = /* @__PURE__ */ new Set(), e = /* @__PURE__ */ new Set(), s = [], o = /* @__PURE__ */ new Map();
+    const t = /* @__PURE__ */ new Set(), e = /* @__PURE__ */ new Set(), s = [], i = /* @__PURE__ */ new Map();
     this.flowGraph.nodes.forEach((n, a) => {
-      o.set(a, /* @__PURE__ */ new Set());
+      i.set(a, /* @__PURE__ */ new Set());
     }), this.flowGraph.edges.forEach((n) => {
       const a = n.fromSocket.node.id, r = n.toSocket.node.id;
-      o.get(r).add(a);
+      i.get(r).add(a);
     });
-    const i = (n) => {
+    const o = (n) => {
       if (e.has(n)) {
         console.warn(`Circular dependency detected involving node ${n}`);
         return;
@@ -2066,15 +2065,15 @@ class ne {
       if (t.has(n))
         return;
       e.add(n);
-      const a = o.get(n) || /* @__PURE__ */ new Set();
+      const a = i.get(n) || /* @__PURE__ */ new Set();
       for (const c of a)
-        i(c);
+        o(c);
       e.delete(n), t.add(n);
       const r = this.flowGraph.nodes.get(n);
       r && r.template && r.template.onExecute && s.push(n);
     };
     return this.flowGraph.nodes.forEach((n, a) => {
-      t.has(a) || i(a);
+      t.has(a) || o(a);
     }), s;
   }
   /**
@@ -2084,8 +2083,8 @@ class ne {
     if (this.flowGraph.selection.getSelection().length === 0)
       return;
     const e = this.flowGraph.selection.getSelection().map((s) => {
-      const o = this.flowGraph.nodes.get(s);
-      return o ? o.execute() : Promise.resolve();
+      const i = this.flowGraph.nodes.get(s);
+      return i ? i.execute() : Promise.resolve();
     });
     try {
       await Promise.all(e);
@@ -2105,8 +2104,8 @@ class ne {
   markConnectedInputsAsActive(t, e) {
     const s = this.flowGraph.nodes.get(t);
     if (!s) return;
-    const i = Array.from(s.outputs.values())[e];
-    i && i.connections.forEach((n) => {
+    const o = Array.from(s.outputs.values())[e];
+    o && o.connections.forEach((n) => {
       if (n.toSocket) {
         const a = n.toSocket.node.id, r = this.getInputSocketIndex(n.toSocket);
         this.activeInputs.has(a) || this.activeInputs.set(a, /* @__PURE__ */ new Set()), this.activeInputs.get(a).add(r);
@@ -2238,8 +2237,8 @@ class re {
     if (this.selection.size === 0 || this.flowGraph.readonly)
       return;
     const t = Array.from(this.selection), e = [];
-    this.flowGraph.edges.forEach((s, o) => {
-      (t.includes(s.fromNodeId) || t.includes(s.toNodeId)) && e.push(o);
+    this.flowGraph.edges.forEach((s, i) => {
+      (t.includes(s.fromNodeId) || t.includes(s.toNodeId)) && e.push(i);
     }), e.forEach((s) => {
       this.flowGraph.removeEdge(s);
     }), t.forEach((s) => {
@@ -2259,16 +2258,16 @@ class re {
       timestamp: Date.now()
     };
     t.forEach((s) => {
-      const o = this.flowGraph.nodes.get(s);
-      o && e.nodes.push({
-        id: o.id,
-        type: o.type,
-        x: o.x,
-        y: o.y
+      const i = this.flowGraph.nodes.get(s);
+      i && e.nodes.push({
+        id: i.id,
+        type: i.type,
+        x: i.x,
+        y: i.y
       });
-    }), this.flowGraph.edges.forEach((s, o) => {
+    }), this.flowGraph.edges.forEach((s, i) => {
       t.includes(s.fromNodeId) && t.includes(s.toNodeId) && e.edges.push({
-        id: o,
+        id: i,
         fromNodeId: s.fromNodeId,
         fromSocketId: s.fromSocketId,
         toNodeId: s.toNodeId,
@@ -2285,35 +2284,35 @@ class re {
     if (!this.clipboard || !this.clipboard.nodes.length || this.flowGraph.readonly)
       return;
     const t = { x: 20, y: 20 }, e = [], s = /* @__PURE__ */ new Map();
-    this.clearSelection(), this.clipboard.nodes.forEach((o) => {
-      const i = `node_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      s.set(o.id, i);
+    this.clearSelection(), this.clipboard.nodes.forEach((i) => {
+      const o = `node_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      s.set(i.id, o);
       try {
-        const n = this.flowGraph.addNode(o.type, {
-          id: i,
-          x: o.x + t.x,
-          y: o.y + t.y
+        const n = this.flowGraph.addNode(i.type, {
+          id: o,
+          x: i.x + t.x,
+          y: i.y + t.y
         });
-        n && (e.push(n), this.selection.add(i), n.setSelected(!0));
+        n && (e.push(n), this.selection.add(o), n.setSelected(!0));
       } catch (n) {
-        console.warn(`Could not paste node of type ${o.type}:`, n.message);
+        console.warn(`Could not paste node of type ${i.type}:`, n.message);
       }
-    }), this.clipboard.edges.forEach((o) => {
-      const i = s.get(o.fromNodeId), n = s.get(o.toNodeId);
-      if (i && n) {
-        const a = this.flowGraph.nodes.get(i), r = this.flowGraph.nodes.get(n);
+    }), this.clipboard.edges.forEach((i) => {
+      const o = s.get(i.fromNodeId), n = s.get(i.toNodeId);
+      if (o && n) {
+        const a = this.flowGraph.nodes.get(o), r = this.flowGraph.nodes.get(n);
         if (a && r) {
-          const c = a.outputs.get(o.fromSocketId), h = r.inputs.get(o.toSocketId);
+          const c = a.outputs.get(i.fromSocketId), h = r.inputs.get(i.toSocketId);
           c && h && c.canConnect(h) && this.flowGraph.createEdge({
-            fromNodeId: i,
-            fromSocketId: o.fromSocketId,
+            fromNodeId: o,
+            fromSocketId: i.fromSocketId,
             toNodeId: n,
-            toSocketId: o.toSocketId
+            toSocketId: i.toSocketId
           });
         }
       }
     }), this.flowGraph.container.dispatchEvent(new CustomEvent("nodes:paste", {
-      detail: { pastedNodes: e.map((o) => o.id), nodeIdMap: Object.fromEntries(s) }
+      detail: { pastedNodes: e.map((i) => i.id), nodeIdMap: Object.fromEntries(s) }
     }));
   }
 }
@@ -2387,10 +2386,10 @@ class ae {
     if (s) {
       if (t === s)
         return !0;
-      const o = s.shadowRoot;
-      if (o) {
-        const i = o.querySelector("flow-socket-anchor");
-        if (i && i.contains(t))
+      const i = s.shadowRoot;
+      if (i) {
+        const o = i.querySelector("flow-socket-anchor");
+        if (o && o.contains(t))
           return !0;
       }
     }
@@ -2450,9 +2449,9 @@ class ae {
       return;
     }
     t.preventDefault(), t.stopPropagation();
-    const s = e.closest(".node"), o = s == null ? void 0 : s.dataset.id, i = e.getAttribute("name");
-    if ((c = e.shadowRoot) == null || c.querySelector("flow-socket-anchor"), !o || !i) return;
-    const n = this.flowGraph.nodes.get(o), a = n == null ? void 0 : n.getSocket(i);
+    const s = e.closest(".node"), i = s == null ? void 0 : s.dataset.id, o = e.getAttribute("name");
+    if ((c = e.shadowRoot) == null || c.querySelector("flow-socket-anchor"), !i || !o) return;
+    const n = this.flowGraph.nodes.get(i), a = n == null ? void 0 : n.getSocket(o);
     if (!a) return;
     this.connectionState.active = !0, this.connectionState.fromSocket = a;
     const r = (h = e.shadowRoot) == null ? void 0 : h.querySelector(".socket");
@@ -2466,9 +2465,9 @@ class ae {
     this.updateTempPath(t.clientX, t.clientY);
     const e = document.elementFromPoint(t.clientX, t.clientY), s = e == null ? void 0 : e.closest("flow-socket");
     if (s) {
-      const o = s.closest(".node"), i = o == null ? void 0 : o.dataset.id, n = s.getAttribute("name");
-      if (i && n) {
-        const a = this.flowGraph.nodes.get(i), r = a == null ? void 0 : a.getSocket(n);
+      const i = s.closest(".node"), o = i == null ? void 0 : i.dataset.id, n = s.getAttribute("name");
+      if (o && n) {
+        const a = this.flowGraph.nodes.get(o), r = a == null ? void 0 : a.getSocket(n);
         if (r && this.canConnect(this.connectionState.fromSocket, r)) {
           this.updateSocketHover(s), this.connectionState.toSocket = r;
           const c = this.connectionState.fromSocket.type === "output" ? this.connectionState.fromSocket : r;
@@ -2517,14 +2516,14 @@ class ae {
       const e = t.touches[0];
       e.target.closest("flow-socket") && (this.socketInteractionActive = !0, t.preventDefault(), t.stopPropagation(), this.startLongPressDetection(e.target, e.clientX, e.clientY), setTimeout(() => {
         if (!this.longPressState.connectionDelayed) {
-          const o = {
+          const i = {
             target: e.target,
             clientX: e.clientX,
             clientY: e.clientY,
             preventDefault: () => t.preventDefault(),
             stopPropagation: () => t.stopPropagation()
           };
-          this.handleSocketMouseDown(o);
+          this.handleSocketMouseDown(i);
         }
       }, 100));
     }
@@ -2570,7 +2569,7 @@ class ae {
    */
   updateTempPath(t, e) {
     if (!this.connectionState.fromSocket) return;
-    const s = this.connectionState.fromSocket, o = this.getSocketPosition(s), i = this.flowGraph.surface.getBoundingClientRect(), n = (t - i.left - this.flowGraph.viewport.x) / this.flowGraph.viewport.scale, a = (e - i.top - this.flowGraph.viewport.y) / this.flowGraph.viewport.scale, r = this.createCubicPath(o, { x: n, y: a }, s);
+    const s = this.connectionState.fromSocket, i = this.getSocketPosition(s), o = this.flowGraph.surface.getBoundingClientRect(), n = (t - o.left - this.flowGraph.viewport.x) / this.flowGraph.viewport.scale, a = (e - o.top - this.flowGraph.viewport.y) / this.flowGraph.viewport.scale, r = this.createCubicPath(i, { x: n, y: a }, s);
     this.flowGraph.tempPath.setAttribute("d", r);
   }
   /**
@@ -2607,9 +2606,9 @@ class ae {
     const t = this.flowGraph.getCachedElements ? this.flowGraph.getCachedElements("sockets") : this.flowGraph.container.querySelectorAll("flow-socket"), e = [];
     t.forEach((s) => {
       e.push(() => {
-        var i;
-        const o = (i = s.shadowRoot) == null ? void 0 : i.querySelector(".socket");
-        o && o.classList.remove("socket-hover");
+        var o;
+        const i = (o = s.shadowRoot) == null ? void 0 : o.querySelector(".socket");
+        i && i.classList.remove("socket-hover");
       });
     }), e.forEach((s) => s());
   }
@@ -2633,10 +2632,10 @@ class ae {
     t.forEach((s) => {
       e.push(() => {
         var n, a;
-        const o = (n = s.shadowRoot) == null ? void 0 : n.querySelector(".socket");
-        o && o.classList.remove("socket-active", "socket-hover");
-        const i = (a = s.shadowRoot) == null ? void 0 : a.querySelectorAll('span[style*="border-color"]');
-        i && i.forEach((r) => {
+        const i = (n = s.shadowRoot) == null ? void 0 : n.querySelector(".socket");
+        i && i.classList.remove("socket-active", "socket-hover");
+        const o = (a = s.shadowRoot) == null ? void 0 : a.querySelectorAll('span[style*="border-color"]');
+        o && o.forEach((r) => {
           r.classList.remove("socket-active", "socket-hover");
         });
       });
@@ -2677,10 +2676,10 @@ class ae {
           return c;
       }
     }
-    const o = window.getComputedStyle(e), i = o.borderColor;
-    if (i && i !== "rgba(0, 0, 0, 0)" && i !== "transparent")
-      return i;
-    const n = o.backgroundColor;
+    const i = window.getComputedStyle(e), o = i.borderColor;
+    if (o && o !== "rgba(0, 0, 0, 0)" && o !== "transparent")
+      return o;
+    const n = i.backgroundColor;
     return n && n !== "rgba(0, 0, 0, 0)" && n !== "transparent" ? n : "#10b981";
   }
   /**
@@ -2698,17 +2697,17 @@ class ae {
     }
     if (!e)
       return console.warn(`Socket element not found for socket ${t.id}`), { x: 0, y: 0 };
-    const s = e.getBoundingClientRect(), o = this.flowGraph.surface.getBoundingClientRect();
-    let i = s.width / 2;
-    t.type === "output" ? i = s.width / 2 : t.type === "input" && (i = -s.width / 2);
-    const n = (s.left + s.width / 2 + i - o.left - this.flowGraph.viewport.x) / this.flowGraph.viewport.scale, a = (s.top + s.height / 2 - o.top - this.flowGraph.viewport.y) / this.flowGraph.viewport.scale;
+    const s = e.getBoundingClientRect(), i = this.flowGraph.surface.getBoundingClientRect();
+    let o = s.width / 2;
+    t.type === "output" ? o = s.width / 2 : t.type === "input" && (o = -s.width / 2);
+    const n = (s.left + s.width / 2 + o - i.left - this.flowGraph.viewport.x) / this.flowGraph.viewport.scale, a = (s.top + s.height / 2 - i.top - this.flowGraph.viewport.y) / this.flowGraph.viewport.scale;
     return { x: n, y: a };
   }
   /**
    * Create cubic bezier path between two points
    */
-  createCubicPath(t, e, s = null, o = null) {
-    const i = e.x - t.x, n = e.y - t.y, a = Math.hypot(i, n), r = Math.min(200, a * 0.5);
+  createCubicPath(t, e, s = null, i = null) {
+    const o = e.x - t.x, n = e.y - t.y, a = Math.hypot(o, n), r = Math.min(200, a * 0.5);
     let c, h;
     return s ? s.type === "output" ? (c = { x: t.x + r, y: t.y }, h = { x: e.x - r, y: e.y }) : (c = { x: t.x - r, y: t.y }, h = { x: e.x + r, y: e.y }) : (c = { x: t.x + r, y: t.y }, h = { x: e.x - r, y: e.y }), `M ${t.x} ${t.y} C ${c.x} ${c.y}, ${h.x} ${h.y}, ${e.x} ${e.y}`;
   }
@@ -2787,22 +2786,22 @@ class ae {
   handleLongPress(t, e, s) {
     var r, c;
     this.longPressState.connectionDelayed = !0;
-    let o = t.closest("flow-socket-anchor");
-    if (o || t.tagName === "FLOW-SOCKET" && (o = (r = t.shadowRoot) == null ? void 0 : r.querySelector("flow-socket-anchor")), !o) return;
-    let i = o._socket;
-    if (!i) {
+    let i = t.closest("flow-socket-anchor");
+    if (i || t.tagName === "FLOW-SOCKET" && (i = (r = t.shadowRoot) == null ? void 0 : r.querySelector("flow-socket-anchor")), !i) return;
+    let o = i._socket;
+    if (!o) {
       const h = t.closest(".node");
       if (h) {
         const d = h.dataset.id, p = t.closest("flow-socket"), f = p == null ? void 0 : p.getAttribute("name");
         if (d && f) {
           const u = this.flowGraph.nodes.get(d);
-          u && (i = u.getSocket(f));
+          u && (o = u.getSocket(f));
         }
       }
-      if (!i) return;
+      if (!o) return;
     }
-    if (i.connections.size === 0) return;
-    const n = o.querySelector(".socket");
+    if (o.connections.size === 0) return;
+    const n = i.querySelector(".socket");
     n && (n.classList.add("long-press-active"), setTimeout(() => {
       n.classList.remove("long-press-active");
     }, 500)), this.connectionState.active = !1, this.connectionState.fromSocket = null, this.connectionState.toSocket = null, this.flowGraph.tempPath.style.display = "none";
@@ -2811,7 +2810,7 @@ class ae {
       const h = (c = a.shadowRoot) == null ? void 0 : c.querySelector(".socket");
       h && h.classList.remove("socket-active");
     }
-    i.showContextMenu(e, s);
+    o.showContextMenu(e, s);
   }
   /**
    * Clean up event listeners and resources.
@@ -2849,49 +2848,58 @@ class le {
         draggedNode: e,
         startX: t.clientX,
         startY: t.clientY,
-        initialPositions: /* @__PURE__ */ new Map()
+        initialPositions: /* @__PURE__ */ new Map(),
+        updateRafId: null,
+        latestEvent: null
       };
       for (const s of this.flowGraph.selection.getSelection()) {
-        const o = this.flowGraph.nodes.get(s);
-        o && (this.multiDragState.initialPositions.set(s, {
-          x: o.x,
-          y: o.y
-        }), o.element.classList.add("dragging"));
+        const i = this.flowGraph.nodes.get(s);
+        i && (this.multiDragState.initialPositions.set(s, {
+          x: i.x,
+          y: i.y
+        }), i.element.classList.add("dragging"));
       }
     }
   }
   /**
    * Update multi-drag operation
+   * OPTIMIZED: Aggressive throttling and batching for smooth high-refresh-rate performance
    */
   updateMultiDrag(t) {
+    !this.multiDragState || !this.multiDragState.active || (this.multiDragState.updateRafId && cancelAnimationFrame(this.multiDragState.updateRafId), this.multiDragState.latestEvent = t, this.multiDragState.updateRafId = requestAnimationFrame(() => {
+      this.performMultiDragUpdate(this.multiDragState.latestEvent), this.multiDragState.updateRafId = null;
+    }));
+  }
+  /**
+   * Perform the actual multi-drag update
+   * OPTIMIZED: Batched DOM updates with transform instead of left/top
+   * @private
+   */
+  performMultiDragUpdate(t) {
     if (!this.multiDragState || !this.multiDragState.active) return;
-    const e = t.clientX - this.multiDragState.startX, s = t.clientY - this.multiDragState.startY, o = e / this.flowGraph.viewport.scale, i = s / this.flowGraph.viewport.scale;
-    for (const n of this.flowGraph.selection.getSelection()) {
-      const a = this.flowGraph.nodes.get(n);
-      if (a) {
-        const r = this.multiDragState.initialPositions.get(n), c = r.x + o, h = r.y + i;
-        a.x = c, a.y = h, a.element.style.left = c + "px", a.element.style.top = h + "px";
+    const e = t.clientX - this.multiDragState.startX, s = t.clientY - this.multiDragState.startY, i = e / this.flowGraph.viewport.scale, o = s / this.flowGraph.viewport.scale, n = /* @__PURE__ */ new Set(), a = [];
+    for (const r of this.flowGraph.selection.getSelection()) {
+      const c = this.flowGraph.nodes.get(r);
+      if (c) {
+        const h = this.multiDragState.initialPositions.get(r), d = h.x + i, p = h.y + o;
+        c.x = d, c.y = p, a.push(() => {
+          c.element.style.transform = `translate(${d}px, ${p}px)`, c.element.dataset.usingTransform || (c.element.style.left = "0", c.element.style.top = "0", c.element.dataset.usingTransform = "true");
+        }), n.add(c);
       }
     }
-    requestAnimationFrame(() => {
-      const n = /* @__PURE__ */ new Set();
-      for (const a of this.flowGraph.selection.getSelection()) {
-        const r = this.flowGraph.nodes.get(a);
-        r && n.add(r);
-      }
-      n.size > 0 && this.flowGraph.throttledUpdates.edgeUpdate(n);
-    });
+    a.forEach((r) => r()), n.size > 0 && this.flowGraph.throttledUpdates.edgeUpdate(n);
   }
   /**
    * End multi-drag operation
    */
   endMultiDrag() {
     if (!(!this.multiDragState || !this.multiDragState.active)) {
+      this.multiDragState.updateRafId && (cancelAnimationFrame(this.multiDragState.updateRafId), this.multiDragState.updateRafId = null);
       for (const t of this.flowGraph.selection.getSelection()) {
         const e = this.flowGraph.nodes.get(t);
         if (e) {
           const s = this.multiDragState.initialPositions.get(t);
-          this.flowGraph.container.dispatchEvent(new CustomEvent("node:move", {
+          e.element.dataset.usingTransform && (e.element.style.left = e.x + "px", e.element.style.top = e.y + "px", e.element.style.transform = "", delete e.element.dataset.usingTransform), this.flowGraph.container.dispatchEvent(new CustomEvent("node:move", {
             detail: {
               nodeId: e.id,
               node: e,
@@ -2947,11 +2955,11 @@ class ce {
   flush() {
     this.flushScheduled = !1, this.rafId = null, ["update", "delete", "create", "modify"].forEach((e) => {
       const s = this.operations.get(e);
-      s && s.length > 0 && (s.forEach((o) => {
+      s && s.length > 0 && (s.forEach((i) => {
         try {
-          o();
-        } catch (i) {
-          console.warn("Error in DOM operation:", i);
+          i();
+        } catch (o) {
+          console.warn("Error in DOM operation:", o);
         }
       }), s.length = 0);
     }), this.pendingDeletions.size > 0 && (this.pendingDeletions.forEach((e) => {
@@ -3054,7 +3062,7 @@ class he extends EventTarget {
       height: 100%;
       pointer-events: auto;
       transform-origin: 0px 0px;
-    `, this.contentContainer.appendChild(this.nodesRoot), this.contentContainer.appendChild(this.edgeSvg), this.surface.appendChild(this.contentContainer), this.container.appendChild(this.surface), this.viewport = new oe(this.surface, this.contentContainer, this), this.animations = new ie(this), this.execution = new ne(this), this.selection = new re(this), this.connections = new ae(this), this.drag = new le(this), this.resizeObserver = null, this.elementToNodeMap = /* @__PURE__ */ new Map(), this.domBatcher = new ce(), this.domCache = /* @__PURE__ */ new Map(), this.nodeEdgeIndex = /* @__PURE__ */ new Map(), this.elementNodeWeakMap = /* @__PURE__ */ new WeakMap(), this.functionPool = /* @__PURE__ */ new Set(), this.animationBatcher = {
+    `, this.contentContainer.appendChild(this.nodesRoot), this.contentContainer.appendChild(this.edgeSvg), this.surface.appendChild(this.contentContainer), this.container.appendChild(this.surface), this.viewport = new ie(this.surface, this.contentContainer, this), this.animations = new oe(this), this.execution = new ne(this), this.selection = new re(this), this.connections = new ae(this), this.drag = new le(this), this.resizeObserver = null, this.elementToNodeMap = /* @__PURE__ */ new Map(), this.domBatcher = new ce(), this.domCache = /* @__PURE__ */ new Map(), this.nodeEdgeIndex = /* @__PURE__ */ new Map(), this.elementNodeWeakMap = /* @__PURE__ */ new WeakMap(), this.functionPool = /* @__PURE__ */ new Set(), this.animationBatcher = {
       pendingUpdates: /* @__PURE__ */ new Set(),
       rafId: null,
       isScheduled: !1
@@ -3093,8 +3101,8 @@ class he extends EventTarget {
     window.ResizeObserver && (this.resizeObserver = new ResizeObserver((t) => {
       const e = /* @__PURE__ */ new Set();
       for (const s of t) {
-        const o = this.elementToNodeMap.get(s.target);
-        o ? e.add(o) : console.warn("No node found for resized element:", s.target);
+        const i = this.elementToNodeMap.get(s.target);
+        i ? e.add(i) : console.warn("No node found for resized element:", s.target);
       }
       for (const s of e)
         this.updateEdgesForNode(s);
@@ -3131,17 +3139,17 @@ class he extends EventTarget {
   detectDisplayRefreshRate() {
     let t = 60;
     try {
-      let e = performance.now(), s = 0, o = e;
-      const i = (n) => {
+      let e = performance.now(), s = 0, i = e;
+      const o = (n) => {
         s++;
         const a = n - e;
-        if (n - o >= 1e3) {
-          t = Math.round(s * 1e3 / (n - o));
+        if (n - i >= 1e3) {
+          t = Math.round(s * 1e3 / (n - i));
           return;
         }
-        e = n, requestAnimationFrame(i);
+        e = n, requestAnimationFrame(o);
       };
-      requestAnimationFrame(i);
+      requestAnimationFrame(o);
     } catch (e) {
       console.warn("Could not detect display refresh rate, using 60Hz:", e);
     }
@@ -3156,15 +3164,15 @@ class he extends EventTarget {
    * @private
    */
   createAdaptiveThrottledFunction(t) {
-    let e = 0, s = null, o = null, i = null;
+    let e = 0, s = null, i = null, o = null;
     return function(...n) {
       const a = performance.now(), r = a - e, c = 1e3 / this.displayRefreshRate;
       if (r >= c) {
         e = a, t.apply(this, n);
         return;
       }
-      s && cancelAnimationFrame(s), t === this.batchUpdateEdges && n.length > 0 && n[0] instanceof Set ? (i || (i = /* @__PURE__ */ new Set()), n[0].forEach((h) => i.add(h)), o = [i]) : o = n, s = requestAnimationFrame((h) => {
-        e = h, t.apply(this, o), s = null, o = null, i = null;
+      s && cancelAnimationFrame(s), t === this.batchUpdateEdges && n.length > 0 && n[0] instanceof Set ? (o || (o = /* @__PURE__ */ new Set()), n[0].forEach((h) => o.add(h)), i = [o]) : i = n, s = requestAnimationFrame((h) => {
+        e = h, t.apply(this, i), s = null, i = null, o = null;
       });
     };
   }
@@ -3179,8 +3187,8 @@ class he extends EventTarget {
    */
   createThrottledFunction(t, e) {
     let s;
-    return function(...o) {
-      s || (t.apply(this, o), s = !0, setTimeout(() => s = !1, e));
+    return function(...i) {
+      s || (t.apply(this, i), s = !0, setTimeout(() => s = !1, e));
     };
   }
   /**
@@ -3210,8 +3218,8 @@ class he extends EventTarget {
     }
     const e = /* @__PURE__ */ new Set();
     for (const s of t) {
-      const o = this.nodeEdgeIndex.get(s);
-      o && o.forEach((i) => e.add(i));
+      const i = this.nodeEdgeIndex.get(s);
+      i && i.forEach((o) => e.add(o));
     }
     if (this.domBatcher && e.size > 0)
       this.domBatcher.schedule("update", () => {
@@ -3311,8 +3319,8 @@ class he extends EventTarget {
    * @param {Socket} toSocket - Target socket
    * @returns {string} SVG path string
    */
-  createCubicPath(t, e, s, o) {
-    return this.connections.createCubicPath(t, e, s, o);
+  createCubicPath(t, e, s, i) {
+    return this.connections.createCubicPath(t, e, s, i);
   }
   /**
    * Add a node template that defines how nodes of a specific type should be created.
@@ -3380,18 +3388,18 @@ class he extends EventTarget {
     const s = this.templates.get(t);
     if (!s)
       throw new Error(`Unknown node type: ${t}`);
-    const o = new te(this, {
+    const i = new te(this, {
       ...e,
       type: t,
       template: s,
       initialData: e.data || {}
       // Pass initial data
     });
-    return this.nodes.set(o.id, o), o.element ? (this.elementToNodeMap.set(o.element, o), this.elementNodeWeakMap.set(o.element, o), this.nodeEdgeIndex.set(o, /* @__PURE__ */ new Set()), this.resizeObserver && this.resizeObserver.observe(o.element)) : console.warn("Node element not ready when adding node:", o.id), this.readonly && o.disableFormControls(), this.container.dispatchEvent(
+    return this.nodes.set(i.id, i), i.element ? (this.elementToNodeMap.set(i.element, i), this.elementNodeWeakMap.set(i.element, i), this.nodeEdgeIndex.set(i, /* @__PURE__ */ new Set()), this.resizeObserver && this.resizeObserver.observe(i.element)) : console.warn("Node element not ready when adding node:", i.id), this.readonly && i.disableFormControls(), this.container.dispatchEvent(
       new CustomEvent("node:create", {
-        detail: { node: o }
+        detail: { node: i }
       })
-    ), o;
+    ), i;
   }
   /**
    * Remove a node from the flow graph.
@@ -3412,7 +3420,7 @@ class he extends EventTarget {
     const e = this.nodes.get(t);
     if (!e) return;
     const s = this.nodeEdgeIndex.get(e);
-    s && Array.from(s).map((i) => i.id).forEach((i) => this.removeEdge(i)), e.element && (this.elementToNodeMap.delete(e.element), this.resizeObserver && this.resizeObserver.unobserve(e.element)), this.nodeEdgeIndex.delete(e), this.domBatcher.scheduleNodeDelete(e.element), e.destroy(), this.nodes.delete(t), this.container.dispatchEvent(
+    s && Array.from(s).map((o) => o.id).forEach((o) => this.removeEdge(o)), e.element && (this.elementToNodeMap.delete(e.element), this.resizeObserver && this.resizeObserver.unobserve(e.element)), this.nodeEdgeIndex.delete(e), this.domBatcher.scheduleNodeDelete(e.element), e.destroy(), this.nodes.delete(t), this.container.dispatchEvent(
       new CustomEvent("node:remove", {
         detail: { nodeId: t }
       })
@@ -3440,8 +3448,8 @@ class he extends EventTarget {
     if (!this.canConnect(t, e)) return null;
     const s = new se(this, t, e);
     this.edges.set(s.id, s);
-    const o = t.node, i = e.node;
-    return this.nodeEdgeIndex.has(o) || this.nodeEdgeIndex.set(o, /* @__PURE__ */ new Set()), this.nodeEdgeIndex.has(i) || this.nodeEdgeIndex.set(i, /* @__PURE__ */ new Set()), this.nodeEdgeIndex.get(o).add(s), this.nodeEdgeIndex.get(i).add(s), this.container.dispatchEvent(
+    const i = t.node, o = e.node;
+    return this.nodeEdgeIndex.has(i) || this.nodeEdgeIndex.set(i, /* @__PURE__ */ new Set()), this.nodeEdgeIndex.has(o) || this.nodeEdgeIndex.set(o, /* @__PURE__ */ new Set()), this.nodeEdgeIndex.get(i).add(s), this.nodeEdgeIndex.get(o).add(s), this.container.dispatchEvent(
       new CustomEvent("edge:create", {
         detail: { edge: s }
       })
@@ -3473,8 +3481,8 @@ class he extends EventTarget {
       throw new Error("Cannot remove edges in readonly mode");
     const e = this.edges.get(t);
     if (!e) return;
-    const s = e.fromSocket.node, o = e.toSocket.node;
-    this.nodeEdgeIndex.has(s) && this.nodeEdgeIndex.get(s).delete(e), this.nodeEdgeIndex.has(o) && this.nodeEdgeIndex.get(o).delete(e), e.destroy(), this.edges.delete(t), this.container.dispatchEvent(
+    const s = e.fromSocket.node, i = e.toSocket.node;
+    this.nodeEdgeIndex.has(s) && this.nodeEdgeIndex.get(s).delete(e), this.nodeEdgeIndex.has(i) && this.nodeEdgeIndex.get(i).delete(e), e.destroy(), this.edges.delete(t), this.container.dispatchEvent(
       new CustomEvent("edge:remove", {
         detail: { edgeId: t }
       })
@@ -3564,18 +3572,18 @@ class he extends EventTarget {
    */
   deserialize(t) {
     this.clear(), t.nodes && t.nodes.forEach((e) => {
-      const { data: s, ...o } = e;
+      const { data: s, ...i } = e;
       this.addNode(e.type, {
-        ...o,
+        ...i,
         data: s
         // Pass data for DOM population
       });
     }), t.viewport && this.viewport.deserialize(t.viewport), setTimeout(() => {
       t.edges && t.edges.forEach((e) => {
-        const s = this.nodes.get(e.fromNodeId), o = this.nodes.get(e.toNodeId);
-        if (s && o) {
-          const i = s.getSocket(e.fromSocketId), n = o.getSocket(e.toSocketId);
-          i && n && this.createEdge(i, n);
+        const s = this.nodes.get(e.fromNodeId), i = this.nodes.get(e.toNodeId);
+        if (s && i) {
+          const o = s.getSocket(e.fromSocketId), n = i.getSocket(e.toSocketId);
+          o && n && this.createEdge(o, n);
         }
       });
     }, 0), t.readonly !== void 0 && this.setReadonly(t.readonly), this.container.dispatchEvent(
@@ -3592,14 +3600,14 @@ class he extends EventTarget {
   moveNode(t, e, s) {
     if (this.readonly)
       throw new Error("Cannot move nodes in readonly mode");
-    const o = this.nodes.get(t);
-    if (!o) return;
-    const i = { x: o.x, y: o.y };
-    o.setPosition(e, s), this.container.dispatchEvent(
+    const i = this.nodes.get(t);
+    if (!i) return;
+    const o = { x: i.x, y: i.y };
+    i.setPosition(e, s), this.container.dispatchEvent(
       new CustomEvent("node:move", {
-        detail: { nodeId: t, node: o, oldPosition: i, newPosition: { x: e, y: s } }
+        detail: { nodeId: t, node: i, oldPosition: o, newPosition: { x: e, y: s } }
       })
-    ), this.updateEdgesForNode(o);
+    ), this.updateEdgesForNode(i);
   }
   /**
    * Select an edge
@@ -3802,8 +3810,8 @@ class j extends y {
   constructor() {
     super(), this.visible = !1, this.x = 0, this.y = 0, this.nodeDefinitions = [], this.onNodeAdd = null, this.searchTerm = "", this.minWidth = 200, this.maxWidth = 300;
   }
-  show(t, e, s, o, i = 200, n = 300) {
-    this.x = t, this.y = e, this.nodeDefinitions = s, this.onNodeAdd = o, this.minWidth = i, this.maxWidth = n, this.visible = !0, this.searchTerm = "", this.style.setProperty("--context-menu-min-width", `${i}px`), this.style.setProperty("--context-menu-max-width", `${n}px`), this.setAttribute("visible", ""), this.requestUpdate(), this.updatePosition(), setTimeout(() => {
+  show(t, e, s, i, o = 200, n = 300) {
+    this.x = t, this.y = e, this.nodeDefinitions = s, this.onNodeAdd = i, this.minWidth = o, this.maxWidth = n, this.visible = !0, this.searchTerm = "", this.style.setProperty("--context-menu-min-width", `${o}px`), this.style.setProperty("--context-menu-max-width", `${n}px`), this.setAttribute("visible", ""), this.requestUpdate(), this.updatePosition(), setTimeout(() => {
       document.addEventListener("click", this.handleOutsideClick.bind(this));
     }, 0);
   }
@@ -3815,8 +3823,8 @@ class j extends y {
       width: window.innerWidth,
       height: window.innerHeight
     };
-    let s = this.x, o = this.y;
-    s + t.width > e.width && (s = e.width - t.width - 10), o + t.height > e.height && (o = e.height - t.height - 10), this.style.left = `${Math.max(10, s)}px`, this.style.top = `${Math.max(10, o)}px`;
+    let s = this.x, i = this.y;
+    s + t.width > e.width && (s = e.width - t.width - 10), i + t.height > e.height && (i = e.height - t.height - 10), this.style.left = `${Math.max(10, s)}px`, this.style.top = `${Math.max(10, i)}px`;
   }
   handleOutsideClick(t) {
     !this.contains(t.target) && !t.target.closest("flow-context-menu") && this.hide();
@@ -3827,13 +3835,13 @@ class j extends y {
   groupNodesByCategory() {
     const t = {};
     return this.nodeDefinitions.filter((s) => {
-      var i, n, a, r;
+      var o, n, a, r;
       if (!this.searchTerm) return !0;
-      const o = this.searchTerm.toLowerCase();
-      return ((i = s.label) == null ? void 0 : i.toLowerCase().includes(o)) || ((n = s.name) == null ? void 0 : n.toLowerCase().includes(o)) || ((a = s.description) == null ? void 0 : a.toLowerCase().includes(o)) || ((r = s.category) == null ? void 0 : r.toLowerCase().includes(o));
+      const i = this.searchTerm.toLowerCase();
+      return ((o = s.label) == null ? void 0 : o.toLowerCase().includes(i)) || ((n = s.name) == null ? void 0 : n.toLowerCase().includes(i)) || ((a = s.description) == null ? void 0 : a.toLowerCase().includes(i)) || ((r = s.category) == null ? void 0 : r.toLowerCase().includes(i));
     }).forEach((s) => {
-      const o = s.category || "General";
-      t[o] || (t[o] = []), t[o].push(s);
+      const i = s.category || "General";
+      t[i] || (t[i] = []), t[i].push(s);
     }), t;
   }
   handleSearchInput(t) {
@@ -3875,22 +3883,22 @@ class j extends y {
             <div class="category-header">
               ${e}
             </div>
-            ${s.map((o) => w`
+            ${s.map((i) => w`
               <div 
                 class="node-item"
-                @click=${() => this.handleNodeClick(o)}
-                title="${o.description || ""}"
+                @click=${() => this.handleNodeClick(i)}
+                title="${i.description || ""}"
               >
                 <div class="node-icon">
-                  ${o.icon || this.getNodeIcon(o)}
+                  ${i.icon || this.getNodeIcon(i)}
                 </div>
                 <div class="node-info">
-                  <div class="node-name">${o.label || o.name}</div>
-                  ${o.description ? w`
-                    <div class="node-description">${o.description}</div>
+                  <div class="node-name">${i.label || i.name}</div>
+                  ${i.description ? w`
+                    <div class="node-description">${i.description}</div>
                   ` : ""}
                 </div>
-                <div class="node-type">${o.name}</div>
+                <div class="node-type">${i.name}</div>
               </div>
             `)}
           </div>
@@ -4134,7 +4142,7 @@ class W extends y {
   }
   processDefinitions(t) {
     t.querySelectorAll("flow-node-def").forEach((s) => {
-      const o = s.getAttribute("name"), i = s.getAttribute("label") || o, n = parseInt(s.getAttribute("width")) || 160, a = parseInt(s.getAttribute("height")) || 100, r = s.getAttribute("category") || "General", c = s.getAttribute("description") || "", h = s.getAttribute("icon") || "", d = s.getAttribute("onExecute"), p = s.getAttribute("custom-class"), f = {}, u = s.getAttribute("color-bg"), v = s.getAttribute("color-text");
+      const i = s.getAttribute("name"), o = s.getAttribute("label") || i, n = parseInt(s.getAttribute("width")) || 160, a = parseInt(s.getAttribute("height")) || 100, r = s.getAttribute("category") || "General", c = s.getAttribute("description") || "", h = s.getAttribute("icon") || "", d = s.getAttribute("onExecute"), p = s.getAttribute("custom-class"), f = {}, u = s.getAttribute("color-bg"), v = s.getAttribute("color-text");
       u && (f.background = u), v && (f.color = v);
       const b = s.querySelector("node-body"), z = s.querySelectorAll("flow-socket"), nt = [], rt = [];
       Array.from(z).forEach((O) => {
@@ -4150,8 +4158,8 @@ class W extends y {
         });
       });
       const Pt = {
-        name: o,
-        label: i,
+        name: i,
+        label: o,
         width: n,
         height: a,
         category: r,
@@ -4164,22 +4172,22 @@ class W extends y {
         inputs: nt,
         outputs: rt
       };
-      this.flowGraph.addNodeTemplate(o, Pt);
+      this.flowGraph.addNodeTemplate(i, Pt);
     });
   }
   processNodes(t) {
     t.querySelectorAll("flow-node").forEach((s) => {
-      const o = s.getAttribute("type"), i = s.getAttribute("id"), n = parseFloat(s.getAttribute("x")) || 0, a = parseFloat(s.getAttribute("y")) || 0, r = s.hasAttribute("selected");
-      this.flowGraph.nodes.has(i) || this.flowGraph.addNode(o, { id: i, x: n, y: a, selected: r });
+      const i = s.getAttribute("type"), o = s.getAttribute("id"), n = parseFloat(s.getAttribute("x")) || 0, a = parseFloat(s.getAttribute("y")) || 0, r = s.hasAttribute("selected");
+      this.flowGraph.nodes.has(o) || this.flowGraph.addNode(i, { id: o, x: n, y: a, selected: r });
     });
   }
   processEdges(t) {
     this.flowGraph.edges.forEach((s) => {
       this.flowGraph.removeEdge(s.id);
     }), t.querySelectorAll("flow-edge").forEach((s) => {
-      const o = s.getAttribute("from"), i = s.getAttribute("to");
-      if (o && i) {
-        const [n, a] = o.split(":"), [r, c] = i.split(":"), h = this.flowGraph.nodes.get(n), d = this.flowGraph.nodes.get(r);
+      const i = s.getAttribute("from"), o = s.getAttribute("to");
+      if (i && o) {
+        const [n, a] = i.split(":"), [r, c] = o.split(":"), h = this.flowGraph.nodes.get(n), d = this.flowGraph.nodes.get(r);
         if (h && d) {
           const p = h.getSocket(a), f = d.getSocket(c);
           p && f && this.flowGraph.createEdge(p, f);
@@ -4195,9 +4203,9 @@ class W extends y {
     return this.flowGraph.removeNode(t);
   }
   addEdge(t, e, s) {
-    const [o, i] = t.split(":"), [n, a] = e.split(":"), r = this.flowGraph.nodes.get(o), c = this.flowGraph.nodes.get(n);
+    const [i, o] = t.split(":"), [n, a] = e.split(":"), r = this.flowGraph.nodes.get(i), c = this.flowGraph.nodes.get(n);
     if (r && c) {
-      const h = r.getSocket(i), d = c.getSocket(a);
+      const h = r.getSocket(o), d = c.getSocket(a);
       if (h && d)
         return this.flowGraph.createEdge(h, d);
     }
@@ -4228,14 +4236,14 @@ class W extends y {
       return;
     t.preventDefault(), t.stopPropagation();
     const e = Array.from(this.flowGraph.templates.values()).map(
-      (o) => ({
-        name: o.name,
-        label: o.label,
-        category: o.category || "General",
-        description: o.description,
-        icon: o.icon,
-        inputs: o.inputs,
-        outputs: o.outputs
+      (i) => ({
+        name: i.name,
+        label: i.label,
+        category: i.category || "General",
+        description: i.description,
+        icon: i.icon,
+        inputs: i.inputs,
+        outputs: i.outputs
       })
     ), s = this.shadowRoot.getElementById("context-menu");
     s && s.show(
@@ -4252,20 +4260,20 @@ class W extends y {
     if (!e) return;
     const s = e.getAttribute("data-id");
     if (!s) return;
-    const o = [
+    const i = [
       {
         label: "Delete Node",
         icon: "🗑️",
         action: () => this.deleteNode(s)
       }
     ];
-    this.showNodeContextMenu(t.clientX, t.clientY, o);
+    this.showNodeContextMenu(t.clientX, t.clientY, i);
   }
   showNodeContextMenu(t, e, s) {
-    const o = document.querySelector(".node-context-menu");
-    o && o.remove();
-    const i = document.createElement("div");
-    i.className = "node-context-menu", i.style.cssText = `
+    const i = document.querySelector(".node-context-menu");
+    i && i.remove();
+    const o = document.createElement("div");
+    o.className = "node-context-menu", o.style.cssText = `
       position: fixed;
       left: ${t}px;
       top: ${e}px;
@@ -4293,15 +4301,15 @@ class W extends y {
         <span>${a.icon}</span>
         <span>${a.label}</span>
       `, r.addEventListener("click", () => {
-        a.action(), i.remove();
+        a.action(), o.remove();
       }), r.addEventListener("mouseenter", () => {
         r.style.background = "var(--fg-accent, #7c3aed)", r.style.color = "white";
       }), r.addEventListener("mouseleave", () => {
         r.style.background = "transparent", r.style.color = "var(--fg-text, #ffffff)";
-      }), i.appendChild(r);
-    }), document.body.appendChild(i);
+      }), o.appendChild(r);
+    }), document.body.appendChild(o);
     const n = (a) => {
-      i.contains(a.target) || (i.remove(), document.removeEventListener("click", n));
+      o.contains(a.target) || (o.remove(), document.removeEventListener("click", n));
     };
     setTimeout(() => {
       document.addEventListener("click", n);
@@ -4317,7 +4325,7 @@ class W extends y {
   addNodeFromContextMenu(t) {
     const e = this.shadowRoot.getElementById("context-menu");
     if (!e) return;
-    const s = this.getBoundingClientRect(), o = this.flowGraph.viewport, i = e.x - s.left, n = e.y - s.top, a = (i - o.x) / o.scale, r = (n - o.y) / o.scale;
+    const s = this.getBoundingClientRect(), i = this.flowGraph.viewport, o = e.x - s.left, n = e.y - s.top, a = (o - i.x) / i.scale, r = (n - i.y) / i.scale;
     this.addNode(t.name, { x: a, y: r });
   }
   setTrailDuration(t) {
@@ -4483,10 +4491,10 @@ class Q extends y {
    */
   ensureSocketStructure() {
     requestAnimationFrame(() => {
-      var o, i;
+      var i, o;
       if (this.innerHTML.trim().length > 0)
         return;
-      const e = (o = this.shadowRoot) == null ? void 0 : o.querySelector("flow-socket-anchor"), s = (i = this.shadowRoot) == null ? void 0 : i.querySelector(".socket-label");
+      const e = (i = this.shadowRoot) == null ? void 0 : i.querySelector("flow-socket-anchor"), s = (o = this.shadowRoot) == null ? void 0 : o.querySelector(".socket-label");
       (!e || !s) && this.generateSocketStructure();
     });
   }
@@ -4496,7 +4504,7 @@ class Q extends y {
    * @private
    */
   generateSocketStructure() {
-    const t = `socket ${this.type} ${this.customClass || ""}`.trim(), e = this.getSocketStyle(), s = this.getLabelStyle(), o = `
+    const t = `socket ${this.type} ${this.customClass || ""}`.trim(), e = this.getSocketStyle(), s = this.getLabelStyle(), i = `
       <flow-socket-anchor class="${this.customClass || ""}">
         <span 
           class="${t}" 
@@ -4505,7 +4513,7 @@ class Q extends y {
       </flow-socket-anchor>
       <span class="socket-label" style="${s}">${this.label}</span>
     `;
-    this.shadowRoot.innerHTML = o;
+    this.shadowRoot.innerHTML = i;
   }
   /**
    * Renders the component template.
@@ -4517,7 +4525,7 @@ class Q extends y {
     if (this.innerHTML.trim().length > 0)
       return w`<slot></slot>`;
     {
-      const e = `socket ${this.type} ${this.customClass || ""}`.trim(), s = this.getSocketStyle(), o = this.getLabelStyle();
+      const e = `socket ${this.type} ${this.customClass || ""}`.trim(), s = this.getSocketStyle(), i = this.getLabelStyle();
       return w`
         <flow-socket-anchor class="${this.customClass || ""}">
           <span 
@@ -4525,7 +4533,7 @@ class Q extends y {
             style="${s}">
           </span>
         </flow-socket-anchor>
-        <span class="socket-label" style="${o}">${this.label}</span>
+        <span class="socket-label" style="${i}">${this.label}</span>
       `;
     }
   }
@@ -4563,8 +4571,8 @@ class Q extends y {
    * @private
    */
   hexToRgba(t, e) {
-    const s = parseInt(t.slice(1, 3), 16), o = parseInt(t.slice(3, 5), 16), i = parseInt(t.slice(5, 7), 16);
-    return `rgba(${s}, ${o}, ${i}, ${e})`;
+    const s = parseInt(t.slice(1, 3), 16), i = parseInt(t.slice(3, 5), 16), o = parseInt(t.slice(5, 7), 16);
+    return `rgba(${s}, ${i}, ${o}, ${e})`;
   }
   /**
    * Convert CSS color name to hex value.
@@ -4734,10 +4742,10 @@ class Q extends y {
     const s = this.colourNameToHex(t);
     if (s)
       return this.hexToRgba(s, e);
-    const o = t.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/);
-    if (o) {
-      const i = parseInt(o[1]), n = parseInt(o[2]), a = parseInt(o[3]);
-      return `rgba(${i}, ${n}, ${a}, ${e})`;
+    const i = t.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/);
+    if (i) {
+      const o = parseInt(i[1]), n = parseInt(i[2]), a = parseInt(i[3]);
+      return `rgba(${o}, ${n}, ${a}, ${e})`;
     }
     return t;
   }
@@ -5072,6 +5080,6 @@ export {
   Q as FlowSocketElement,
   te as Node,
   V as Socket,
-  oe as Viewport
+  ie as Viewport
 };
 //# sourceMappingURL=flowgraph.es.js.map

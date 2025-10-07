@@ -760,6 +760,10 @@ export class Node {
       // Store initial positions of all selected nodes for multi-drag
       this.flowGraph.startMultiDrag(e, this);
       
+      // This ensures we capture all pointer movements even when cursor leaves the node
+      this.flowGraph.container.addEventListener('mousemove', handlePointerMove);
+      this.flowGraph.container.addEventListener('mouseup', handlePointerUp);
+      
       e.preventDefault();
       e.stopPropagation();
     };
@@ -777,6 +781,9 @@ export class Node {
             isDragging = true;
             this.element.classList.add('dragging');
             this.flowGraph.startMultiDrag(e, this);
+            // Attach container listeners for touch-initiated drags too
+            this.flowGraph.container.addEventListener('mousemove', handlePointerMove);
+            this.flowGraph.container.addEventListener('mouseup', handlePointerUp);
           }
         }
         return;
@@ -795,6 +802,10 @@ export class Node {
       
       isDragging = false;
       this.element.classList.remove('dragging');
+      
+      // CRITICAL FIX: Remove container listeners to prevent memory leaks
+      this.flowGraph.container.removeEventListener('mousemove', handlePointerMove);
+      this.flowGraph.container.removeEventListener('mouseup', handlePointerUp);
       
       // End multi-drag
       this.flowGraph.endMultiDrag();
@@ -921,8 +932,7 @@ export class Node {
     // OPTIMIZED: Store event handlers for potential cleanup and use delegation where possible
     this.eventHandlers = {
       mousedown: handlePointerDown,
-      mousemove: handlePointerMove,
-      mouseup: handlePointerUp,
+      // Note: mousemove and mouseup are now attached to document dynamically during drag
       touchstart: handleTouchStart,
       touchmove: handleTouchMove,
       touchend: handleTouchEnd,
@@ -932,11 +942,14 @@ export class Node {
         this.execute();
       }
     };
+    
+    // Store container-level handler references for cleanup in destroy()
+    this.containerMoveHandler = handlePointerMove;
+    this.containerUpHandler = handlePointerUp;
 
     // Add event listeners with proper cleanup tracking
+    // Only attach mousedown to element; mousemove/mouseup are attached to container during drag
     this.element.addEventListener('mousedown', this.eventHandlers.mousedown);
-    this.element.addEventListener('mousemove', this.eventHandlers.mousemove);
-    this.element.addEventListener('mouseup', this.eventHandlers.mouseup);
     
     // Add touch event listeners
     this.element.addEventListener('touchstart', this.eventHandlers.touchstart, { passive: true });
@@ -1270,12 +1283,20 @@ export class Node {
     // Clean up event listeners to prevent memory leaks
     if (this.element && this.eventHandlers) {
       this.element.removeEventListener('mousedown', this.eventHandlers.mousedown);
-      this.element.removeEventListener('mousemove', this.eventHandlers.mousemove);
-      this.element.removeEventListener('mouseup', this.eventHandlers.mouseup);
+      // Note: mousemove and mouseup are no longer attached to element
       this.element.removeEventListener('touchstart', this.eventHandlers.touchstart);
       this.element.removeEventListener('touchmove', this.eventHandlers.touchmove);
       this.element.removeEventListener('touchend', this.eventHandlers.touchend);
       this.element.removeEventListener('dblclick', this.eventHandlers.dblclick);
+    }
+    
+    // Clean up any container-level listeners (in case node is destroyed while dragging)
+    // This is safe even if listeners weren't attached - removeEventListener is idempotent
+    if (this.containerMoveHandler && this.flowGraph && this.flowGraph.container) {
+      this.flowGraph.container.removeEventListener('mousemove', this.containerMoveHandler);
+    }
+    if (this.containerUpHandler && this.flowGraph && this.flowGraph.container) {
+      this.flowGraph.container.removeEventListener('mouseup', this.containerUpHandler);
     }
     
     // Clean up all references for memory optimization

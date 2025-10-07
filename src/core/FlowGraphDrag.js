@@ -87,7 +87,10 @@ export class FlowGraphDrag {
     const worldDeltaX = deltaX / this.flowGraph.viewport.scale;
     const worldDeltaY = deltaY / this.flowGraph.viewport.scale;
     
-    // Update all selected nodes
+    // Collect nodes that need updating
+    const nodesToUpdate = new Set();
+    
+    // Update all selected nodes - direct DOM manipulation for immediate visual feedback
     for (const nodeId of this.flowGraph.selection.getSelection()) {
       const node = this.flowGraph.nodes.get(nodeId);
       if (node) {
@@ -98,26 +101,19 @@ export class FlowGraphDrag {
         // Update position without firing events (we'll fire one batch event)
         node.x = newX;
         node.y = newY;
+        // Direct style update for immediate visual response (critical for Mac touchpad)
         node.element.style.left = newX + 'px';
         node.element.style.top = newY + 'px';
+        
+        nodesToUpdate.add(node);
       }
     }
     
-    // Update edges for all moved nodes - collect all nodes and update in one call
-    requestAnimationFrame(() => {
-      const nodesToUpdate = new Set();
-      for (const nodeId of this.flowGraph.selection.getSelection()) {
-        const node = this.flowGraph.nodes.get(nodeId);
-        if (node) {
-          nodesToUpdate.add(node);
-        }
-      }
-      
-      // Update all edges for all moved nodes in a single call
-      if (nodesToUpdate.size > 0) {
-        this.flowGraph.throttledUpdates.edgeUpdate(nodesToUpdate);
-      }
-    });
+    // Update edges immediately - the throttling is already handled inside edgeUpdate
+    // Removed extra requestAnimationFrame to reduce lag on Mac touchpads
+    if (nodesToUpdate.size > 0) {
+      this.flowGraph.throttledUpdates.edgeUpdate(nodesToUpdate);
+    }
   }
 
   /**

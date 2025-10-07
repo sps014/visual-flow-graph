@@ -840,12 +840,38 @@ export class FlowGraphConnections {
     if (this.connectionState.active && socket.node) {
       // Cache socket offset on first use during this connection
       if (!socket._cachedOffset) {
-        const rect = element.getBoundingClientRect();
+        const surfaceRect = this.flowGraph.surface.getBoundingClientRect();
         const nodeRect = socket.node.element.getBoundingClientRect();
+        
+        // For custom sockets, find the actual visual element (inner span)
+        // Look in light DOM (slotted content) of the flow-socket-anchor
+        let visualElement = element.querySelector('span[style*="clip-path"]') ||
+                           element.querySelector('span[style*="border-color"]') ||
+                           element.querySelector('.socket') ||
+                           element.querySelector('span');
+        
+        // Use the visual element if found, otherwise use anchor element
+        const sourceRect = (visualElement && visualElement !== element) ? 
+                          visualElement.getBoundingClientRect() : 
+                          element.getBoundingClientRect();
+        
+        // Convert screen coordinates to world coordinates (unscaled)
+        // This ensures the cache works at any zoom level
+        const socketScreenCenterX = sourceRect.left + sourceRect.width / 2;
+        const socketScreenCenterY = sourceRect.top + sourceRect.height / 2;
+        const nodeScreenCenterX = nodeRect.left;
+        const nodeScreenCenterY = nodeRect.top;
+        
+        // Calculate offset in world space (divide by scale to get unscaled distance)
+        const scale = this.flowGraph.viewport.scale;
+        const offsetX = (socketScreenCenterX - nodeScreenCenterX) / scale;
+        const offsetY = (socketScreenCenterY - nodeScreenCenterY) / scale;
+        const width = sourceRect.width / scale;
+        
         socket._cachedOffset = {
-          x: rect.left - nodeRect.left + rect.width / 2,
-          y: rect.top - nodeRect.top + rect.height / 2,
-          width: rect.width
+          x: offsetX,
+          y: offsetY,
+          width: width
         };
       }
       
@@ -865,19 +891,33 @@ export class FlowGraphConnections {
     }
     
     // Standard calculation (accurate but slower)
-    const rect = element.getBoundingClientRect();
     const surfaceRect = this.flowGraph.surface.getBoundingClientRect();
     
+    // For custom sockets, find the actual visual element (inner span)
+    let visualElement = element.querySelector('span[style*="clip-path"]') ||
+                       element.querySelector('span[style*="border-color"]') ||
+                       element.querySelector('.socket') ||
+                       element.querySelector('span');
+    
+    // Use the visual element if found, otherwise use anchor element
+    const sourceRect = (visualElement && visualElement !== element) ? 
+                      visualElement.getBoundingClientRect() : 
+                      element.getBoundingClientRect();
+    
+    // Calculate socket center in screen coordinates
+    const socketCenterX = sourceRect.left + sourceRect.width / 2;
+    const socketCenterY = sourceRect.top + sourceRect.height / 2;
+    
     // Offset by socket width based on type
-    let xOffset = rect.width / 2;
+    let xOffset = 0;
     if (socket.type === 'output') {
-      xOffset = rect.width / 2; // +width/2 for output sockets
+      xOffset = sourceRect.width / 2; // +width/2 for output sockets
     } else if (socket.type === 'input') {
-      xOffset = -rect.width / 2; // -width/2 for input sockets
+      xOffset = -sourceRect.width / 2; // -width/2 for input sockets
     }
     
-    const x = (rect.left + rect.width / 2 + xOffset - surfaceRect.left - this.flowGraph.viewport.x) / this.flowGraph.viewport.scale;
-    const y = (rect.top + rect.height / 2 - surfaceRect.top - this.flowGraph.viewport.y) / this.flowGraph.viewport.scale;
+    const x = (socketCenterX + xOffset - surfaceRect.left - this.flowGraph.viewport.x) / this.flowGraph.viewport.scale;
+    const y = (socketCenterY - surfaceRect.top - this.flowGraph.viewport.y) / this.flowGraph.viewport.scale;
     
     return { x, y };
   }
@@ -1123,11 +1163,14 @@ export class FlowGraphConnections {
    */
   registerSocket(socket) {
     // Add to spatial grid after element is ready
+    // Use double RAF to ensure custom socket rendering is complete
     requestAnimationFrame(() => {
-      const pos = this.getSocketPosition(socket);
-      if (pos) {
-        this.spatialGrid.insert(socket, pos.x, pos.y);
-      }
+      requestAnimationFrame(() => {
+        const pos = this.getSocketPosition(socket);
+        if (pos) {
+          this.spatialGrid.insert(socket, pos.x, pos.y);
+        }
+      });
     });
   }
 

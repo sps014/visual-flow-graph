@@ -80,3 +80,6 @@ export { Edge } from './core/Edge.js';
 
 /** @type {typeof import('./core/Viewport.js').Viewport} */
 export { Viewport } from './core/Viewport.js';
+
+/** @type {typeof import('./core/SpatialGrid.js').SpatialGrid} */
+export { SpatialGrid } from './core/SpatialGrid.js';

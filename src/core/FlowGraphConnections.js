@@ -1,3 +1,5 @@
+import { SpatialGrid } from './SpatialGrid.js';
+
 /**
  * Utility function to extract color from a socket element.
  * Looks for border-color in the socket's computed styles or inline styles.
@@ -120,6 +122,13 @@ export class FlowGraphConnections {
       moved: false,
       connectionDelayed: false
     };
+    
+    // Spatial grid for ultra-fast socket lookups (O(1) instead of O(n))
+    /** @type {SpatialGrid} Spatial hash grid for socket position indexing */
+    this.spatialGrid = new SpatialGrid(50); // 50px cell size
+    
+    // Flag to track if grid needs rebuilding
+    this.gridNeedsRebuild = false;
   }
 
   /**
@@ -356,44 +365,48 @@ export class FlowGraphConnections {
 
   /**
    * Handle socket mouse move
+   * OPTIMIZED: Uses spatial grid for O(1) socket detection instead of elementFromPoint
    */
   handleSocketMouseMove(e) {
     if (!this.connectionState.active) return;
     
     this.updateTempPath(e.clientX, e.clientY);
     
-    // Check for hover targets
-    const element = document.elementFromPoint(e.clientX, e.clientY);
-    const flowSocket = element?.closest('flow-socket');
+    // OPTIMIZATION: Use spatial grid for ultra-fast socket detection
+    // Convert client coordinates to world coordinates
+    const surfaceRect = this.flowGraph.surface.getBoundingClientRect();
+    const worldX = (e.clientX - surfaceRect.left - this.flowGraph.viewport.x) / this.flowGraph.viewport.scale;
+    const worldY = (e.clientY - surfaceRect.top - this.flowGraph.viewport.y) / this.flowGraph.viewport.scale;
     
-    if (flowSocket) {
-      const nodeElement = flowSocket.closest('.node');
-      const nodeId = nodeElement?.dataset.id;
-      const socketId = flowSocket.getAttribute('name');
-      
-      if (nodeId && socketId) {
-        const node = this.flowGraph.nodes.get(nodeId);
-        const socketObj = node?.getSocket(socketId);
-        
-        if (socketObj && this.canConnect(this.connectionState.fromSocket, socketObj)) {
-          // Use optimized cleanup and hover update
-          this.updateSocketHover(flowSocket);
-          
-          this.connectionState.toSocket = socketObj;
-          
-          // Update temporary path color to show the output socket's color
-          const outputSocket = this.connectionState.fromSocket.type === 'output' ? 
-            this.connectionState.fromSocket : socketObj;
-          this.updateTempPathColor(outputSocket);
-        } else if (socketObj) {
-          // Provide specific feedback for max connections reached
-          if (socketObj.connections.size >= socketObj.maxConnections) {
-            this.showMaxConnectionsFeedback(socketObj);
+    // Ultra-fast O(1) socket lookup using spatial grid (instead of expensive elementFromPoint)
+    const socketObj = this.spatialGrid.findAt(worldX, worldY, 25 / this.flowGraph.viewport.scale);
+    
+    if (socketObj) {
+      // Found a socket in range
+      if (this.canConnect(this.connectionState.fromSocket, socketObj)) {
+        // Get the flow-socket element for visual feedback
+        const node = socketObj.node;
+        if (node && node.element) {
+          const flowSocket = node.element.querySelector(`flow-socket[name="${socketObj.id}"]`);
+          if (flowSocket) {
+            this.updateSocketHover(flowSocket);
           }
+        }
+        
+        this.connectionState.toSocket = socketObj;
+        
+        // Update temporary path color to show the output socket's color
+        const outputSocket = this.connectionState.fromSocket.type === 'output' ? 
+          this.connectionState.fromSocket : socketObj;
+        this.updateTempPathColor(outputSocket);
+      } else {
+        // Cannot connect - provide specific feedback for max connections reached
+        if (socketObj.connections.size >= socketObj.maxConnections) {
+          this.showMaxConnectionsFeedback(socketObj);
         }
       }
     } else {
-      // Use optimized cleanup for all sockets
+      // No socket in range - clear hover states
       this.clearAllSocketHover();
       this.connectionState.toSocket = null;
     }
@@ -1102,6 +1115,97 @@ export class FlowGraphConnections {
   }
 
   /**
+   * Register a socket with the spatial grid for fast lookups.
+   * Call this when a new socket is created.
+   * 
+   * @param {Socket} socket - The socket to register
+   * @public
+   */
+  registerSocket(socket) {
+    // Add to spatial grid after element is ready
+    requestAnimationFrame(() => {
+      const pos = this.getSocketPosition(socket);
+      if (pos) {
+        this.spatialGrid.insert(socket, pos.x, pos.y);
+      }
+    });
+  }
+
+  /**
+   * Unregister a socket from the spatial grid.
+   * Call this when a socket is removed.
+   * 
+   * @param {Socket} socket - The socket to unregister
+   * @public
+   */
+  unregisterSocket(socket) {
+    this.spatialGrid.remove(socket);
+  }
+
+  /**
+   * Update socket position in the spatial grid.
+   * Call this when a node moves to keep the grid in sync.
+   * 
+   * @param {Socket} socket - The socket to update
+   * @public
+   */
+  updateSocketInGrid(socket) {
+    const pos = this.getSocketPosition(socket);
+    if (pos) {
+      this.spatialGrid.update(socket, pos.x, pos.y);
+    }
+  }
+
+  /**
+   * Update all sockets for a node in the spatial grid.
+   * More efficient than individual updates.
+   * 
+   * @param {Node} node - The node whose sockets need updating
+   * @public
+   */
+  updateNodeSocketsInGrid(node) {
+    node.getAllSockets().forEach(socket => {
+      this.updateSocketInGrid(socket);
+    });
+  }
+
+  /**
+   * Rebuild the entire spatial grid.
+   * Call this after major operations (bulk node add/remove, zoom change, etc.)
+   * 
+   * @public
+   */
+  rebuildSpatialGrid() {
+    const allSockets = [];
+    
+    this.flowGraph.nodes.forEach(node => {
+      allSockets.push(...node.getAllSockets());
+    });
+    
+    this.spatialGrid.rebuild(allSockets, (socket) => this.getSocketPosition(socket));
+    this.gridNeedsRebuild = false;
+  }
+
+  /**
+   * Get spatial grid statistics (for debugging/optimization).
+   * 
+   * @returns {Object} Grid statistics
+   * @public
+   */
+  getSpatialGridStats() {
+    return this.spatialGrid.getStats();
+  }
+
+  /**
+   * Visualize the spatial grid for debugging.
+   * 
+   * @public
+   */
+  visualizeSpatialGrid() {
+    this.spatialGrid.visualize(this.flowGraph.surface);
+  }
+
+  /**
    * Clean up event listeners and resources.
    * 
    * @public
@@ -1113,5 +1217,10 @@ export class FlowGraphConnections {
     
     // Cancel any active connection
     this.cancelConnection();
+    
+    // Clear spatial grid
+    if (this.spatialGrid) {
+      this.spatialGrid.clear();
+    }
   }
 }

@@ -181,6 +181,11 @@ export class FlowGraphDrag {
           delete node.element.dataset.usingTransform;
         }
         
+        // Update spatial grid after node movement
+        if (this.flowGraph.connections) {
+          this.flowGraph.connections.updateNodeSocketsInGrid(node);
+        }
+        
         this.flowGraph.container.dispatchEvent(new CustomEvent('node:move', {
           detail: { 
             nodeId: node.id, 

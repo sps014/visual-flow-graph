@@ -317,6 +317,11 @@ export class Node {
           // Store socket reference on the element for easy access
           element._socket = socket;
           socket.setupContextMenu();
+          
+          // Register socket with spatial grid for fast lookups
+          if (this.flowGraph && this.flowGraph.connections) {
+            this.flowGraph.connections.registerSocket(socket);
+          }
         } else {
           console.warn(`Socket element not found for socket ${socket.id} - flow-socket found but no flow-socket-anchor`);
         }
@@ -351,6 +356,11 @@ export class Node {
           // Store socket reference on the element for easy access
           element._socket = socket;
           socket.setupContextMenu();
+          
+          // Register socket with spatial grid for fast lookups
+          if (this.flowGraph && this.flowGraph.connections) {
+            this.flowGraph.connections.registerSocket(socket);
+          }
         } else {
           console.warn(`Socket element not found for socket ${socket.id} - flow-socket found but no flow-socket-anchor`);
         }
@@ -521,6 +531,11 @@ export class Node {
       this.flowGraph.removeEdge(edge.id);
     });
     
+    // Unregister from spatial grid
+    if (this.flowGraph && this.flowGraph.connections) {
+      this.flowGraph.connections.unregisterSocket(socket);
+    }
+    
     // Remove socket element from DOM
     this.removeSocketElement(socket);
     
@@ -631,6 +646,11 @@ export class Node {
       socket.element = element;
       element._socket = socket;
       socket.setupContextMenu();
+      
+      // Register socket with spatial grid for fast lookups
+      if (this.flowGraph && this.flowGraph.connections) {
+        this.flowGraph.connections.registerSocket(socket);
+      }
     } else {
       console.warn(`Socket element not found for socket ${socket.id}`);
     }
@@ -975,6 +995,11 @@ export class Node {
       // Fallback for direct updates
       this.element.style.left = x + 'px';
       this.element.style.top = y + 'px';
+    }
+    
+    // Update sockets in spatial grid after position change
+    if (this.flowGraph && this.flowGraph.connections) {
+      this.flowGraph.connections.updateNodeSocketsInGrid(this);
     }
     
     // Fire move event

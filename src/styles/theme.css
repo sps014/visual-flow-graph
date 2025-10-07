@@ -157,6 +157,18 @@ flow-graph {
   height: 100%;
   overflow: visible;
   z-index: 1; /* Behind nodes */
+  
+  /* PERFORMANCE OPTIMIZATIONS for SVG */
+  /* GPU acceleration */
+  transform: translateZ(0);
+  will-change: transform;
+  
+  /* Optimize SVG rendering */
+  shape-rendering: geometricPrecision;
+  text-rendering: optimizeSpeed;
+  
+  /* Prevent unnecessary repaints */
+  contain: layout style;
 }
 
 #nodes-root {
@@ -180,7 +192,18 @@ flow-graph {
   user-select: none;
   cursor: grab;
   backdrop-filter: blur(8px);
+  
+  /* PERFORMANCE OPTIMIZATIONS */
+  /* GPU acceleration and layer promotion */
   transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  
+  /* CSS containment for better rendering performance */
+  contain: layout style paint;
+  
+  /* Prevent layout thrashing */
+  isolation: isolate;
 }
 
 .node.dragging { 
@@ -189,7 +212,13 @@ flow-graph {
   box-shadow: 
     0 12px 48px rgba(2,6,23,0.8),
     inset 0 1px 0 rgba(255,255,255,0.1);
-  transform: scale(1.02);
+  
+  /* PERFORMANCE: Use transform for smooth dragging */
+  will-change: transform;
+  transform: translateZ(0) scale(1.02);
+  
+  /* Prevent layout recalculation during drag */
+  contain: layout style paint;
 }
 
 .node.selected {
@@ -394,14 +423,19 @@ flow-socket-anchor .socket.out {
 
 .edge {
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-  /* High refresh rate optimizations */
-  will-change: var(--fg-will-change);
-  transform: translateZ(0); /* Force GPU acceleration */
+  
+  /* PERFORMANCE OPTIMIZATIONS */
+  /* GPU acceleration and layer promotion */
+  will-change: d, opacity;
+  transform: translateZ(0);
   backface-visibility: hidden;
-  perspective: 1000px;
-  /* Smooth rendering */
+  
+  /* Optimize SVG rendering for high refresh rates */
   shape-rendering: geometricPrecision;
-  text-rendering: optimizeSpeed;
+  vector-effect: non-scaling-stroke;
+  
+  /* Reduce paint complexity */
+  contain: paint;
 }
 
 .edge:hover {

@@ -949,15 +949,15 @@ export class Node {
 
     // Add event listeners with proper cleanup tracking
     // Only attach mousedown to element; mousemove/mouseup are attached to container during drag
-    this.element.addEventListener('mousedown', this.eventHandlers.mousedown);
+    this.element.addEventListener('mousedown', this.eventHandlers.mousedown, { passive: false });
     
-    // Add touch event listeners
+    // Add touch event listeners with passive flag for better scroll performance
     this.element.addEventListener('touchstart', this.eventHandlers.touchstart, { passive: true });
     this.element.addEventListener('touchmove', this.eventHandlers.touchmove, { passive: false });
     this.element.addEventListener('touchend', this.eventHandlers.touchend, { passive: true });
     
-    // Add double-click to execute
-    this.element.addEventListener('dblclick', this.eventHandlers.dblclick);
+    // Add double-click to execute with passive flag
+    this.element.addEventListener('dblclick', this.eventHandlers.dblclick, { passive: false });
   }
   
   setPosition(x, y) {

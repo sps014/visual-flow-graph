@@ -429,6 +429,9 @@ export class FlowGraphConnections {
       }
     }
     
+    // Clear socket position cache for next connection
+    this.clearSocketCache();
+    
     // Clean up visual feedback with a slight delay to ensure connection is processed
     setTimeout(() => {
       this.cleanupSocketStates();
@@ -696,10 +699,24 @@ export class FlowGraphConnections {
   }
 
   /**
+   * Clear cached socket positions
+   * @private
+   */
+  clearSocketCache() {
+    // Clear position cache from all sockets
+    this.flowGraph.nodes.forEach(node => {
+      node.getAllSockets().forEach(socket => {
+        delete socket._cachedOffset;
+      });
+    });
+  }
+
+  /**
    * Cancel current connection and clean up states
    */
   cancelConnection() {
     if (this.connectionState.active) {
+      this.clearSocketCache();
       this.cleanupSocketStates();
       this.flowGraph.tempPath.style.display = 'none';
       this.connectionState.active = false;
@@ -780,6 +797,7 @@ export class FlowGraphConnections {
 
   /**
    * Get socket position in world coordinates
+   * OPTIMIZED: Uses cached node positions + socket offsets during drag operations
    */
   getSocketPosition(socket) {
     let element = socket.element;
@@ -804,6 +822,36 @@ export class FlowGraphConnections {
       return { x: 0, y: 0 };
     }
     
+    // OPTIMIZATION: During active drag operations, use fast math-based calculation
+    // Otherwise fall back to getBoundingClientRect for accuracy
+    if (this.connectionState.active && socket.node) {
+      // Cache socket offset on first use during this connection
+      if (!socket._cachedOffset) {
+        const rect = element.getBoundingClientRect();
+        const nodeRect = socket.node.element.getBoundingClientRect();
+        socket._cachedOffset = {
+          x: rect.left - nodeRect.left + rect.width / 2,
+          y: rect.top - nodeRect.top + rect.height / 2,
+          width: rect.width
+        };
+      }
+      
+      // Use cached offset + current node position (pure math, no DOM query)
+      const node = socket.node;
+      let xOffset = 0;
+      if (socket.type === 'output') {
+        xOffset = socket._cachedOffset.width / 2;
+      } else if (socket.type === 'input') {
+        xOffset = -socket._cachedOffset.width / 2;
+      }
+      
+      return {
+        x: node.x + socket._cachedOffset.x + xOffset,
+        y: node.y + socket._cachedOffset.y
+      };
+    }
+    
+    // Standard calculation (accurate but slower)
     const rect = element.getBoundingClientRect();
     const surfaceRect = this.flowGraph.surface.getBoundingClientRect();
     

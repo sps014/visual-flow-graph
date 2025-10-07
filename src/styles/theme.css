@@ -194,10 +194,19 @@ flow-graph {
   backdrop-filter: blur(8px);
   
   /* PERFORMANCE OPTIMIZATIONS */
-  /* GPU acceleration and layer promotion */
-  transform: translateZ(0);
-  will-change: transform;
+  /* GPU acceleration with proper text rendering */
+  transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
+  
+  /* Text rendering optimizations - prevents blur during zoom */
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: auto;
+  text-rendering: geometricPrecision;
+  
+  /* Force subpixel precision for crisp text at any zoom level */
+  -webkit-transform: translate3d(0, 0, 0);
+  -webkit-perspective: 1000;
+  perspective: 1000;
   
   /* CSS containment for better rendering performance */
   contain: layout style paint;
@@ -215,7 +224,11 @@ flow-graph {
   
   /* PERFORMANCE: Use transform for smooth dragging */
   will-change: transform;
-  transform: translateZ(0) scale(1.02);
+  transform: translate3d(0, 0, 0) scale(1.02);
+  
+  /* Maintain crisp text during drag */
+  -webkit-font-smoothing: subpixel-antialiased;
+  text-rendering: geometricPrecision;
   
   /* Prevent layout recalculation during drag */
   contain: layout style paint;

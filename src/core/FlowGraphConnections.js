@@ -193,8 +193,13 @@ export class FlowGraphConnections {
    * @private
    */
   isSocketTarget(target) {
-    // Reject socket labels immediately
+    // Reject socket labels immediately - check both class and if parent has socket-label
     if (target.classList.contains('socket-label')) {
+      return false;
+    }
+    
+    // Check if target is inside a socket-label span
+    if (target.closest('.socket-label')) {
       return false;
     }
     
@@ -209,12 +214,18 @@ export class FlowGraphConnections {
       return true;
     }
     
+    // Check if target is the actual socket span (has 'socket' class)
+    if (target.classList.contains('socket')) {
+      return true;
+    }
+    
     // Check if target is inside a flow-socket and traverse shadow DOM
     const flowSocket = target.closest('flow-socket');
     if (flowSocket) {
-      // If target is the flow-socket itself, allow it
+      // IMPORTANT: Don't allow clicks on flow-socket itself, only on socket-anchor or socket span
+      // This prevents label clicks from triggering connections
       if (target === flowSocket) {
-        return true;
+        return false; // Changed from true to false
       }
       
       const shadowRoot = flowSocket.shadowRoot;

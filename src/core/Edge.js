@@ -242,6 +242,10 @@ export class Edge {
       this.updateRafId = null;
     }
     
+    // Clear cached socket positions to prevent stale data on reconnect
+    delete this.fromSocket._cachedOffset;
+    delete this.toSocket._cachedOffset;
+    
     // Unregister from sockets
     this.fromSocket.removeConnection(this);
     this.toSocket.removeConnection(this);

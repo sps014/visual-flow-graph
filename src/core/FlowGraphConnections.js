@@ -225,7 +225,7 @@ export class FlowGraphConnections {
       // IMPORTANT: Don't allow clicks on flow-socket itself, only on socket-anchor or socket span
       // This prevents label clicks from triggering connections
       if (target === flowSocket) {
-        return false; // Changed from true to false
+        return true; 
       }
       
       const shadowRoot = flowSocket.shadowRoot;

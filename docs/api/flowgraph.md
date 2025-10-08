@@ -92,6 +92,24 @@ Start an animation.
 ### stopAnimation(type)
 Stop an animation.
 
+## Viewport
+
+### flowGraph.viewport.clearGridCache()
+Force immediate re-read of grid sizes. Grid sizes are automatically detected every ~100 transforms, so this is typically not needed. Use only if you need immediate update after changing CSS grid variables.
+
+```javascript
+// Change grid size
+flowGraph.container.style.setProperty('--fg-grid-main-size', '100px');
+
+// Optional: Force immediate update (auto-detects within seconds anyway)
+flowGraph.viewport.clearGridCache();
+```
+
+**Note:** Grid sizes are automatically detected and updated, so manual cache clearing is rarely necessary.
+
+### flowGraph.viewport.resetZoom()
+Reset viewport to default zoom level (scale = 1, x = 0, y = 0).
+
 ## Events
 
 FlowGraph extends EventTarget and emits events for all interactions. See [Events API](events.md) for complete list.

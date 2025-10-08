@@ -51,6 +51,14 @@ export class Viewport {
     /** @type {number} Maximum allowed zoom scale */
     this.maxScale = 3;
     
+    // Cache grid sizes to avoid getComputedStyle on every pan
+    /** @type {Object} Cached grid sizes */
+    this.gridCache = {
+      gridSize: 50,
+      minorGridSize: 10,
+      initialized: false
+    };
+    
     // Pan state - matching original lib.js
     /** @type {Object} Internal state for panning operations */
     this.panState = {
@@ -474,20 +482,41 @@ export class Viewport {
     const transform = `translate(${this.x}px, ${this.y}px) scale(${this.scale})`;
     this.contentContainer.style.transform = transform;
     
-    // Update grid background position on the flow-graph element using CSS variables
-    const flowGraphElement = this.flowGraph.container;
-    const computedStyle = getComputedStyle(flowGraphElement);
-    const gridSize = parseInt(computedStyle.getPropertyValue('--fg-grid-main-size')) || 50;
-    const minorGridSize = parseInt(computedStyle.getPropertyValue('--fg-grid-minor-size')) || 10;
-    
-    flowGraphElement.style.backgroundPosition = 
-      `${this.x % gridSize}px ${this.y % gridSize}px, ` +
-      `${this.x % gridSize}px ${this.y % gridSize}px, ` +
-      `${this.x % minorGridSize}px ${this.y % minorGridSize}px, ` +
-      `${this.x % minorGridSize}px ${this.y % minorGridSize}px`;
-    
-    // Fire viewport change event
+    // Initialize grid cache on first use or periodically validate (every ~100 transforms)
     if (this.flowGraph) {
+      const flowGraphElement = this.flowGraph.container;
+      
+      // Auto-detect grid size changes by periodically re-checking (low overhead)
+      if (!this.gridCache.initialized || 
+          (this.gridCache.checkCounter === undefined || ++this.gridCache.checkCounter > 100)) {
+        
+        const computedStyle = getComputedStyle(flowGraphElement);
+        const newGridSize = parseInt(computedStyle.getPropertyValue('--fg-grid-main-size')) || 50;
+        const newMinorGridSize = parseInt(computedStyle.getPropertyValue('--fg-grid-minor-size')) || 10;
+        
+        // Only update if values changed (or first init)
+        if (!this.gridCache.initialized || 
+            this.gridCache.gridSize !== newGridSize || 
+            this.gridCache.minorGridSize !== newMinorGridSize) {
+          this.gridCache.gridSize = newGridSize;
+          this.gridCache.minorGridSize = newMinorGridSize;
+          this.gridCache.initialized = true;
+        }
+        
+        this.gridCache.checkCounter = 0;
+      }
+      
+      // Use cached values for fast background position updates
+      const gridSize = this.gridCache.gridSize;
+      const minorGridSize = this.gridCache.minorGridSize;
+      
+      flowGraphElement.style.backgroundPosition = 
+        `${this.x % gridSize}px ${this.y % gridSize}px, ` +
+        `${this.x % gridSize}px ${this.y % gridSize}px, ` +
+        `${this.x % minorGridSize}px ${this.y % minorGridSize}px, ` +
+        `${this.x % minorGridSize}px ${this.y % minorGridSize}px`;
+      
+      // Fire viewport change event
       // Dispatch on the container element, not the FlowGraph instance
       this.flowGraph.container.dispatchEvent(new CustomEvent('viewport:change', {
         detail: { 
@@ -523,6 +552,24 @@ export class Viewport {
     this.y = 0;
     this.scale = 1;
     this.updateTransform();
+  }
+  
+  /**
+   * Clear the grid size cache and force immediate re-read.
+   * Normally not needed as grid sizes are auto-detected, but can be used
+   * to force immediate update instead of waiting for the next periodic check.
+   * 
+   * @example
+   * ```javascript
+   * // Change grid size
+   * flowGraph.container.style.setProperty('--fg-grid-main-size', '100px');
+   * 
+   * // Optional: Force immediate update (auto-detects within ~100 transforms anyway)
+   * flowGraph.viewport.clearGridCache();
+   * ```
+   */
+  clearGridCache() {
+    this.gridCache.checkCounter = 101; // Force check on next updateTransform
   }
   
   serialize() {

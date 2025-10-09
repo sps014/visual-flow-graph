@@ -1,23 +1,23 @@
 var _t = Object.defineProperty;
 var Dt = (l, t, e) => t in l ? _t(l, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : l[t] = e;
-var m = (l, t, e) => Dt(l, typeof t != "symbol" ? t + "" : t, e);
+var g = (l, t, e) => Dt(l, typeof t != "symbol" ? t + "" : t, e);
 /**
  * @license
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const U = globalThis, st = U.ShadowRoot && (U.ShadyCSS === void 0 || U.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, it = Symbol(), dt = /* @__PURE__ */ new WeakMap();
-let xt = class {
+const Y = globalThis, lt = Y.ShadowRoot && (Y.ShadyCSS === void 0 || Y.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, ct = Symbol(), ut = /* @__PURE__ */ new WeakMap();
+let Et = class {
   constructor(t, e, s) {
-    if (this._$cssResult$ = !0, s !== it) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
+    if (this._$cssResult$ = !0, s !== ct) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
     this.cssText = t, this.t = e;
   }
   get styleSheet() {
     let t = this.o;
     const e = this.t;
-    if (st && t === void 0) {
+    if (lt && t === void 0) {
       const s = e !== void 0 && e.length === 1;
-      s && (t = dt.get(e)), t === void 0 && ((this.o = t = new CSSStyleSheet()).replaceSync(this.cssText), s && dt.set(e, t));
+      s && (t = ut.get(e)), t === void 0 && ((this.o = t = new CSSStyleSheet()).replaceSync(this.cssText), s && ut.set(e, t));
     }
     return t;
   }
@@ -25,30 +25,30 @@ let xt = class {
     return this.cssText;
   }
 };
-const Lt = (l) => new xt(typeof l == "string" ? l : l + "", void 0, it), S = (l, ...t) => {
+const It = (l) => new Et(typeof l == "string" ? l : l + "", void 0, ct), b = (l, ...t) => {
   const e = l.length === 1 ? l[0] : t.reduce((s, i, o) => s + ((n) => {
     if (n._$cssResult$ === !0) return n.cssText;
     if (typeof n == "number") return n;
     throw Error("Value passed to 'css' function must be a 'css' function result: " + n + ". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.");
   })(i) + l[o + 1], l[0]);
-  return new xt(e, l, it);
-}, It = (l, t) => {
-  if (st) l.adoptedStyleSheets = t.map((e) => e instanceof CSSStyleSheet ? e : e.styleSheet);
+  return new Et(e, l, ct);
+}, Lt = (l, t) => {
+  if (lt) l.adoptedStyleSheets = t.map((e) => e instanceof CSSStyleSheet ? e : e.styleSheet);
   else for (const e of t) {
-    const s = document.createElement("style"), i = U.litNonce;
+    const s = document.createElement("style"), i = Y.litNonce;
     i !== void 0 && s.setAttribute("nonce", i), s.textContent = e.cssText, l.appendChild(s);
   }
-}, ut = st ? (l) => l : (l) => l instanceof CSSStyleSheet ? ((t) => {
+}, pt = lt ? (l) => l : (l) => l instanceof CSSStyleSheet ? ((t) => {
   let e = "";
   for (const s of t.cssRules) e += s.cssText;
-  return Lt(e);
+  return It(e);
 })(l) : l;
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const { is: Rt, defineProperty: zt, getOwnPropertyDescriptor: Ot, getOwnPropertyNames: Ut, getOwnPropertySymbols: qt, getPrototypeOf: Ht } = Object, E = globalThis, pt = E.trustedTypes, Bt = pt ? pt.emptyScript : "", B = E.reactiveElementPolyfillSupport, P = (l, t) => l, K = { toAttribute(l, t) {
+const { is: zt, defineProperty: Rt, getOwnPropertyDescriptor: Ot, getOwnPropertyNames: qt, getOwnPropertySymbols: Ut, getPrototypeOf: Ht } = Object, k = globalThis, ft = k.trustedTypes, Bt = ft ? ft.emptyScript : "", j = k.reactiveElementPolyfillSupport, D = (l, t) => l, tt = { toAttribute(l, t) {
   switch (t) {
     case Boolean:
       l = l ? Bt : null;
@@ -76,19 +76,19 @@ const { is: Rt, defineProperty: zt, getOwnPropertyDescriptor: Ot, getOwnProperty
       }
   }
   return e;
-} }, Et = (l, t) => !Rt(l, t), ft = { attribute: !0, type: String, converter: K, reflect: !1, useDefault: !1, hasChanged: Et };
-Symbol.metadata ?? (Symbol.metadata = Symbol("metadata")), E.litPropertyMetadata ?? (E.litPropertyMetadata = /* @__PURE__ */ new WeakMap());
-let G = class extends HTMLElement {
+} }, kt = (l, t) => !zt(l, t), mt = { attribute: !0, type: String, converter: tt, reflect: !1, useDefault: !1, hasChanged: kt };
+Symbol.metadata ?? (Symbol.metadata = Symbol("metadata")), k.litPropertyMetadata ?? (k.litPropertyMetadata = /* @__PURE__ */ new WeakMap());
+let M = class extends HTMLElement {
   static addInitializer(t) {
     this._$Ei(), (this.l ?? (this.l = [])).push(t);
   }
   static get observedAttributes() {
     return this.finalize(), this._$Eh && [...this._$Eh.keys()];
   }
-  static createProperty(t, e = ft) {
+  static createProperty(t, e = mt) {
     if (e.state && (e.attribute = !1), this._$Ei(), this.prototype.hasOwnProperty(t) && ((e = Object.create(e)).wrapped = !0), this.elementProperties.set(t, e), !e.noAccessor) {
       const s = Symbol(), i = this.getPropertyDescriptor(t, s, e);
-      i !== void 0 && zt(this.prototype, t, i);
+      i !== void 0 && Rt(this.prototype, t, i);
     }
   }
   static getPropertyDescriptor(t, e, s) {
@@ -98,22 +98,22 @@ let G = class extends HTMLElement {
       this[e] = n;
     } };
     return { get: i, set(n) {
-      const a = i == null ? void 0 : i.call(this);
-      o == null || o.call(this, n), this.requestUpdate(t, a, s);
+      const r = i == null ? void 0 : i.call(this);
+      o == null || o.call(this, n), this.requestUpdate(t, r, s);
     }, configurable: !0, enumerable: !0 };
   }
   static getPropertyOptions(t) {
-    return this.elementProperties.get(t) ?? ft;
+    return this.elementProperties.get(t) ?? mt;
   }
   static _$Ei() {
-    if (this.hasOwnProperty(P("elementProperties"))) return;
+    if (this.hasOwnProperty(D("elementProperties"))) return;
     const t = Ht(this);
     t.finalize(), t.l !== void 0 && (this.l = [...t.l]), this.elementProperties = new Map(t.elementProperties);
   }
   static finalize() {
-    if (this.hasOwnProperty(P("finalized"))) return;
-    if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(P("properties"))) {
-      const e = this.properties, s = [...Ut(e), ...qt(e)];
+    if (this.hasOwnProperty(D("finalized"))) return;
+    if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(D("properties"))) {
+      const e = this.properties, s = [...qt(e), ...Ut(e)];
       for (const i of s) this.createProperty(i, e[i]);
     }
     const t = this[Symbol.metadata];
@@ -132,8 +132,8 @@ let G = class extends HTMLElement {
     const e = [];
     if (Array.isArray(t)) {
       const s = new Set(t.flat(1 / 0).reverse());
-      for (const i of s) e.unshift(ut(i));
-    } else t !== void 0 && e.push(ut(t));
+      for (const i of s) e.unshift(pt(i));
+    } else t !== void 0 && e.push(pt(t));
     return e;
   }
   static _$Eu(t, e) {
@@ -162,7 +162,7 @@ let G = class extends HTMLElement {
   }
   createRenderRoot() {
     const t = this.shadowRoot ?? this.attachShadow(this.constructor.shadowRootOptions);
-    return It(t, this.constructor.elementStyles), t;
+    return Lt(t, this.constructor.elementStyles), t;
   }
   connectedCallback() {
     var t;
@@ -187,7 +187,7 @@ let G = class extends HTMLElement {
     var o;
     const s = this.constructor.elementProperties.get(t), i = this.constructor._$Eu(t, s);
     if (i !== void 0 && s.reflect === !0) {
-      const n = (((o = s.converter) == null ? void 0 : o.toAttribute) !== void 0 ? s.converter : K).toAttribute(e, s.type);
+      const n = (((o = s.converter) == null ? void 0 : o.toAttribute) !== void 0 ? s.converter : tt).toAttribute(e, s.type);
       this._$Em = t, n == null ? this.removeAttribute(i) : this.setAttribute(i, n), this._$Em = null;
     }
   }
@@ -195,9 +195,9 @@ let G = class extends HTMLElement {
     var o, n;
     const s = this.constructor, i = s._$Eh.get(t);
     if (i !== void 0 && this._$Em !== i) {
-      const a = s.getPropertyOptions(i), r = typeof a.converter == "function" ? { fromAttribute: a.converter } : ((o = a.converter) == null ? void 0 : o.fromAttribute) !== void 0 ? a.converter : K;
+      const r = s.getPropertyOptions(i), a = typeof r.converter == "function" ? { fromAttribute: r.converter } : ((o = r.converter) == null ? void 0 : o.fromAttribute) !== void 0 ? r.converter : tt;
       this._$Em = i;
-      const c = r.fromAttribute(e, a.type);
+      const c = a.fromAttribute(e, r.type);
       this[i] = c ?? ((n = this._$Ej) == null ? void 0 : n.get(i)) ?? c, this._$Em = null;
     }
   }
@@ -205,7 +205,7 @@ let G = class extends HTMLElement {
     var i;
     if (t !== void 0) {
       const o = this.constructor, n = this[t];
-      if (s ?? (s = o.getPropertyOptions(t)), !((s.hasChanged ?? Et)(n, e) || s.useDefault && s.reflect && n === ((i = this._$Ej) == null ? void 0 : i.get(t)) && !this.hasAttribute(o._$Eu(t, s)))) return;
+      if (s ?? (s = o.getPropertyOptions(t)), !((s.hasChanged ?? kt)(n, e) || s.useDefault && s.reflect && n === ((i = this._$Ej) == null ? void 0 : i.get(t)) && !this.hasAttribute(o._$Eu(t, s)))) return;
       this.C(t, e, s);
     }
     this.isUpdatePending === !1 && (this._$ES = this._$EP());
@@ -236,8 +236,8 @@ let G = class extends HTMLElement {
       }
       const i = this.constructor.elementProperties;
       if (i.size > 0) for (const [o, n] of i) {
-        const { wrapped: a } = n, r = this[o];
-        a !== !0 || this._$AL.has(o) || r === void 0 || this.C(o, void 0, n, r);
+        const { wrapped: r } = n, a = this[o];
+        r !== !0 || this._$AL.has(o) || a === void 0 || this.C(o, void 0, n, a);
       }
     }
     let t = !1;
@@ -281,76 +281,76 @@ let G = class extends HTMLElement {
   firstUpdated(t) {
   }
 };
-G.elementStyles = [], G.shadowRootOptions = { mode: "open" }, G[P("elementProperties")] = /* @__PURE__ */ new Map(), G[P("finalized")] = /* @__PURE__ */ new Map(), B == null || B({ ReactiveElement: G }), (E.reactiveElementVersions ?? (E.reactiveElementVersions = [])).push("2.1.1");
+M.elementStyles = [], M.shadowRootOptions = { mode: "open" }, M[D("elementProperties")] = /* @__PURE__ */ new Map(), M[D("finalized")] = /* @__PURE__ */ new Map(), j == null || j({ ReactiveElement: M }), (k.reactiveElementVersions ?? (k.reactiveElementVersions = [])).push("2.1.1");
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const _ = globalThis, q = _.trustedTypes, mt = q ? q.createPolicy("lit-html", { createHTML: (l) => l }) : void 0, kt = "$lit$", x = `lit$${Math.random().toFixed(9).slice(2)}$`, Ct = "?" + x, Ft = `<${Ct}>`, A = document, D = () => A.createComment(""), L = (l) => l === null || typeof l != "object" && typeof l != "function", ot = Array.isArray, Yt = (l) => ot(l) || typeof (l == null ? void 0 : l[Symbol.iterator]) == "function", F = `[ 	
-\f\r]`, M = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, gt = /-->/g, wt = />/g, k = RegExp(`>|${F}(?:([^\\s"'>=/]+)(${F}*=${F}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`, "g"), yt = /'/g, vt = /"/g, $t = /^(?:script|style|textarea|title)$/i, Xt = (l) => (t, ...e) => ({ _$litType$: l, strings: t, values: e }), w = Xt(1), N = Symbol.for("lit-noChange"), g = Symbol.for("lit-nothing"), St = /* @__PURE__ */ new WeakMap(), C = A.createTreeWalker(A, 129);
-function At(l, t) {
-  if (!ot(l) || !l.hasOwnProperty("raw")) throw Error("invalid template strings array");
-  return mt !== void 0 ? mt.createHTML(t) : t;
+const I = globalThis, X = I.trustedTypes, gt = X ? X.createPolicy("lit-html", { createHTML: (l) => l }) : void 0, Ct = "$lit$", E = `lit$${Math.random().toFixed(9).slice(2)}$`, At = "?" + E, Ft = `<${At}>`, G = document, L = () => G.createComment(""), z = (l) => l === null || typeof l != "object" && typeof l != "function", ht = Array.isArray, Yt = (l) => ht(l) || typeof (l == null ? void 0 : l[Symbol.iterator]) == "function", W = `[ 	
+\f\r]`, _ = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, wt = /-->/g, yt = />/g, C = RegExp(`>|${W}(?:([^\\s"'>=/]+)(${W}*=${W}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`, "g"), vt = /'/g, St = /"/g, $t = /^(?:script|style|textarea|title)$/i, Xt = (l) => (t, ...e) => ({ _$litType$: l, strings: t, values: e }), y = Xt(1), T = Symbol.for("lit-noChange"), w = Symbol.for("lit-nothing"), bt = /* @__PURE__ */ new WeakMap(), A = G.createTreeWalker(G, 129);
+function Gt(l, t) {
+  if (!ht(l) || !l.hasOwnProperty("raw")) throw Error("invalid template strings array");
+  return gt !== void 0 ? gt.createHTML(t) : t;
 }
-const Vt = (l, t) => {
+const Kt = (l, t) => {
   const e = l.length - 1, s = [];
-  let i, o = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", n = M;
-  for (let a = 0; a < e; a++) {
-    const r = l[a];
+  let i, o = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", n = _;
+  for (let r = 0; r < e; r++) {
+    const a = l[r];
     let c, h, d = -1, p = 0;
-    for (; p < r.length && (n.lastIndex = p, h = n.exec(r), h !== null); ) p = n.lastIndex, n === M ? h[1] === "!--" ? n = gt : h[1] !== void 0 ? n = wt : h[2] !== void 0 ? ($t.test(h[2]) && (i = RegExp("</" + h[2], "g")), n = k) : h[3] !== void 0 && (n = k) : n === k ? h[0] === ">" ? (n = i ?? M, d = -1) : h[1] === void 0 ? d = -2 : (d = n.lastIndex - h[2].length, c = h[1], n = h[3] === void 0 ? k : h[3] === '"' ? vt : yt) : n === vt || n === yt ? n = k : n === gt || n === wt ? n = M : (n = k, i = void 0);
-    const f = n === k && l[a + 1].startsWith("/>") ? " " : "";
-    o += n === M ? r + Ft : d >= 0 ? (s.push(c), r.slice(0, d) + kt + r.slice(d) + x + f) : r + x + (d === -2 ? a : f);
+    for (; p < a.length && (n.lastIndex = p, h = n.exec(a), h !== null); ) p = n.lastIndex, n === _ ? h[1] === "!--" ? n = wt : h[1] !== void 0 ? n = yt : h[2] !== void 0 ? ($t.test(h[2]) && (i = RegExp("</" + h[2], "g")), n = C) : h[3] !== void 0 && (n = C) : n === C ? h[0] === ">" ? (n = i ?? _, d = -1) : h[1] === void 0 ? d = -2 : (d = n.lastIndex - h[2].length, c = h[1], n = h[3] === void 0 ? C : h[3] === '"' ? St : vt) : n === St || n === vt ? n = C : n === wt || n === yt ? n = _ : (n = C, i = void 0);
+    const f = n === C && l[r + 1].startsWith("/>") ? " " : "";
+    o += n === _ ? a + Ft : d >= 0 ? (s.push(c), a.slice(0, d) + Ct + a.slice(d) + E + f) : a + E + (d === -2 ? r : f);
   }
-  return [At(l, o + (l[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), s];
+  return [Gt(l, o + (l[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), s];
 };
-class I {
+class R {
   constructor({ strings: t, _$litType$: e }, s) {
     let i;
     this.parts = [];
     let o = 0, n = 0;
-    const a = t.length - 1, r = this.parts, [c, h] = Vt(t, e);
-    if (this.el = I.createElement(c, s), C.currentNode = this.el.content, e === 2 || e === 3) {
+    const r = t.length - 1, a = this.parts, [c, h] = Kt(t, e);
+    if (this.el = R.createElement(c, s), A.currentNode = this.el.content, e === 2 || e === 3) {
       const d = this.el.content.firstChild;
       d.replaceWith(...d.childNodes);
     }
-    for (; (i = C.nextNode()) !== null && r.length < a; ) {
+    for (; (i = A.nextNode()) !== null && a.length < r; ) {
       if (i.nodeType === 1) {
-        if (i.hasAttributes()) for (const d of i.getAttributeNames()) if (d.endsWith(kt)) {
-          const p = h[n++], f = i.getAttribute(d).split(x), u = /([.?@])?(.*)/.exec(p);
-          r.push({ type: 1, index: o, name: u[2], strings: f, ctor: u[1] === "." ? jt : u[1] === "?" ? Wt : u[1] === "@" ? Zt : H }), i.removeAttribute(d);
-        } else d.startsWith(x) && (r.push({ type: 6, index: o }), i.removeAttribute(d));
+        if (i.hasAttributes()) for (const d of i.getAttributeNames()) if (d.endsWith(Ct)) {
+          const p = h[n++], f = i.getAttribute(d).split(E), u = /([.?@])?(.*)/.exec(p);
+          a.push({ type: 1, index: o, name: u[2], strings: f, ctor: u[1] === "." ? jt : u[1] === "?" ? Wt : u[1] === "@" ? Zt : K }), i.removeAttribute(d);
+        } else d.startsWith(E) && (a.push({ type: 6, index: o }), i.removeAttribute(d));
         if ($t.test(i.tagName)) {
-          const d = i.textContent.split(x), p = d.length - 1;
+          const d = i.textContent.split(E), p = d.length - 1;
           if (p > 0) {
-            i.textContent = q ? q.emptyScript : "";
-            for (let f = 0; f < p; f++) i.append(d[f], D()), C.nextNode(), r.push({ type: 2, index: ++o });
-            i.append(d[p], D());
+            i.textContent = X ? X.emptyScript : "";
+            for (let f = 0; f < p; f++) i.append(d[f], L()), A.nextNode(), a.push({ type: 2, index: ++o });
+            i.append(d[p], L());
           }
         }
-      } else if (i.nodeType === 8) if (i.data === Ct) r.push({ type: 2, index: o });
+      } else if (i.nodeType === 8) if (i.data === At) a.push({ type: 2, index: o });
       else {
         let d = -1;
-        for (; (d = i.data.indexOf(x, d + 1)) !== -1; ) r.push({ type: 7, index: o }), d += x.length - 1;
+        for (; (d = i.data.indexOf(E, d + 1)) !== -1; ) a.push({ type: 7, index: o }), d += E.length - 1;
       }
       o++;
     }
   }
   static createElement(t, e) {
-    const s = A.createElement("template");
+    const s = G.createElement("template");
     return s.innerHTML = t, s;
   }
 }
-function T(l, t, e = l, s) {
-  var n, a;
-  if (t === N) return t;
+function P(l, t, e = l, s) {
+  var n, r;
+  if (t === T) return t;
   let i = s !== void 0 ? (n = e._$Co) == null ? void 0 : n[s] : e._$Cl;
-  const o = L(t) ? void 0 : t._$litDirective$;
-  return (i == null ? void 0 : i.constructor) !== o && ((a = i == null ? void 0 : i._$AO) == null || a.call(i, !1), o === void 0 ? i = void 0 : (i = new o(l), i._$AT(l, e, s)), s !== void 0 ? (e._$Co ?? (e._$Co = []))[s] = i : e._$Cl = i), i !== void 0 && (t = T(l, i._$AS(l, t.values), i, s)), t;
+  const o = z(t) ? void 0 : t._$litDirective$;
+  return (i == null ? void 0 : i.constructor) !== o && ((r = i == null ? void 0 : i._$AO) == null || r.call(i, !1), o === void 0 ? i = void 0 : (i = new o(l), i._$AT(l, e, s)), s !== void 0 ? (e._$Co ?? (e._$Co = []))[s] = i : e._$Cl = i), i !== void 0 && (t = P(l, i._$AS(l, t.values), i, s)), t;
 }
-class Kt {
+class Vt {
   constructor(t, e) {
     this._$AV = [], this._$AN = void 0, this._$AD = t, this._$AM = e;
   }
@@ -361,30 +361,30 @@ class Kt {
     return this._$AM._$AU;
   }
   u(t) {
-    const { el: { content: e }, parts: s } = this._$AD, i = ((t == null ? void 0 : t.creationScope) ?? A).importNode(e, !0);
-    C.currentNode = i;
-    let o = C.nextNode(), n = 0, a = 0, r = s[0];
-    for (; r !== void 0; ) {
-      if (n === r.index) {
+    const { el: { content: e }, parts: s } = this._$AD, i = ((t == null ? void 0 : t.creationScope) ?? G).importNode(e, !0);
+    A.currentNode = i;
+    let o = A.nextNode(), n = 0, r = 0, a = s[0];
+    for (; a !== void 0; ) {
+      if (n === a.index) {
         let c;
-        r.type === 2 ? c = new R(o, o.nextSibling, this, t) : r.type === 1 ? c = new r.ctor(o, r.name, r.strings, this, t) : r.type === 6 && (c = new Jt(o, this, t)), this._$AV.push(c), r = s[++a];
+        a.type === 2 ? c = new O(o, o.nextSibling, this, t) : a.type === 1 ? c = new a.ctor(o, a.name, a.strings, this, t) : a.type === 6 && (c = new Jt(o, this, t)), this._$AV.push(c), a = s[++r];
       }
-      n !== (r == null ? void 0 : r.index) && (o = C.nextNode(), n++);
+      n !== (a == null ? void 0 : a.index) && (o = A.nextNode(), n++);
     }
-    return C.currentNode = A, i;
+    return A.currentNode = G, i;
   }
   p(t) {
     let e = 0;
     for (const s of this._$AV) s !== void 0 && (s.strings !== void 0 ? (s._$AI(t, s, e), e += s.strings.length - 2) : s._$AI(t[e])), e++;
   }
 }
-class R {
+class O {
   get _$AU() {
     var t;
     return ((t = this._$AM) == null ? void 0 : t._$AU) ?? this._$Cv;
   }
   constructor(t, e, s, i) {
-    this.type = 2, this._$AH = g, this._$AN = void 0, this._$AA = t, this._$AB = e, this._$AM = s, this.options = i, this._$Cv = (i == null ? void 0 : i.isConnected) ?? !0;
+    this.type = 2, this._$AH = w, this._$AN = void 0, this._$AA = t, this._$AB = e, this._$AM = s, this.options = i, this._$Cv = (i == null ? void 0 : i.isConnected) ?? !0;
   }
   get parentNode() {
     let t = this._$AA.parentNode;
@@ -398,7 +398,7 @@ class R {
     return this._$AB;
   }
   _$AI(t, e = this) {
-    t = T(this, t, e), L(t) ? t === g || t == null || t === "" ? (this._$AH !== g && this._$AR(), this._$AH = g) : t !== this._$AH && t !== N && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : Yt(t) ? this.k(t) : this._(t);
+    t = P(this, t, e), z(t) ? t === w || t == null || t === "" ? (this._$AH !== w && this._$AR(), this._$AH = w) : t !== this._$AH && t !== T && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : Yt(t) ? this.k(t) : this._(t);
   }
   O(t) {
     return this._$AA.parentNode.insertBefore(t, this._$AB);
@@ -407,26 +407,26 @@ class R {
     this._$AH !== t && (this._$AR(), this._$AH = this.O(t));
   }
   _(t) {
-    this._$AH !== g && L(this._$AH) ? this._$AA.nextSibling.data = t : this.T(A.createTextNode(t)), this._$AH = t;
+    this._$AH !== w && z(this._$AH) ? this._$AA.nextSibling.data = t : this.T(G.createTextNode(t)), this._$AH = t;
   }
   $(t) {
     var o;
-    const { values: e, _$litType$: s } = t, i = typeof s == "number" ? this._$AC(t) : (s.el === void 0 && (s.el = I.createElement(At(s.h, s.h[0]), this.options)), s);
+    const { values: e, _$litType$: s } = t, i = typeof s == "number" ? this._$AC(t) : (s.el === void 0 && (s.el = R.createElement(Gt(s.h, s.h[0]), this.options)), s);
     if (((o = this._$AH) == null ? void 0 : o._$AD) === i) this._$AH.p(e);
     else {
-      const n = new Kt(i, this), a = n.u(this.options);
-      n.p(e), this.T(a), this._$AH = n;
+      const n = new Vt(i, this), r = n.u(this.options);
+      n.p(e), this.T(r), this._$AH = n;
     }
   }
   _$AC(t) {
-    let e = St.get(t.strings);
-    return e === void 0 && St.set(t.strings, e = new I(t)), e;
+    let e = bt.get(t.strings);
+    return e === void 0 && bt.set(t.strings, e = new R(t)), e;
   }
   k(t) {
-    ot(this._$AH) || (this._$AH = [], this._$AR());
+    ht(this._$AH) || (this._$AH = [], this._$AR());
     const e = this._$AH;
     let s, i = 0;
-    for (const o of t) i === e.length ? e.push(s = new R(this.O(D()), this.O(D()), this, this.options)) : s = e[i], s._$AI(o), i++;
+    for (const o of t) i === e.length ? e.push(s = new O(this.O(L()), this.O(L()), this, this.options)) : s = e[i], s._$AI(o), i++;
     i < e.length && (this._$AR(s && s._$AB.nextSibling, i), e.length = i);
   }
   _$AR(t = this._$AA.nextSibling, e) {
@@ -441,7 +441,7 @@ class R {
     this._$AM === void 0 && (this._$Cv = t, (e = this._$AP) == null || e.call(this, t));
   }
 }
-class H {
+class K {
   get tagName() {
     return this.element.tagName;
   }
@@ -449,46 +449,46 @@ class H {
     return this._$AM._$AU;
   }
   constructor(t, e, s, i, o) {
-    this.type = 1, this._$AH = g, this._$AN = void 0, this.element = t, this.name = e, this._$AM = i, this.options = o, s.length > 2 || s[0] !== "" || s[1] !== "" ? (this._$AH = Array(s.length - 1).fill(new String()), this.strings = s) : this._$AH = g;
+    this.type = 1, this._$AH = w, this._$AN = void 0, this.element = t, this.name = e, this._$AM = i, this.options = o, s.length > 2 || s[0] !== "" || s[1] !== "" ? (this._$AH = Array(s.length - 1).fill(new String()), this.strings = s) : this._$AH = w;
   }
   _$AI(t, e = this, s, i) {
     const o = this.strings;
     let n = !1;
-    if (o === void 0) t = T(this, t, e, 0), n = !L(t) || t !== this._$AH && t !== N, n && (this._$AH = t);
+    if (o === void 0) t = P(this, t, e, 0), n = !z(t) || t !== this._$AH && t !== T, n && (this._$AH = t);
     else {
-      const a = t;
-      let r, c;
-      for (t = o[0], r = 0; r < o.length - 1; r++) c = T(this, a[s + r], e, r), c === N && (c = this._$AH[r]), n || (n = !L(c) || c !== this._$AH[r]), c === g ? t = g : t !== g && (t += (c ?? "") + o[r + 1]), this._$AH[r] = c;
+      const r = t;
+      let a, c;
+      for (t = o[0], a = 0; a < o.length - 1; a++) c = P(this, r[s + a], e, a), c === T && (c = this._$AH[a]), n || (n = !z(c) || c !== this._$AH[a]), c === w ? t = w : t !== w && (t += (c ?? "") + o[a + 1]), this._$AH[a] = c;
     }
     n && !i && this.j(t);
   }
   j(t) {
-    t === g ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, t ?? "");
+    t === w ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, t ?? "");
   }
 }
-class jt extends H {
+class jt extends K {
   constructor() {
     super(...arguments), this.type = 3;
   }
   j(t) {
-    this.element[this.name] = t === g ? void 0 : t;
+    this.element[this.name] = t === w ? void 0 : t;
   }
 }
-class Wt extends H {
+class Wt extends K {
   constructor() {
     super(...arguments), this.type = 4;
   }
   j(t) {
-    this.element.toggleAttribute(this.name, !!t && t !== g);
+    this.element.toggleAttribute(this.name, !!t && t !== w);
   }
 }
-class Zt extends H {
+class Zt extends K {
   constructor(t, e, s, i, o) {
     super(t, e, s, i, o), this.type = 5;
   }
   _$AI(t, e = this) {
-    if ((t = T(this, t, e, 0) ?? g) === N) return;
-    const s = this._$AH, i = t === g && s !== g || t.capture !== s.capture || t.once !== s.once || t.passive !== s.passive, o = t !== g && (s === g || i);
+    if ((t = P(this, t, e, 0) ?? w) === T) return;
+    const s = this._$AH, i = t === w && s !== w || t.capture !== s.capture || t.once !== s.once || t.passive !== s.passive, o = t !== w && (s === w || i);
     i && this.element.removeEventListener(this.name, this, s), o && this.element.addEventListener(this.name, this, t), this._$AH = t;
   }
   handleEvent(t) {
@@ -504,17 +504,17 @@ class Jt {
     return this._$AM._$AU;
   }
   _$AI(t) {
-    T(this, t);
+    P(this, t);
   }
 }
-const Y = _.litHtmlPolyfillSupport;
-Y == null || Y(I, R), (_.litHtmlVersions ?? (_.litHtmlVersions = [])).push("3.3.1");
+const Z = I.litHtmlPolyfillSupport;
+Z == null || Z(R, O), (I.litHtmlVersions ?? (I.litHtmlVersions = [])).push("3.3.1");
 const Qt = (l, t, e) => {
   const s = (e == null ? void 0 : e.renderBefore) ?? t;
   let i = s._$litPart$;
   if (i === void 0) {
     const o = (e == null ? void 0 : e.renderBefore) ?? null;
-    s._$litPart$ = i = new R(t.insertBefore(D(), o), o, void 0, e ?? {});
+    s._$litPart$ = i = new O(t.insertBefore(L(), o), o, void 0, e ?? {});
   }
   return i._$AI(l), i;
 };
@@ -524,7 +524,7 @@ const Qt = (l, t, e) => {
  * SPDX-License-Identifier: BSD-3-Clause
  */
 const $ = globalThis;
-class y extends G {
+class S extends M {
   constructor() {
     super(...arguments), this.renderOptions = { host: this }, this._$Do = void 0;
   }
@@ -546,15 +546,15 @@ class y extends G {
     super.disconnectedCallback(), (t = this._$Do) == null || t.setConnected(!1);
   }
   render() {
-    return N;
+    return T;
   }
 }
-var bt;
-y._$litElement$ = !0, y.finalized = !0, (bt = $.litElementHydrateSupport) == null || bt.call($, { LitElement: y });
-const X = $.litElementPolyfillSupport;
-X == null || X({ LitElement: y });
+var xt;
+S._$litElement$ = !0, S.finalized = !0, (xt = $.litElementHydrateSupport) == null || xt.call($, { LitElement: S });
+const J = $.litElementPolyfillSupport;
+J == null || J({ LitElement: S });
 ($.litElementVersions ?? ($.litElementVersions = [])).push("4.2.1");
-class V {
+class Q {
   /**
    * Creates a new Socket instance.
    * 
@@ -659,10 +659,10 @@ class V {
         align-items: center;
         gap: 8px;
       `;
-      const a = ((c = o.fromSocket) == null ? void 0 : c.node) === this.node ? (h = o.toSocket) == null ? void 0 : h.node : (d = o.fromSocket) == null ? void 0 : d.node, r = (a == null ? void 0 : a.label) || (a == null ? void 0 : a.type) || "node";
+      const r = ((c = o.fromSocket) == null ? void 0 : c.node) === this.node ? (h = o.toSocket) == null ? void 0 : h.node : (d = o.fromSocket) == null ? void 0 : d.node, a = (r == null ? void 0 : r.label) || (r == null ? void 0 : r.type) || "node";
       n.innerHTML = `
         <span style="color: var(--fg-error);">🗑️</span>
-        <span>Delete connection to ${r}</span>
+        <span>Delete connection to ${a}</span>
       `, n.addEventListener("click", () => {
         this.node.flowGraph.removeEdge(o.id), this.hideContextMenu();
       }), n.addEventListener("mouseenter", () => {
@@ -691,8 +691,8 @@ class V {
         <span>🗑️</span>
         <span>Delete all connections</span>
       `, n.addEventListener("click", () => {
-        Array.from(this.connections).forEach((r) => {
-          this.node.flowGraph.removeEdge(r.id);
+        Array.from(this.connections).forEach((a) => {
+          this.node.flowGraph.removeEdge(a.id);
         }), this.hideContextMenu();
       }), n.addEventListener("mouseenter", () => {
         n.style.background = "var(--fg-error)", n.style.color = "white";
@@ -879,7 +879,7 @@ class te {
    */
   createSockets() {
     this.template && (this.template.inputs.forEach((t) => {
-      const e = new V(this, {
+      const e = new Q(this, {
         id: t.id,
         type: "input",
         dataType: t.type,
@@ -887,7 +887,7 @@ class te {
       });
       this.inputs.set(t.id, e);
     }), this.template.outputs.forEach((t) => {
-      const e = new V(this, {
+      const e = new Q(this, {
         id: t.id,
         type: "output",
         dataType: t.type,
@@ -909,7 +909,7 @@ class te {
           !isNaN(n) && n > 0 && (t.maxConnections = n);
         }
         let o = (s = e.shadowRoot) == null ? void 0 : s.querySelector("flow-socket-anchor");
-        o || (o = e.querySelector("flow-socket-anchor")), o ? (t.element = o, o._socket = t, t.setupContextMenu()) : console.warn(`Socket element not found for socket ${t.id} - flow-socket found but no flow-socket-anchor`);
+        o || (o = e.querySelector("flow-socket-anchor")), o ? (t.element = o, o._socket = t, t.setupContextMenu(), this.flowGraph && this.flowGraph.connections && this.flowGraph.connections.registerSocket(t)) : console.warn(`Socket element not found for socket ${t.id} - flow-socket found but no flow-socket-anchor`);
       } else
         console.warn(`Flow-socket not found for socket ${t.id}`);
     }), this.outputs.forEach((t) => {
@@ -922,7 +922,7 @@ class te {
           !isNaN(n) && n > 0 && (t.maxConnections = n);
         }
         let o = (s = e.shadowRoot) == null ? void 0 : s.querySelector("flow-socket-anchor");
-        o || (o = e.querySelector("flow-socket-anchor")), o ? (t.element = o, o._socket = t, t.setupContextMenu()) : console.warn(`Socket element not found for socket ${t.id} - flow-socket found but no flow-socket-anchor`);
+        o || (o = e.querySelector("flow-socket-anchor")), o ? (t.element = o, o._socket = t, t.setupContextMenu(), this.flowGraph && this.flowGraph.connections && this.flowGraph.connections.registerSocket(t)) : console.warn(`Socket element not found for socket ${t.id} - flow-socket found but no flow-socket-anchor`);
       } else
         console.warn(`Flow-socket not found for socket ${t.id}`);
     });
@@ -952,10 +952,10 @@ class te {
    * ```
    */
   addSocket(t) {
-    const { id: e, type: s, dataType: i = "any", label: o, maxConnections: n, color: a, size: r } = t;
+    const { id: e, type: s, dataType: i = "any", label: o, maxConnections: n, color: r, size: a } = t;
     if (this.inputs.has(e) || this.outputs.has(e))
       throw new Error(`Socket with ID '${e}' already exists`);
-    const c = new V(this, {
+    const c = new Q(this, {
       id: e,
       type: s,
       dataType: i,
@@ -968,7 +968,7 @@ class te {
       this.outputs.set(e, c);
     else
       throw new Error(`Invalid socket type: ${s}. Must be 'input' or 'output'`);
-    return this.createSocketElement(c, { color: a, size: r }), this.updateNodeHeight(), this.flowGraph.container.dispatchEvent(
+    return this.createSocketElement(c, { color: r, size: a }), this.updateNodeHeight(), this.flowGraph.container.dispatchEvent(
       new CustomEvent("socket:add", {
         detail: { node: this, socket: c }
       })
@@ -1044,7 +1044,7 @@ class te {
     let s = null, i = null;
     return (e === "input" || e === null) && (s = this.inputs.get(t), s && (i = "input")), !s && (e === "output" || e === null) && (s = this.outputs.get(t), s && (i = "output")), s ? (Array.from(s.connections).forEach((n) => {
       this.flowGraph.removeEdge(n.id);
-    }), this.removeSocketElement(s), i === "input" ? this.inputs.delete(t) : this.outputs.delete(t), this.updateNodeHeight(), this.flowGraph.container.dispatchEvent(
+    }), this.flowGraph && this.flowGraph.connections && this.flowGraph.connections.unregisterSocket(s), this.removeSocketElement(s), i === "input" ? this.inputs.delete(t) : this.outputs.delete(t), this.updateNodeHeight(), this.flowGraph.container.dispatchEvent(
       new CustomEvent("socket:remove", {
         detail: { node: this, socketId: t, socketType: i }
       })
@@ -1060,7 +1060,7 @@ class te {
    * @private
    */
   createSocketElement(t, e = {}) {
-    var r;
+    var a;
     const { color: s, size: i } = e, o = document.createElement("flow-socket");
     o.setAttribute("type", t.type), o.setAttribute("name", t.id), o.setAttribute("label", t.label), o.setAttribute("data-type", t.dataType), t.maxConnections !== void 0 && o.setAttribute("max-connection", t.maxConnections.toString()), s && o.setAttribute("color", s), i && o.setAttribute("size", i);
     const n = this.element.querySelector(".body");
@@ -1068,8 +1068,8 @@ class te {
       console.warn("Could not find .body element to insert socket");
       return;
     }
-    const a = (r = n.querySelector(".socket-control-btn")) == null ? void 0 : r.parentElement;
-    t.type === "input" && a ? n.insertBefore(o, a) : n.appendChild(o), requestAnimationFrame(() => {
+    const r = (a = n.querySelector(".socket-control-btn")) == null ? void 0 : a.parentElement;
+    t.type === "input" && r ? n.insertBefore(o, r) : n.appendChild(o), requestAnimationFrame(() => {
       this.linkSingleSocketElement(t, o);
     });
   }
@@ -1088,7 +1088,7 @@ class te {
       !isNaN(n) && n > 0 && (t.maxConnections = n);
     }
     let i = (o = e.shadowRoot) == null ? void 0 : o.querySelector("flow-socket-anchor");
-    i || (i = e.querySelector("flow-socket-anchor")), i ? (t.element = i, i._socket = t, t.setupContextMenu()) : console.warn(`Socket element not found for socket ${t.id}`);
+    i || (i = e.querySelector("flow-socket-anchor")), i ? (t.element = i, i._socket = t, t.setupContextMenu(), this.flowGraph && this.flowGraph.connections && this.flowGraph.connections.registerSocket(t)) : console.warn(`Socket element not found for socket ${t.id}`);
   }
   /**
    * Remove socket element from DOM.
@@ -1141,26 +1141,26 @@ class te {
         e = Date.now();
         return;
       }
-      const v = u.ctrlKey || u.metaKey;
-      this.flowGraph.selectNode(this.id, v), this.flowGraph.selection.has(this.id) && (t = !0, this.element.classList.add("dragging"), this.flowGraph.startMultiDrag(u, this), this.flowGraph.container.addEventListener("mousemove", n), this.flowGraph.container.addEventListener("mouseup", a), u.preventDefault(), u.stopPropagation());
+      const m = u.ctrlKey || u.metaKey;
+      this.flowGraph.selectNode(this.id, m), this.flowGraph.selection.has(this.id) && (t = !0, this.element.classList.add("dragging"), this.flowGraph.startMultiDrag(u, this), this.flowGraph.container.addEventListener("mousemove", n), this.flowGraph.container.addEventListener("mouseup", r), u.preventDefault(), u.stopPropagation());
     }, n = (u) => {
       if (u.pointerType === "touch" && !t) {
-        Date.now() - e > 50 && (this.flowGraph.selectNode(this.id, !1), this.flowGraph.selection.has(this.id) && (t = !0, this.element.classList.add("dragging"), this.flowGraph.startMultiDrag(u, this), this.flowGraph.container.addEventListener("mousemove", n), this.flowGraph.container.addEventListener("mouseup", a)));
+        Date.now() - e > 50 && (this.flowGraph.selectNode(this.id, !1), this.flowGraph.selection.has(this.id) && (t = !0, this.element.classList.add("dragging"), this.flowGraph.startMultiDrag(u, this), this.flowGraph.container.addEventListener("mousemove", n), this.flowGraph.container.addEventListener("mouseup", r)));
         return;
       }
       t && (this.flowGraph.updateMultiDrag(u), u.preventDefault());
-    }, a = (u) => {
-      t && (t = !1, this.element.classList.remove("dragging"), this.flowGraph.container.removeEventListener("mousemove", n), this.flowGraph.container.removeEventListener("mouseup", a), this.flowGraph.endMultiDrag());
-    }, r = (u, v, b) => {
+    }, r = (u) => {
+      t && (t = !1, this.element.classList.remove("dragging"), this.flowGraph.container.removeEventListener("mousemove", n), this.flowGraph.container.removeEventListener("mouseup", r), this.flowGraph.endMultiDrag());
+    }, a = (u, m, v) => {
       c(), i.target = u, i.startTime = Date.now(), i.moved = !1, i.timer = setTimeout(() => {
-        i.moved || h(u, v, b);
+        i.moved || h(u, m, v);
       }, i.threshold);
     }, c = () => {
       i.timer && (clearTimeout(i.timer), i.timer = null), i.moved = !1;
-    }, h = (u, v, b) => {
+    }, h = (u, m, v) => {
       this.element.classList.add("long-press-active");
-      const z = this.flowGraph.container.querySelector("flow-graph");
-      z && z.showNodeContextMenu(v, b, [
+      const N = this.flowGraph.container.querySelector("flow-graph");
+      N && N.showNodeContextMenu(m, v, [
         {
           label: "Delete Node",
           icon: "🗑️",
@@ -1172,8 +1172,8 @@ class te {
     }, d = (u) => {
       if (this.isInteractiveElement(u.target)) return;
       e = Date.now(), s = u.target;
-      const v = u.touches[0];
-      r(u.target, v.clientX, v.clientY);
+      const m = u.touches[0];
+      a(u.target, m.clientX, m.clientY);
     }, p = (u) => {
       if (i.target && (i.moved = !0, c()), !t) {
         if (this.flowGraph.connections.socketInteractionActive || s && this.isInteractiveElement(s))
@@ -1198,14 +1198,14 @@ class te {
       dblclick: (u) => {
         u.preventDefault(), u.stopPropagation(), this.execute();
       }
-    }, this.containerMoveHandler = n, this.containerUpHandler = a, this.element.addEventListener("mousedown", this.eventHandlers.mousedown, { passive: !1 }), this.element.addEventListener("touchstart", this.eventHandlers.touchstart, { passive: !0 }), this.element.addEventListener("touchmove", this.eventHandlers.touchmove, { passive: !1 }), this.element.addEventListener("touchend", this.eventHandlers.touchend, { passive: !0 }), this.element.addEventListener("dblclick", this.eventHandlers.dblclick, { passive: !1 });
+    }, this.containerMoveHandler = n, this.containerUpHandler = r, this.element.addEventListener("mousedown", this.eventHandlers.mousedown, { passive: !1 }), this.element.addEventListener("touchstart", this.eventHandlers.touchstart, { passive: !0 }), this.element.addEventListener("touchmove", this.eventHandlers.touchmove, { passive: !1 }), this.element.addEventListener("touchend", this.eventHandlers.touchend, { passive: !0 }), this.element.addEventListener("dblclick", this.eventHandlers.dblclick, { passive: !1 });
   }
   setPosition(t, e) {
     const s = { x: this.x, y: this.y };
     this.x = t, this.y = e, this.flowGraph && this.flowGraph.scheduleAnimationUpdate ? this.flowGraph.scheduleAnimationUpdate(this.element, {
       left: t + "px",
       top: e + "px"
-    }) : (this.element.style.left = t + "px", this.element.style.top = e + "px"), this.flowGraph.container.dispatchEvent(new CustomEvent("node:move", {
+    }) : (this.element.style.left = t + "px", this.element.style.top = e + "px"), this.flowGraph && this.flowGraph.connections && this.flowGraph.connections.updateNodeSocketsInGrid(this), this.flowGraph.container.dispatchEvent(new CustomEvent("node:move", {
       detail: {
         nodeId: this.id,
         node: this,
@@ -1561,7 +1561,7 @@ class se {
     };
   }
   destroy() {
-    this.updateRafId && (cancelAnimationFrame(this.updateRafId), this.updateRafId = null), this.fromSocket.removeConnection(this), this.toSocket.removeConnection(this), this.element && this.element.remove();
+    this.updateRafId && (cancelAnimationFrame(this.updateRafId), this.updateRafId = null), delete this.fromSocket._cachedOffset, delete this.toSocket._cachedOffset, this.fromSocket.removeConnection(this), this.toSocket.removeConnection(this), this.element && this.element.remove();
   }
 }
 class ie {
@@ -1573,7 +1573,11 @@ class ie {
    * @param {FlowGraph} [flowGraph=null] - The parent FlowGraph instance
    */
   constructor(t, e, s = null) {
-    this.surface = t, this.contentContainer = e, this.flowGraph = s, this.x = 0, this.y = 0, this.scale = 1, this.minScale = 0.1, this.maxScale = 3, this.panState = {
+    this.surface = t, this.contentContainer = e, this.flowGraph = s, this.x = 0, this.y = 0, this.scale = 1, this.minScale = 0.1, this.maxScale = 3, this.gridCache = {
+      gridSize: 50,
+      minorGridSize: 10,
+      initialized: !1
+    }, this.panState = {
       isPanning: !1,
       startX: 0,
       startY: 0,
@@ -1609,8 +1613,8 @@ class ie {
     this.panState.isPanning = !0, this.panState.startX = t.clientX, this.panState.startY = t.clientY, this.panState.startViewportX = this.x, this.panState.startViewportY = this.y, this.surface.style.cursor = "grabbing";
     const e = (i) => {
       if (this.panState.isPanning) {
-        const o = i.clientX - this.panState.startX, n = i.clientY - this.panState.startY, a = this.panState.startViewportX + o, r = this.panState.startViewportY + n;
-        this.panBy(a - this.x, r - this.y);
+        const o = i.clientX - this.panState.startX, n = i.clientY - this.panState.startY, r = this.panState.startViewportX + o, a = this.panState.startViewportY + n;
+        this.panBy(r - this.x, a - this.y);
       }
     }, s = (i) => {
       this.panState.isPanning = !1, this.surface.style.cursor = "", this.surface.removeEventListener("mousemove", e), this.surface.removeEventListener("mouseup", s), this.flowGraph && this.flowGraph.container.dispatchEvent(new CustomEvent("viewport:pan", {
@@ -1631,10 +1635,10 @@ class ie {
     if (this.touchState.lastTouches = Array.from(t.touches), t.touches.length === 1) {
       const e = t.touches[0], s = e.target.closest(".node"), i = e.target.classList.contains("socket");
       if (!s && !i) {
-        const o = Date.now(), n = o - this.touchState.lastTapTime, a = Math.sqrt(
+        const o = Date.now(), n = o - this.touchState.lastTapTime, r = Math.sqrt(
           Math.pow(e.clientX - this.touchState.lastTapX, 2) + Math.pow(e.clientY - this.touchState.lastTapY, 2)
         );
-        n < 300 && a < 50 ? this.handleDoubleTap(e) : this.startPan(e), this.touchState.lastTapTime = o, this.touchState.lastTapX = e.clientX, this.touchState.lastTapY = e.clientY;
+        n < 300 && r < 50 ? this.handleDoubleTap(e) : this.startPan(e), this.touchState.lastTapTime = o, this.touchState.lastTapX = e.clientX, this.touchState.lastTapY = e.clientY;
       }
     } else t.touches.length === 2 && this.startPinchZoom(t);
   }
@@ -1687,8 +1691,8 @@ class ie {
     if (t.touches.length !== 2 || !this.touchState.isPinching) return;
     const e = t.touches[0], s = t.touches[1], o = Math.sqrt(
       Math.pow(s.clientX - e.clientX, 2) + Math.pow(s.clientY - e.clientY, 2)
-    ) / this.touchState.initialDistance, n = this.touchState.initialScale * o, a = Math.max(this.minScale, Math.min(this.maxScale, n)), r = (e.clientX + s.clientX) / 2, c = (e.clientY + s.clientY) / 2, h = this.surface.getBoundingClientRect(), d = (r - h.left - this.touchState.initialViewportX) / this.touchState.initialScale, p = (c - h.top - this.touchState.initialViewportY) / this.touchState.initialScale;
-    r - h.left - d * a, c - h.top - p * a, this.zoomTo(a, r - h.left, c - h.top);
+    ) / this.touchState.initialDistance, n = this.touchState.initialScale * o, r = Math.max(this.minScale, Math.min(this.maxScale, n)), a = (e.clientX + s.clientX) / 2, c = (e.clientY + s.clientY) / 2, h = this.surface.getBoundingClientRect(), d = (a - h.left - this.touchState.initialViewportX) / this.touchState.initialScale, p = (c - h.top - this.touchState.initialViewportY) / this.touchState.initialScale;
+    a - h.left - d * r, c - h.top - p * r, this.zoomTo(r, a - h.left, c - h.top);
   }
   /**
    * Calculate distance between two touch points
@@ -1758,15 +1762,21 @@ class ie {
   }
   updateTransform() {
     const t = `translate(${this.x}px, ${this.y}px) scale(${this.scale})`;
-    this.contentContainer.style.transform = t;
-    const e = this.flowGraph.container, s = getComputedStyle(e), i = parseInt(s.getPropertyValue("--fg-grid-main-size")) || 50, o = parseInt(s.getPropertyValue("--fg-grid-minor-size")) || 10;
-    e.style.backgroundPosition = `${this.x % i}px ${this.y % i}px, ${this.x % i}px ${this.y % i}px, ${this.x % o}px ${this.y % o}px, ${this.x % o}px ${this.y % o}px`, this.flowGraph && this.flowGraph.container.dispatchEvent(new CustomEvent("viewport:change", {
-      detail: {
-        x: this.x,
-        y: this.y,
-        scale: this.scale
+    if (this.contentContainer.style.transform = t, this.flowGraph) {
+      const e = this.flowGraph.container;
+      if (!this.gridCache.initialized || this.gridCache.checkCounter === void 0 || ++this.gridCache.checkCounter > 100) {
+        const o = getComputedStyle(e), n = parseInt(o.getPropertyValue("--fg-grid-main-size")) || 50, r = parseInt(o.getPropertyValue("--fg-grid-minor-size")) || 10;
+        (!this.gridCache.initialized || this.gridCache.gridSize !== n || this.gridCache.minorGridSize !== r) && (this.gridCache.gridSize = n, this.gridCache.minorGridSize = r, this.gridCache.initialized = !0), this.gridCache.checkCounter = 0;
       }
-    }));
+      const s = this.gridCache.gridSize, i = this.gridCache.minorGridSize;
+      e.style.backgroundPosition = `${this.x % s}px ${this.y % s}px, ${this.x % s}px ${this.y % s}px, ${this.x % i}px ${this.y % i}px, ${this.x % i}px ${this.y % i}px`, this.flowGraph.container.dispatchEvent(new CustomEvent("viewport:change", {
+        detail: {
+          x: this.x,
+          y: this.y,
+          scale: this.scale
+        }
+      }));
+    }
   }
   screenToWorld(t, e) {
     return {
@@ -1784,6 +1794,23 @@ class ie {
   }
   resetZoom() {
     this.x = 0, this.y = 0, this.scale = 1, this.updateTransform();
+  }
+  /**
+   * Clear the grid size cache and force immediate re-read.
+   * Normally not needed as grid sizes are auto-detected, but can be used
+   * to force immediate update instead of waiting for the next periodic check.
+   * 
+   * @example
+   * ```javascript
+   * // Change grid size
+   * flowGraph.container.style.setProperty('--fg-grid-main-size', '100px');
+   * 
+   * // Optional: Force immediate update (auto-detects within ~100 transforms anyway)
+   * flowGraph.viewport.clearGridCache();
+   * ```
+   */
+  clearGridCache() {
+    this.gridCache.checkCounter = 101;
   }
   serialize() {
     return {
@@ -2020,14 +2047,14 @@ class ne {
     const s = /* @__PURE__ */ new Set();
     let i = null;
     for (const n of t) {
-      const a = this.flowGraph.nodes.get(n);
-      if (a && a.template && a.template.onExecute) {
+      const r = this.flowGraph.nodes.get(n);
+      if (r && r.template && r.template.onExecute) {
         if (!this.shouldNodeExecute(n))
           continue;
         try {
-          this.flowGraph.animations.highlightExecutingNode(a, !0), this.flowGraph.animations.animationConfig.enabled && this.flowGraph.animations.startNodeAnimations(a, s), await a.execute(), e++, this.flowGraph.animations.animationConfig.enabled && this.flowGraph.animations.stopNodeAnimations(a, s), this.flowGraph.animations.highlightExecutingNode(a, !1);
+          this.flowGraph.animations.highlightExecutingNode(r, !0), this.flowGraph.animations.animationConfig.enabled && this.flowGraph.animations.startNodeAnimations(r, s), await r.execute(), e++, this.flowGraph.animations.animationConfig.enabled && this.flowGraph.animations.stopNodeAnimations(r, s), this.flowGraph.animations.highlightExecutingNode(r, !1);
         } catch (c) {
-          console.error(`Error executing node ${n}:`, c), i = c, this.flowGraph.animations.highlightExecutingNode(a, !1), this.flowGraph.animations.animationConfig.enabled && this.flowGraph.animations.stopAllAnimations(s);
+          console.error(`Error executing node ${n}:`, c), i = c, this.flowGraph.animations.highlightExecutingNode(r, !1), this.flowGraph.animations.animationConfig.enabled && this.flowGraph.animations.stopAllAnimations(s);
           break;
         }
       }
@@ -2051,11 +2078,11 @@ class ne {
    */
   getExecutionOrder() {
     const t = /* @__PURE__ */ new Set(), e = /* @__PURE__ */ new Set(), s = [], i = /* @__PURE__ */ new Map();
-    this.flowGraph.nodes.forEach((n, a) => {
-      i.set(a, /* @__PURE__ */ new Set());
+    this.flowGraph.nodes.forEach((n, r) => {
+      i.set(r, /* @__PURE__ */ new Set());
     }), this.flowGraph.edges.forEach((n) => {
-      const a = n.fromSocket.node.id, r = n.toSocket.node.id;
-      i.get(r).add(a);
+      const r = n.fromSocket.node.id, a = n.toSocket.node.id;
+      i.get(a).add(r);
     });
     const o = (n) => {
       if (e.has(n)) {
@@ -2065,15 +2092,15 @@ class ne {
       if (t.has(n))
         return;
       e.add(n);
-      const a = i.get(n) || /* @__PURE__ */ new Set();
-      for (const c of a)
+      const r = i.get(n) || /* @__PURE__ */ new Set();
+      for (const c of r)
         o(c);
       e.delete(n), t.add(n);
-      const r = this.flowGraph.nodes.get(n);
-      r && r.template && r.template.onExecute && s.push(n);
+      const a = this.flowGraph.nodes.get(n);
+      a && a.template && a.template.onExecute && s.push(n);
     };
-    return this.flowGraph.nodes.forEach((n, a) => {
-      t.has(a) || o(a);
+    return this.flowGraph.nodes.forEach((n, r) => {
+      t.has(r) || o(r);
     }), s;
   }
   /**
@@ -2107,8 +2134,8 @@ class ne {
     const o = Array.from(s.outputs.values())[e];
     o && o.connections.forEach((n) => {
       if (n.toSocket) {
-        const a = n.toSocket.node.id, r = this.getInputSocketIndex(n.toSocket);
-        this.activeInputs.has(a) || this.activeInputs.set(a, /* @__PURE__ */ new Set()), this.activeInputs.get(a).add(r);
+        const r = n.toSocket.node.id, a = this.getInputSocketIndex(n.toSocket);
+        this.activeInputs.has(r) || this.activeInputs.set(r, /* @__PURE__ */ new Set()), this.activeInputs.get(r).add(a);
       }
     });
   }
@@ -2300,9 +2327,9 @@ class re {
     }), this.clipboard.edges.forEach((i) => {
       const o = s.get(i.fromNodeId), n = s.get(i.toNodeId);
       if (o && n) {
-        const a = this.flowGraph.nodes.get(o), r = this.flowGraph.nodes.get(n);
-        if (a && r) {
-          const c = a.outputs.get(i.fromSocketId), h = r.inputs.get(i.toSocketId);
+        const r = this.flowGraph.nodes.get(o), a = this.flowGraph.nodes.get(n);
+        if (r && a) {
+          const c = r.outputs.get(i.fromSocketId), h = a.inputs.get(i.toSocketId);
           c && h && c.canConnect(h) && this.flowGraph.createEdge({
             fromNodeId: o,
             fromSocketId: i.fromSocketId,
@@ -2317,6 +2344,215 @@ class re {
   }
 }
 class ae {
+  /**
+   * Creates a new SpatialGrid instance.
+   * 
+   * @param {number} [cellSize=50] - Size of each grid cell in pixels
+   */
+  constructor(t = 50) {
+    this.cellSize = t, this.grid = /* @__PURE__ */ new Map(), this.socketPositions = /* @__PURE__ */ new Map(), this.socketCount = 0;
+  }
+  /**
+   * Get grid cell key for a position.
+   * 
+   * @param {number} x - X coordinate
+   * @param {number} y - Y coordinate
+   * @returns {string} Grid cell key
+   * @private
+   */
+  getCellKey(t, e) {
+    const s = Math.floor(t / this.cellSize), i = Math.floor(e / this.cellSize);
+    return `${s},${i}`;
+  }
+  /**
+   * Get all cell keys that overlap with a circle (for tolerance radius).
+   * 
+   * @param {number} x - Center X coordinate
+   * @param {number} y - Center Y coordinate
+   * @param {number} radius - Search radius
+   * @returns {string[]} Array of cell keys to check
+   * @private
+   */
+  getCellKeysInRadius(t, e, s) {
+    const i = Math.floor((t - s) / this.cellSize), o = Math.floor((t + s) / this.cellSize), n = Math.floor((e - s) / this.cellSize), r = Math.floor((e + s) / this.cellSize), a = [];
+    for (let c = i; c <= o; c++)
+      for (let h = n; h <= r; h++)
+        a.push(`${c},${h}`);
+    return a;
+  }
+  /**
+   * Insert a socket into the grid.
+   * 
+   * @param {Object} socket - Socket object with position data
+   * @param {number} x - X coordinate in world space
+   * @param {number} y - Y coordinate in world space
+   * @public
+   */
+  insert(t, e, s) {
+    this.socketPositions.has(t) && this.remove(t);
+    const i = this.getCellKey(e, s);
+    this.grid.has(i) || this.grid.set(i, /* @__PURE__ */ new Set()), this.grid.get(i).add(t), this.socketPositions.set(t, { x: e, y: s, cellKey: i }), this.socketCount++;
+  }
+  /**
+   * Update socket position in the grid.
+   * More efficient than remove + insert if socket stays in same cell.
+   * 
+   * @param {Object} socket - Socket object
+   * @param {number} newX - New X coordinate
+   * @param {number} newY - New Y coordinate
+   * @public
+   */
+  update(t, e, s) {
+    const i = this.socketPositions.get(t);
+    if (!i) {
+      this.insert(t, e, s);
+      return;
+    }
+    const o = this.getCellKey(e, s);
+    if (i.cellKey === o) {
+      i.x = e, i.y = s;
+      return;
+    }
+    const n = this.grid.get(i.cellKey);
+    n && (n.delete(t), n.size === 0 && this.grid.delete(i.cellKey)), this.grid.has(o) || this.grid.set(o, /* @__PURE__ */ new Set()), this.grid.get(o).add(t), i.x = e, i.y = s, i.cellKey = o;
+  }
+  /**
+   * Remove socket from the grid.
+   * 
+   * @param {Object} socket - Socket object to remove
+   * @returns {boolean} True if socket was found and removed
+   * @public
+   */
+  remove(t) {
+    const e = this.socketPositions.get(t);
+    if (!e)
+      return !1;
+    const s = this.grid.get(e.cellKey);
+    return s && (s.delete(t), s.size === 0 && this.grid.delete(e.cellKey)), this.socketPositions.delete(t), this.socketCount--, !0;
+  }
+  /**
+   * Find the closest socket at a position within tolerance.
+   * ULTRA-FAST: O(1) lookup using spatial hash.
+   * 
+   * @param {number} x - X coordinate in world space
+   * @param {number} y - Y coordinate in world space
+   * @param {number} [tolerance=20] - Maximum distance for detection
+   * @returns {Object|null} Closest socket within tolerance, or null
+   * @public
+   */
+  findAt(t, e, s = 20) {
+    const i = this.getCellKeysInRadius(t, e, s);
+    let o = null, n = s;
+    for (const r of i) {
+      const a = this.grid.get(r);
+      if (a)
+        for (const c of a) {
+          const h = this.socketPositions.get(c);
+          if (!h) continue;
+          const d = h.x - t, p = h.y - e, f = Math.sqrt(d * d + p * p);
+          f < n && (n = f, o = c);
+        }
+    }
+    return o;
+  }
+  /**
+   * Find all sockets within a rectangular area.
+   * 
+   * @param {number} minX - Minimum X coordinate
+   * @param {number} minY - Minimum Y coordinate
+   * @param {number} maxX - Maximum X coordinate
+   * @param {number} maxY - Maximum Y coordinate
+   * @returns {Object[]} Array of sockets in the area
+   * @public
+   */
+  findInRect(t, e, s, i) {
+    const o = Math.floor(t / this.cellSize), n = Math.floor(s / this.cellSize), r = Math.floor(e / this.cellSize), a = Math.floor(i / this.cellSize), c = /* @__PURE__ */ new Set();
+    for (let h = o; h <= n; h++)
+      for (let d = r; d <= a; d++) {
+        const p = `${h},${d}`, f = this.grid.get(p);
+        if (f)
+          for (const u of f) {
+            const m = this.socketPositions.get(u);
+            m && m.x >= t && m.x <= s && m.y >= e && m.y <= i && c.add(u);
+          }
+      }
+    return Array.from(c);
+  }
+  /**
+   * Clear all sockets from the grid.
+   * 
+   * @public
+   */
+  clear() {
+    this.grid.clear(), this.socketPositions.clear(), this.socketCount = 0;
+  }
+  /**
+   * Rebuild the entire grid from scratch.
+   * Call this after major viewport changes or bulk node operations.
+   * 
+   * @param {Object[]} sockets - Array of socket objects with positions
+   * @param {Function} getPositionFn - Function to get position: (socket) => {x, y}
+   * @public
+   */
+  rebuild(t, e) {
+    this.clear();
+    for (const s of t) {
+      const i = e(s);
+      i && this.insert(s, i.x, i.y);
+    }
+  }
+  /**
+   * Get statistics about the grid (for debugging/optimization).
+   * 
+   * @returns {Object} Statistics object
+   * @public
+   */
+  getStats() {
+    const t = this.grid.size;
+    let e = 1 / 0, s = 0, i = 0;
+    for (const n of this.grid.values()) {
+      const r = n.size;
+      i += r, e = Math.min(e, r), s = Math.max(s, r);
+    }
+    const o = t > 0 ? i / t : 0;
+    return {
+      cellSize: this.cellSize,
+      cellsUsed: t,
+      totalSockets: this.socketCount,
+      socketsIndexed: i,
+      avgSocketsPerCell: o.toFixed(2),
+      minSocketsPerCell: e === 1 / 0 ? 0 : e,
+      maxSocketsPerCell: s,
+      memoryEstimate: `~${((t * 50 + i * 40) / 1024).toFixed(1)} KB`
+    };
+  }
+  /**
+   * Visualize grid for debugging (adds overlay to DOM).
+   * 
+   * @param {HTMLElement} container - Container element to add visualization to
+   * @public
+   */
+  visualize(t) {
+    const e = t.querySelector(".spatial-grid-debug");
+    e && e.remove();
+    const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    s.classList.add("spatial-grid-debug"), s.style.cssText = `
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.3;
+    `;
+    for (const [i, o] of this.grid) {
+      const [n, r] = i.split(",").map(Number), a = n * this.cellSize, c = r * this.cellSize, h = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      h.setAttribute("x", a), h.setAttribute("y", c), h.setAttribute("width", this.cellSize), h.setAttribute("height", this.cellSize), h.setAttribute("fill", "rgba(0, 255, 0, 0.1)"), h.setAttribute("stroke", "rgba(0, 255, 0, 0.5)"), h.setAttribute("stroke-width", "1"), s.appendChild(h);
+      const d = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      d.setAttribute("x", a + this.cellSize / 2), d.setAttribute("y", c + this.cellSize / 2), d.setAttribute("text-anchor", "middle"), d.setAttribute("dominant-baseline", "middle"), d.setAttribute("fill", "lime"), d.setAttribute("font-size", "12"), d.textContent = o.size, s.appendChild(d);
+    }
+    t.appendChild(s);
+  }
+}
+class le {
   /**
    * Creates a new FlowGraphConnections instance.
    * 
@@ -2335,7 +2571,7 @@ class ae {
       // 500ms for long press
       moved: !1,
       connectionDelayed: !1
-    };
+    }, this.spatialGrid = new ae(50), this.gridNeedsRebuild = !1;
   }
   /**
    * Setup event listeners for connection operations using event delegation.
@@ -2378,9 +2614,9 @@ class ae {
    * @private
    */
   isSocketTarget(t) {
-    if (t.classList.contains("socket-label"))
+    if (t.classList.contains("socket-label") || t.closest(".socket-label"))
       return !1;
-    if (t.tagName === "FLOW-SOCKET-ANCHOR" || t.closest("flow-socket-anchor"))
+    if (t.tagName === "FLOW-SOCKET-ANCHOR" || t.closest("flow-socket-anchor") || t.classList.contains("socket"))
       return !0;
     const s = t.closest("flow-socket");
     if (s) {
@@ -2451,30 +2687,33 @@ class ae {
     t.preventDefault(), t.stopPropagation();
     const s = e.closest(".node"), i = s == null ? void 0 : s.dataset.id, o = e.getAttribute("name");
     if ((c = e.shadowRoot) == null || c.querySelector("flow-socket-anchor"), !i || !o) return;
-    const n = this.flowGraph.nodes.get(i), a = n == null ? void 0 : n.getSocket(o);
-    if (!a) return;
-    this.connectionState.active = !0, this.connectionState.fromSocket = a;
-    const r = (h = e.shadowRoot) == null ? void 0 : h.querySelector(".socket");
-    r && r.classList.add("socket-active"), this.updateTempPathColor(a), this.flowGraph.tempPath.style.display = "block", this.updateTempPath(t.clientX, t.clientY);
+    const n = this.flowGraph.nodes.get(i), r = n == null ? void 0 : n.getSocket(o);
+    if (!r) return;
+    this.connectionState.active = !0, this.connectionState.fromSocket = r;
+    const a = (h = e.shadowRoot) == null ? void 0 : h.querySelector(".socket");
+    a && a.classList.add("socket-active"), this.updateTempPathColor(r), this.flowGraph.tempPath.style.display = "block", this.updateTempPath(t.clientX, t.clientY);
   }
   /**
    * Handle socket mouse move
+   * OPTIMIZED: Uses spatial grid for O(1) socket detection instead of elementFromPoint
    */
   handleSocketMouseMove(t) {
     if (!this.connectionState.active) return;
     this.updateTempPath(t.clientX, t.clientY);
-    const e = document.elementFromPoint(t.clientX, t.clientY), s = e == null ? void 0 : e.closest("flow-socket");
-    if (s) {
-      const i = s.closest(".node"), o = i == null ? void 0 : i.dataset.id, n = s.getAttribute("name");
-      if (o && n) {
-        const a = this.flowGraph.nodes.get(o), r = a == null ? void 0 : a.getSocket(n);
-        if (r && this.canConnect(this.connectionState.fromSocket, r)) {
-          this.updateSocketHover(s), this.connectionState.toSocket = r;
-          const c = this.connectionState.fromSocket.type === "output" ? this.connectionState.fromSocket : r;
-          this.updateTempPathColor(c);
-        } else r && r.connections.size >= r.maxConnections && this.showMaxConnectionsFeedback(r);
-      }
-    } else
+    const e = this.flowGraph.surface.getBoundingClientRect(), s = (t.clientX - e.left - this.flowGraph.viewport.x) / this.flowGraph.viewport.scale, i = (t.clientY - e.top - this.flowGraph.viewport.y) / this.flowGraph.viewport.scale, o = this.spatialGrid.findAt(s, i, 25 / this.flowGraph.viewport.scale);
+    if (o)
+      if (this.canConnect(this.connectionState.fromSocket, o)) {
+        const n = o.node;
+        if (n && n.element) {
+          const a = n.element.querySelector(`flow-socket[name="${o.id}"]`);
+          a && this.updateSocketHover(a);
+        }
+        this.connectionState.toSocket = o;
+        const r = this.connectionState.fromSocket.type === "output" ? this.connectionState.fromSocket : o;
+        this.updateTempPathColor(r);
+      } else
+        o.connections.size >= o.maxConnections && this.showMaxConnectionsFeedback(o);
+    else
       this.clearAllSocketHover(), this.connectionState.toSocket = null;
   }
   /**
@@ -2494,7 +2733,7 @@ class ae {
         }
         this.canConnect(e, s) && this.flowGraph.createEdge(e, s);
       }
-      setTimeout(() => {
+      this.clearSocketCache(), setTimeout(() => {
         this.cleanupSocketStates();
       }, 0), this.flowGraph.tempPath.style.display = "none", this.connectionState.active = !1, this.connectionState.fromSocket = null, this.connectionState.toSocket = null;
     }
@@ -2569,8 +2808,8 @@ class ae {
    */
   updateTempPath(t, e) {
     if (!this.connectionState.fromSocket) return;
-    const s = this.connectionState.fromSocket, i = this.getSocketPosition(s), o = this.flowGraph.surface.getBoundingClientRect(), n = (t - o.left - this.flowGraph.viewport.x) / this.flowGraph.viewport.scale, a = (e - o.top - this.flowGraph.viewport.y) / this.flowGraph.viewport.scale, r = this.createCubicPath(i, { x: n, y: a }, s);
-    this.flowGraph.tempPath.setAttribute("d", r);
+    const s = this.connectionState.fromSocket, i = this.getSocketPosition(s), o = this.flowGraph.surface.getBoundingClientRect(), n = (t - o.left - this.flowGraph.viewport.x) / this.flowGraph.viewport.scale, r = (e - o.top - this.flowGraph.viewport.y) / this.flowGraph.viewport.scale, a = this.createCubicPath(i, { x: n, y: r }, s);
+    this.flowGraph.tempPath.setAttribute("d", a);
   }
   /**
    * Update socket hover state efficiently.
@@ -2631,21 +2870,32 @@ class ae {
     const t = this.flowGraph.getCachedElements ? this.flowGraph.getCachedElements("sockets") : this.flowGraph.container.querySelectorAll("flow-socket"), e = [];
     t.forEach((s) => {
       e.push(() => {
-        var n, a;
+        var n, r;
         const i = (n = s.shadowRoot) == null ? void 0 : n.querySelector(".socket");
         i && i.classList.remove("socket-active", "socket-hover");
-        const o = (a = s.shadowRoot) == null ? void 0 : a.querySelectorAll('span[style*="border-color"]');
-        o && o.forEach((r) => {
-          r.classList.remove("socket-active", "socket-hover");
+        const o = (r = s.shadowRoot) == null ? void 0 : r.querySelectorAll('span[style*="border-color"]');
+        o && o.forEach((a) => {
+          a.classList.remove("socket-active", "socket-hover");
         });
       });
     }), e.forEach((s) => s());
   }
   /**
+   * Clear cached socket positions
+   * @private
+   */
+  clearSocketCache() {
+    this.flowGraph.nodes.forEach((t) => {
+      t.getAllSockets().forEach((e) => {
+        delete e._cachedOffset;
+      });
+    });
+  }
+  /**
    * Cancel current connection and clean up states
    */
   cancelConnection() {
-    this.connectionState.active && (this.cleanupSocketStates(), this.flowGraph.tempPath.style.display = "none", this.connectionState.active = !1, this.connectionState.fromSocket = null, this.connectionState.toSocket = null);
+    this.connectionState.active && (this.clearSocketCache(), this.cleanupSocketStates(), this.flowGraph.tempPath.style.display = "none", this.connectionState.active = !1, this.connectionState.fromSocket = null, this.connectionState.toSocket = null);
   }
   /**
    * Update temporary path color based on socket color
@@ -2663,15 +2913,15 @@ class ae {
     if (e || (e = t.querySelector("span")), !e || e === t) return "#10b981";
     const s = e.getAttribute("style");
     if (s) {
-      const a = s.match(/border-color:\s*([^;]+)/);
-      if (a) {
-        const c = a[1].trim();
+      const r = s.match(/border-color:\s*([^;]+)/);
+      if (r) {
+        const c = r[1].trim();
         if (c && c !== "transparent" && c !== "rgba(0, 0, 0, 0)")
           return c;
       }
-      const r = s.match(/background:\s*([^;]+)/);
-      if (r) {
-        const c = r[1].trim();
+      const a = s.match(/background:\s*([^;]+)/);
+      if (a) {
+        const c = a[1].trim();
         if (c && !c.includes("gradient") && !c.includes("url") && c !== "transparent" && c !== "rgba(0, 0, 0, 0)")
           return c;
       }
@@ -2684,32 +2934,54 @@ class ae {
   }
   /**
    * Get socket position in world coordinates
+   * OPTIMIZED: Uses cached node positions + socket offsets during drag operations
    */
   getSocketPosition(t) {
-    var r;
+    var d;
     let e = t.element;
     if (!e) {
-      const c = this.flowGraph.nodes.get(t.nodeId);
-      if (c) {
-        const h = c.element.querySelector(`flow-socket[name="${t.id}"]`);
-        h && (e = (r = h.shadowRoot) == null ? void 0 : r.querySelector("flow-socket-anchor"), e && (t.element = e));
+      const p = this.flowGraph.nodes.get(t.nodeId);
+      if (p) {
+        const f = p.element.querySelector(`flow-socket[name="${t.id}"]`);
+        f && (e = (d = f.shadowRoot) == null ? void 0 : d.querySelector("flow-socket-anchor"), e && (t.element = e));
       }
     }
     if (!e)
       return console.warn(`Socket element not found for socket ${t.id}`), { x: 0, y: 0 };
-    const s = e.getBoundingClientRect(), i = this.flowGraph.surface.getBoundingClientRect();
-    let o = s.width / 2;
-    t.type === "output" ? o = s.width / 2 : t.type === "input" && (o = -s.width / 2);
-    const n = (s.left + s.width / 2 + o - i.left - this.flowGraph.viewport.x) / this.flowGraph.viewport.scale, a = (s.top + s.height / 2 - i.top - this.flowGraph.viewport.y) / this.flowGraph.viewport.scale;
-    return { x: n, y: a };
+    if (this.connectionState.active && t.node) {
+      if (!t._cachedOffset) {
+        this.flowGraph.surface.getBoundingClientRect();
+        const u = t.node.element.getBoundingClientRect();
+        let m = e.querySelector('span[style*="clip-path"]') || e.querySelector('span[style*="border-color"]') || e.querySelector(".socket") || e.querySelector("span");
+        const v = m && m !== e ? m.getBoundingClientRect() : e.getBoundingClientRect(), N = v.left + v.width / 2, q = v.top + v.height / 2, U = u.left, V = u.top, x = this.flowGraph.viewport.scale, H = (N - U) / x, B = (q - V) / x, F = v.width / x;
+        t._cachedOffset = {
+          x: H,
+          y: B,
+          width: F
+        };
+      }
+      const p = t.node;
+      let f = 0;
+      return t.type === "output" ? f = t._cachedOffset.width / 2 : t.type === "input" && (f = -t._cachedOffset.width / 2), {
+        x: p.x + t._cachedOffset.x + f,
+        y: p.y + t._cachedOffset.y
+      };
+    }
+    const s = this.flowGraph.surface.getBoundingClientRect();
+    let i = e.querySelector('span[style*="clip-path"]') || e.querySelector('span[style*="border-color"]') || e.querySelector(".socket") || e.querySelector("span");
+    const o = i && i !== e ? i.getBoundingClientRect() : e.getBoundingClientRect(), n = o.left + o.width / 2, r = o.top + o.height / 2;
+    let a = 0;
+    t.type === "output" ? a = o.width / 2 : t.type === "input" && (a = -o.width / 2);
+    const c = (n + a - s.left - this.flowGraph.viewport.x) / this.flowGraph.viewport.scale, h = (r - s.top - this.flowGraph.viewport.y) / this.flowGraph.viewport.scale;
+    return { x: c, y: h };
   }
   /**
    * Create cubic bezier path between two points
    */
   createCubicPath(t, e, s = null, i = null) {
-    const o = e.x - t.x, n = e.y - t.y, a = Math.hypot(o, n), r = Math.min(200, a * 0.5);
+    const o = e.x - t.x, n = e.y - t.y, r = Math.hypot(o, n), a = Math.min(200, r * 0.5);
     let c, h;
-    return s ? s.type === "output" ? (c = { x: t.x + r, y: t.y }, h = { x: e.x - r, y: e.y }) : (c = { x: t.x - r, y: t.y }, h = { x: e.x + r, y: e.y }) : (c = { x: t.x + r, y: t.y }, h = { x: e.x - r, y: e.y }), `M ${t.x} ${t.y} C ${c.x} ${c.y}, ${h.x} ${h.y}, ${e.x} ${e.y}`;
+    return s ? s.type === "output" ? (c = { x: t.x + a, y: t.y }, h = { x: e.x - a, y: e.y }) : (c = { x: t.x - a, y: t.y }, h = { x: e.x + a, y: e.y }) : (c = { x: t.x + a, y: t.y }, h = { x: e.x - a, y: e.y }), `M ${t.x} ${t.y} C ${c.x} ${c.y}, ${h.x} ${h.y}, ${e.x} ${e.y}`;
   }
   /**
    * Check if two sockets can be connected
@@ -2784,10 +3056,10 @@ class ae {
    * @param {number} y - Y coordinate
    */
   handleLongPress(t, e, s) {
-    var r, c;
+    var a, c;
     this.longPressState.connectionDelayed = !0;
     let i = t.closest("flow-socket-anchor");
-    if (i || t.tagName === "FLOW-SOCKET" && (i = (r = t.shadowRoot) == null ? void 0 : r.querySelector("flow-socket-anchor")), !i) return;
+    if (i || t.tagName === "FLOW-SOCKET" && (i = (a = t.shadowRoot) == null ? void 0 : a.querySelector("flow-socket-anchor")), !i) return;
     let o = i._socket;
     if (!o) {
       const h = t.closest(".node");
@@ -2805,12 +3077,89 @@ class ae {
     n && (n.classList.add("long-press-active"), setTimeout(() => {
       n.classList.remove("long-press-active");
     }, 500)), this.connectionState.active = !1, this.connectionState.fromSocket = null, this.connectionState.toSocket = null, this.flowGraph.tempPath.style.display = "none";
-    const a = t.closest("flow-socket");
-    if (a) {
-      const h = (c = a.shadowRoot) == null ? void 0 : c.querySelector(".socket");
+    const r = t.closest("flow-socket");
+    if (r) {
+      const h = (c = r.shadowRoot) == null ? void 0 : c.querySelector(".socket");
       h && h.classList.remove("socket-active");
     }
     o.showContextMenu(e, s);
+  }
+  /**
+   * Register a socket with the spatial grid for fast lookups.
+   * Call this when a new socket is created.
+   * 
+   * @param {Socket} socket - The socket to register
+   * @public
+   */
+  registerSocket(t) {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const e = this.getSocketPosition(t);
+        e && this.spatialGrid.insert(t, e.x, e.y);
+      });
+    });
+  }
+  /**
+   * Unregister a socket from the spatial grid.
+   * Call this when a socket is removed.
+   * 
+   * @param {Socket} socket - The socket to unregister
+   * @public
+   */
+  unregisterSocket(t) {
+    this.spatialGrid.remove(t);
+  }
+  /**
+   * Update socket position in the spatial grid.
+   * Call this when a node moves to keep the grid in sync.
+   * 
+   * @param {Socket} socket - The socket to update
+   * @public
+   */
+  updateSocketInGrid(t) {
+    const e = this.getSocketPosition(t);
+    e && this.spatialGrid.update(t, e.x, e.y);
+  }
+  /**
+   * Update all sockets for a node in the spatial grid.
+   * More efficient than individual updates.
+   * 
+   * @param {Node} node - The node whose sockets need updating
+   * @public
+   */
+  updateNodeSocketsInGrid(t) {
+    t.getAllSockets().forEach((e) => {
+      this.updateSocketInGrid(e);
+    });
+  }
+  /**
+   * Rebuild the entire spatial grid.
+   * Call this after major operations (bulk node add/remove, zoom change, etc.)
+   * 
+   * @public
+   */
+  rebuildSpatialGrid() {
+    const t = [];
+    this.flowGraph.nodes.forEach((e) => {
+      t.push(...e.getAllSockets());
+    }), this.spatialGrid.rebuild(t, (e) => this.getSocketPosition(e)), this.gridNeedsRebuild = !1;
+  }
+  /**
+   * Get spatial grid statistics (for debugging/optimization).
+   * 
+   * @returns {Object} Grid statistics
+   * @public
+   */
+  getSpatialGridStats() {
+    return this.spatialGrid.getStats();
+  }
+  /**
+   * Visualize the spatial grid for debugging.
+   * 
+   * @public
+   */
+  visualizeSpatialGrid() {
+    this.spatialGrid.visualize(this.flowGraph.surface);
   }
   /**
    * Clean up event listeners and resources.
@@ -2818,10 +3167,10 @@ class ae {
    * @public
    */
   destroy() {
-    document.removeEventListener("mousemove", this.handleGlobalMouseMove.bind(this)), document.removeEventListener("mouseup", this.handleGlobalMouseUp.bind(this)), this.cancelConnection();
+    document.removeEventListener("mousemove", this.handleGlobalMouseMove.bind(this)), document.removeEventListener("mouseup", this.handleGlobalMouseUp.bind(this)), this.cancelConnection(), this.spatialGrid && this.spatialGrid.clear();
   }
 }
-class le {
+class ce {
   /**
    * Creates a new FlowGraphDrag instance.
    * 
@@ -2877,17 +3226,17 @@ class le {
    */
   performMultiDragUpdate(t) {
     if (!this.multiDragState || !this.multiDragState.active) return;
-    const e = t.clientX - this.multiDragState.startX, s = t.clientY - this.multiDragState.startY, i = e / this.flowGraph.viewport.scale, o = s / this.flowGraph.viewport.scale, n = /* @__PURE__ */ new Set(), a = [];
-    for (const r of this.flowGraph.selection.getSelection()) {
-      const c = this.flowGraph.nodes.get(r);
+    const e = t.clientX - this.multiDragState.startX, s = t.clientY - this.multiDragState.startY, i = e / this.flowGraph.viewport.scale, o = s / this.flowGraph.viewport.scale, n = /* @__PURE__ */ new Set(), r = [];
+    for (const a of this.flowGraph.selection.getSelection()) {
+      const c = this.flowGraph.nodes.get(a);
       if (c) {
-        const h = this.multiDragState.initialPositions.get(r), d = h.x + i, p = h.y + o;
-        c.x = d, c.y = p, a.push(() => {
+        const h = this.multiDragState.initialPositions.get(a), d = h.x + i, p = h.y + o;
+        c.x = d, c.y = p, r.push(() => {
           c.element.style.transform = `translate(${d}px, ${p}px)`, c.element.dataset.usingTransform || (c.element.style.left = "0", c.element.style.top = "0", c.element.dataset.usingTransform = "true");
         }), n.add(c);
       }
     }
-    a.forEach((r) => r()), n.size > 0 && this.flowGraph.throttledUpdates.edgeUpdate(n);
+    r.forEach((a) => a()), n.size > 0 && this.flowGraph.throttledUpdates.edgeUpdate(n);
   }
   /**
    * End multi-drag operation
@@ -2899,7 +3248,7 @@ class le {
         const e = this.flowGraph.nodes.get(t);
         if (e) {
           const s = this.multiDragState.initialPositions.get(t);
-          e.element.dataset.usingTransform && (e.element.style.left = e.x + "px", e.element.style.top = e.y + "px", e.element.style.transform = "", delete e.element.dataset.usingTransform), this.flowGraph.container.dispatchEvent(new CustomEvent("node:move", {
+          e.element.dataset.usingTransform && (e.element.style.left = e.x + "px", e.element.style.top = e.y + "px", e.element.style.transform = "", delete e.element.dataset.usingTransform), this.flowGraph.connections && this.flowGraph.connections.updateNodeSocketsInGrid(e), this.flowGraph.container.dispatchEvent(new CustomEvent("node:move", {
             detail: {
               nodeId: e.id,
               node: e,
@@ -2913,7 +3262,7 @@ class le {
     }
   }
 }
-class ce {
+class he {
   /**
    * Creates a new DOMBatcher instance.
    */
@@ -3018,7 +3367,7 @@ class ce {
     this.cancel(), this.clear();
   }
 }
-class he extends EventTarget {
+class de extends EventTarget {
   /**
    * Creates a new FlowGraph instance.
    *
@@ -3062,7 +3411,7 @@ class he extends EventTarget {
       height: 100%;
       pointer-events: auto;
       transform-origin: 0px 0px;
-    `, this.contentContainer.appendChild(this.nodesRoot), this.contentContainer.appendChild(this.edgeSvg), this.surface.appendChild(this.contentContainer), this.container.appendChild(this.surface), this.viewport = new ie(this.surface, this.contentContainer, this), this.animations = new oe(this), this.execution = new ne(this), this.selection = new re(this), this.connections = new ae(this), this.drag = new le(this), this.resizeObserver = null, this.elementToNodeMap = /* @__PURE__ */ new Map(), this.domBatcher = new ce(), this.domCache = /* @__PURE__ */ new Map(), this.nodeEdgeIndex = /* @__PURE__ */ new Map(), this.elementNodeWeakMap = /* @__PURE__ */ new WeakMap(), this.functionPool = /* @__PURE__ */ new Set(), this.animationBatcher = {
+    `, this.contentContainer.appendChild(this.nodesRoot), this.contentContainer.appendChild(this.edgeSvg), this.surface.appendChild(this.contentContainer), this.container.appendChild(this.surface), this.viewport = new ie(this.surface, this.contentContainer, this), this.animations = new oe(this), this.execution = new ne(this), this.selection = new re(this), this.connections = new le(this), this.drag = new ce(this), this.resizeObserver = null, this.elementToNodeMap = /* @__PURE__ */ new Map(), this.domBatcher = new he(), this.domCache = /* @__PURE__ */ new Map(), this.nodeEdgeIndex = /* @__PURE__ */ new Map(), this.elementNodeWeakMap = /* @__PURE__ */ new WeakMap(), this.functionPool = /* @__PURE__ */ new Set(), this.animationBatcher = {
       pendingUpdates: /* @__PURE__ */ new Set(),
       rafId: null,
       isScheduled: !1
@@ -3142,7 +3491,7 @@ class he extends EventTarget {
       let e = performance.now(), s = 0, i = e;
       const o = (n) => {
         s++;
-        const a = n - e;
+        const r = n - e;
         if (n - i >= 1e3) {
           t = Math.round(s * 1e3 / (n - i));
           return;
@@ -3166,9 +3515,9 @@ class he extends EventTarget {
   createAdaptiveThrottledFunction(t) {
     let e = 0, s = null, i = null, o = null;
     return function(...n) {
-      const a = performance.now(), r = a - e, c = 1e3 / this.displayRefreshRate;
-      if (r >= c) {
-        e = a, t.apply(this, n);
+      const r = performance.now(), a = r - e, c = 1e3 / this.displayRefreshRate;
+      if (a >= c) {
+        e = r, t.apply(this, n);
         return;
       }
       s && cancelAnimationFrame(s), t === this.batchUpdateEdges && n.length > 0 && n[0] instanceof Set ? (o || (o = /* @__PURE__ */ new Set()), n[0].forEach((h) => o.add(h)), i = [o]) : i = n, s = requestAnimationFrame((h) => {
@@ -3806,7 +4155,7 @@ class he extends EventTarget {
     this.resizeObserver && (this.resizeObserver.disconnect(), this.resizeObserver = null), this.domBatcher.destroy(), this.domCache.clear(), this.nodeEdgeIndex.clear(), this.functionPool.clear(), this.connections.destroy(), this.animationBatcher.rafId && cancelAnimationFrame(this.animationBatcher.rafId), this.edgeUpdateRafId && cancelAnimationFrame(this.edgeUpdateRafId), this.clear(), this.surface.remove();
   }
 }
-class j extends y {
+class et extends S {
   constructor() {
     super(), this.visible = !1, this.x = 0, this.y = 0, this.nodeDefinitions = [], this.onNodeAdd = null, this.searchTerm = "", this.minWidth = 200, this.maxWidth = 300;
   }
@@ -3835,10 +4184,10 @@ class j extends y {
   groupNodesByCategory() {
     const t = {};
     return this.nodeDefinitions.filter((s) => {
-      var o, n, a, r;
+      var o, n, r, a;
       if (!this.searchTerm) return !0;
       const i = this.searchTerm.toLowerCase();
-      return ((o = s.label) == null ? void 0 : o.toLowerCase().includes(i)) || ((n = s.name) == null ? void 0 : n.toLowerCase().includes(i)) || ((a = s.description) == null ? void 0 : a.toLowerCase().includes(i)) || ((r = s.category) == null ? void 0 : r.toLowerCase().includes(i));
+      return ((o = s.label) == null ? void 0 : o.toLowerCase().includes(i)) || ((n = s.name) == null ? void 0 : n.toLowerCase().includes(i)) || ((r = s.description) == null ? void 0 : r.toLowerCase().includes(i)) || ((a = s.category) == null ? void 0 : a.toLowerCase().includes(i));
     }).forEach((s) => {
       const i = s.category || "General";
       t[i] || (t[i] = []), t[i].push(s);
@@ -3858,9 +4207,9 @@ class j extends y {
   }
   render() {
     if (!this.visible || !this.nodeDefinitions.length)
-      return w``;
+      return y``;
     const t = this.groupNodesByCategory();
-    return w`
+    return y`
       <div class="context-menu">
         <div class="context-menu-header">
           Add Node
@@ -3878,12 +4227,12 @@ class j extends y {
           />
         </div>
         
-        ${Object.entries(t).map(([e, s]) => w`
+        ${Object.entries(t).map(([e, s]) => y`
           <div class="node-category">
             <div class="category-header">
               ${e}
             </div>
-            ${s.map((i) => w`
+            ${s.map((i) => y`
               <div 
                 class="node-item"
                 @click=${() => this.handleNodeClick(i)}
@@ -3894,7 +4243,7 @@ class j extends y {
                 </div>
                 <div class="node-info">
                   <div class="node-name">${i.label || i.name}</div>
-                  ${i.description ? w`
+                  ${i.description ? y`
                     <div class="node-description">${i.description}</div>
                   ` : ""}
                 </div>
@@ -3912,7 +4261,7 @@ class j extends y {
  * @static
  * @type {Object}
  */
-m(j, "properties", {
+g(et, "properties", {
   /** @type {Boolean} Whether the context menu is visible */
   visible: { type: Boolean },
   /** @type {Number} X position of the context menu */
@@ -3929,7 +4278,7 @@ m(j, "properties", {
   minWidth: { type: Number },
   /** @type {Number} Maximum width of the context menu */
   maxWidth: { type: Number }
-}), m(j, "styles", S`
+}), g(et, "styles", b`
     :host {
       position: fixed;
       z-index: 10000;
@@ -4100,8 +4449,8 @@ m(j, "properties", {
       background: var(--fg-accent, #7c3aed);
     }
   `);
-customElements.define("flow-context-menu", j);
-class W extends y {
+customElements.define("flow-context-menu", et);
+class st extends S {
   /**
    * Creates a new FlowGraphElement instance.
    * Initializes default property values and sets up the component.
@@ -4116,7 +4465,7 @@ class W extends y {
    * @override
    */
   firstUpdated() {
-    this.flowGraph = new he(this), this.processChildren(), this.flowGraph.addEventListener("node:create", (t) => {
+    this.flowGraph = new de(this), this.processChildren(), this.flowGraph.addEventListener("node:create", (t) => {
       this.dispatchEvent(new CustomEvent("node:create", { detail: t.detail }));
     }), this.flowGraph.addEventListener("edge:create", (t) => {
       this.dispatchEvent(new CustomEvent("edge:create", { detail: t.detail }));
@@ -4142,43 +4491,43 @@ class W extends y {
   }
   processDefinitions(t) {
     t.querySelectorAll("flow-node-def").forEach((s) => {
-      const i = s.getAttribute("name"), o = s.getAttribute("label") || i, n = parseInt(s.getAttribute("width")) || 160, a = parseInt(s.getAttribute("height")) || 100, r = s.getAttribute("category") || "General", c = s.getAttribute("description") || "", h = s.getAttribute("icon") || "", d = s.getAttribute("onExecute"), p = s.getAttribute("custom-class"), f = {}, u = s.getAttribute("color-bg"), v = s.getAttribute("color-text");
-      u && (f.background = u), v && (f.color = v);
-      const b = s.querySelector("node-body"), z = s.querySelectorAll("flow-socket"), nt = [], rt = [];
-      Array.from(z).forEach((O) => {
-        const at = O.getAttribute("name"), lt = O.getAttribute("type"), ct = O.getAttribute("label"), ht = O.getAttribute("data-type") || "any";
-        lt === "input" ? nt.push({
-          id: at,
-          label: ct,
-          type: ht
-        }) : lt === "output" && rt.push({
-          id: at,
-          label: ct,
-          type: ht
+      const i = s.getAttribute("name"), o = s.getAttribute("label") || i, n = parseInt(s.getAttribute("width")) || 160, r = parseInt(s.getAttribute("height")) || 100, a = s.getAttribute("category") || "General", c = s.getAttribute("description") || "", h = s.getAttribute("icon") || "", d = s.getAttribute("onExecute"), p = s.getAttribute("custom-class"), f = {}, u = s.getAttribute("color-bg"), m = s.getAttribute("color-text");
+      u && (f.background = u), m && (f.color = m);
+      const v = s.querySelector("node-body"), N = s.querySelectorAll("flow-socket"), q = [], U = [];
+      Array.from(N).forEach((x) => {
+        const H = x.getAttribute("name"), B = x.getAttribute("type"), F = x.getAttribute("label"), dt = x.getAttribute("data-type") || "any";
+        B === "input" ? q.push({
+          id: H,
+          label: F,
+          type: dt
+        }) : B === "output" && U.push({
+          id: H,
+          label: F,
+          type: dt
         });
       });
-      const Pt = {
+      const V = {
         name: i,
         label: o,
         width: n,
-        height: a,
-        category: r,
+        height: r,
+        category: a,
         description: c,
         icon: h,
         onExecute: d,
         customClass: p,
         colorPatch: Object.keys(f).length > 0 ? f : null,
-        html: b ? b.innerHTML : null,
-        inputs: nt,
-        outputs: rt
+        html: v ? v.innerHTML : null,
+        inputs: q,
+        outputs: U
       };
-      this.flowGraph.addNodeTemplate(i, Pt);
+      this.flowGraph.addNodeTemplate(i, V);
     });
   }
   processNodes(t) {
     t.querySelectorAll("flow-node").forEach((s) => {
-      const i = s.getAttribute("type"), o = s.getAttribute("id"), n = parseFloat(s.getAttribute("x")) || 0, a = parseFloat(s.getAttribute("y")) || 0, r = s.hasAttribute("selected");
-      this.flowGraph.nodes.has(o) || this.flowGraph.addNode(i, { id: o, x: n, y: a, selected: r });
+      const i = s.getAttribute("type"), o = s.getAttribute("id"), n = parseFloat(s.getAttribute("x")) || 0, r = parseFloat(s.getAttribute("y")) || 0, a = s.hasAttribute("selected");
+      this.flowGraph.nodes.has(o) || this.flowGraph.addNode(i, { id: o, x: n, y: r, selected: a });
     });
   }
   processEdges(t) {
@@ -4187,9 +4536,9 @@ class W extends y {
     }), t.querySelectorAll("flow-edge").forEach((s) => {
       const i = s.getAttribute("from"), o = s.getAttribute("to");
       if (i && o) {
-        const [n, a] = i.split(":"), [r, c] = o.split(":"), h = this.flowGraph.nodes.get(n), d = this.flowGraph.nodes.get(r);
+        const [n, r] = i.split(":"), [a, c] = o.split(":"), h = this.flowGraph.nodes.get(n), d = this.flowGraph.nodes.get(a);
         if (h && d) {
-          const p = h.getSocket(a), f = d.getSocket(c);
+          const p = h.getSocket(r), f = d.getSocket(c);
           p && f && this.flowGraph.createEdge(p, f);
         }
       }
@@ -4203,9 +4552,9 @@ class W extends y {
     return this.flowGraph.removeNode(t);
   }
   addEdge(t, e, s) {
-    const [i, o] = t.split(":"), [n, a] = e.split(":"), r = this.flowGraph.nodes.get(i), c = this.flowGraph.nodes.get(n);
-    if (r && c) {
-      const h = r.getSocket(o), d = c.getSocket(a);
+    const [i, o] = t.split(":"), [n, r] = e.split(":"), a = this.flowGraph.nodes.get(i), c = this.flowGraph.nodes.get(n);
+    if (a && c) {
+      const h = a.getSocket(o), d = c.getSocket(r);
       if (h && d)
         return this.flowGraph.createEdge(h, d);
     }
@@ -4286,9 +4635,9 @@ class W extends y {
       font-family: inherit;
       user-select: none;
       overflow-x: hidden;
-    `, s.forEach((a) => {
-      const r = document.createElement("div");
-      r.className = "context-menu-item", r.style.cssText = `
+    `, s.forEach((r) => {
+      const a = document.createElement("div");
+      a.className = "context-menu-item", a.style.cssText = `
         padding: 8px 12px;
         cursor: pointer;
         color: var(--fg-text, #ffffff);
@@ -4297,19 +4646,19 @@ class W extends y {
         align-items: center;
         gap: 8px;
         transition: all 0.2s ease;
-      `, r.innerHTML = `
-        <span>${a.icon}</span>
-        <span>${a.label}</span>
-      `, r.addEventListener("click", () => {
-        a.action(), o.remove();
-      }), r.addEventListener("mouseenter", () => {
-        r.style.background = "var(--fg-accent, #7c3aed)", r.style.color = "white";
-      }), r.addEventListener("mouseleave", () => {
-        r.style.background = "transparent", r.style.color = "var(--fg-text, #ffffff)";
-      }), o.appendChild(r);
+      `, a.innerHTML = `
+        <span>${r.icon}</span>
+        <span>${r.label}</span>
+      `, a.addEventListener("click", () => {
+        r.action(), o.remove();
+      }), a.addEventListener("mouseenter", () => {
+        a.style.background = "var(--fg-accent, #7c3aed)", a.style.color = "white";
+      }), a.addEventListener("mouseleave", () => {
+        a.style.background = "transparent", a.style.color = "var(--fg-text, #ffffff)";
+      }), o.appendChild(a);
     }), document.body.appendChild(o);
-    const n = (a) => {
-      o.contains(a.target) || (o.remove(), document.removeEventListener("click", n));
+    const n = (r) => {
+      o.contains(r.target) || (o.remove(), document.removeEventListener("click", n));
     };
     setTimeout(() => {
       document.addEventListener("click", n);
@@ -4325,8 +4674,8 @@ class W extends y {
   addNodeFromContextMenu(t) {
     const e = this.shadowRoot.getElementById("context-menu");
     if (!e) return;
-    const s = this.getBoundingClientRect(), i = this.flowGraph.viewport, o = e.x - s.left, n = e.y - s.top, a = (o - i.x) / i.scale, r = (n - i.y) / i.scale;
-    this.addNode(t.name, { x: a, y: r });
+    const s = this.getBoundingClientRect(), i = this.flowGraph.viewport, o = e.x - s.left, n = e.y - s.top, r = (o - i.x) / i.scale, a = (n - i.y) / i.scale;
+    this.addNode(t.name, { x: r, y: a });
   }
   setTrailDuration(t) {
     this.flowGraph && this.flowGraph.setTrailDuration(t);
@@ -4350,7 +4699,7 @@ class W extends y {
     return this.setReadonly(!this.readonly), this.readonly;
   }
   render() {
-    return w`
+    return y`
       <slot></slot>
       <flow-context-menu id="context-menu"></flow-context-menu>
     `;
@@ -4361,7 +4710,7 @@ class W extends y {
  * @static
  * @type {Object}
  */
-m(W, "properties", {
+g(st, "properties", {
   /** @type {String} Visual theme for the flow graph */
   theme: { type: String },
   /** @type {Boolean} Whether to snap nodes to a grid */
@@ -4381,7 +4730,7 @@ m(W, "properties", {
  * @static
  * @type {CSSResult}
  */
-m(W, "styles", S`
+g(st, "styles", b`
     :host {
       background-color: #f8f9fa;
       background-image: 
@@ -4399,8 +4748,8 @@ m(W, "styles", S`
         /* Minor grid */ 0 0; /* Minor grid */
     }
   `);
-customElements.define("flow-graph", W);
-class Z extends y {
+customElements.define("flow-graph", st);
+class it extends S {
   /**
    * Renders the component template.
    * This component acts as a simple slot container.
@@ -4409,7 +4758,7 @@ class Z extends y {
    * @override
    */
   render() {
-    return w`<slot></slot>`;
+    return y`<slot></slot>`;
   }
 }
 /**
@@ -4417,7 +4766,7 @@ class Z extends y {
  * @static
  * @type {Object}
  */
-m(Z, "properties", {
+g(it, "properties", {
   /** @type {String} The name/type identifier for this node definition */
   name: { type: String },
   /** @type {String} Display label for the node */
@@ -4431,13 +4780,13 @@ m(Z, "properties", {
  * @static
  * @type {CSSResult}
  */
-m(Z, "styles", S`
+g(it, "styles", b`
     :host {
       display: none !important;
     }
   `);
-customElements.define("flow-node-def", Z);
-class J extends y {
+customElements.define("flow-node-def", it);
+class ot extends S {
   /**
    * Renders the component template.
    * This component acts as a simple slot container.
@@ -4446,7 +4795,7 @@ class J extends y {
    * @override
    */
   render() {
-    return w`<slot></slot>`;
+    return y`<slot></slot>`;
   }
 }
 /**
@@ -4454,7 +4803,7 @@ class J extends y {
  * @static
  * @type {Object}
  */
-m(J, "properties", {
+g(ot, "properties", {
   /** @type {String} The type identifier for this node */
   type: { type: String },
   /** @type {String} Unique identifier for this node */
@@ -4470,13 +4819,13 @@ m(J, "properties", {
  * @static
  * @type {CSSResult}
  */
-m(J, "styles", S`
+g(ot, "styles", b`
     :host {
       display: none !important;
     }
   `);
-customElements.define("flow-node", J);
-class Q extends y {
+customElements.define("flow-node", ot);
+class nt extends S {
   constructor() {
     super(), this.type = "output", this.name = "", this.label = "", this.color = "", this.size = "", this.customClass = "", this.dataType = "any";
   }
@@ -4523,10 +4872,10 @@ class Q extends y {
    */
   render() {
     if (this.innerHTML.trim().length > 0)
-      return w`<slot></slot>`;
+      return y`<slot></slot>`;
     {
       const e = `socket ${this.type} ${this.customClass || ""}`.trim(), s = this.getSocketStyle(), i = this.getLabelStyle();
-      return w`
+      return y`
         <flow-socket-anchor class="${this.customClass || ""}">
           <span 
             class="${e}" 
@@ -4744,8 +5093,8 @@ class Q extends y {
       return this.hexToRgba(s, e);
     const i = t.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/);
     if (i) {
-      const o = parseInt(i[1]), n = parseInt(i[2]), a = parseInt(i[3]);
-      return `rgba(${o}, ${n}, ${a}, ${e})`;
+      const o = parseInt(i[1]), n = parseInt(i[2]), r = parseInt(i[3]);
+      return `rgba(${o}, ${n}, ${r}, ${e})`;
     }
     return t;
   }
@@ -4773,7 +5122,7 @@ class Q extends y {
  * @static
  * @type {Object}
  */
-m(Q, "properties", {
+g(nt, "properties", {
   /** @type {String} Socket type: 'input' or 'output' */
   type: { type: String },
   /** @type {String} Socket name/identifier */
@@ -4793,7 +5142,7 @@ m(Q, "properties", {
  * @static
  * @type {CSSResult}
  */
-m(Q, "styles", S`
+g(nt, "styles", b`
     :host {
       display: flex;
       align-items: center;
@@ -4832,8 +5181,8 @@ m(Q, "styles", S`
     }
     
   `);
-customElements.define("flow-socket", Q);
-class Gt extends y {
+customElements.define("flow-socket", nt);
+class Nt extends S {
   /**
    * Renders the component template.
    * This component acts as a slot container for socket elements.
@@ -4842,7 +5191,7 @@ class Gt extends y {
    * @override
    */
   render() {
-    return w`<slot></slot>`;
+    return y`<slot></slot>`;
   }
   /**
    * Get the socket element within this anchor.
@@ -4876,7 +5225,7 @@ class Gt extends y {
  * @static
  * @type {CSSResult}
  */
-m(Gt, "styles", S`
+g(Nt, "styles", b`
     :host {
       display: inline-block;
       position: relative;
@@ -4922,8 +5271,8 @@ m(Gt, "styles", S`
       background: linear-gradient(180deg, rgba(147, 51, 234, 0.6), rgba(147, 51, 234, 0.3));
     }
   `);
-customElements.define("flow-socket-anchor", Gt);
-class tt extends y {
+customElements.define("flow-socket-anchor", Nt);
+class rt extends S {
   /**
    * Renders the component template.
    * This component acts as a simple slot container.
@@ -4932,7 +5281,7 @@ class tt extends y {
    * @override
    */
   render() {
-    return w`<slot></slot>`;
+    return y`<slot></slot>`;
   }
 }
 /**
@@ -4940,7 +5289,7 @@ class tt extends y {
  * @static
  * @type {Object}
  */
-m(tt, "properties", {
+g(rt, "properties", {
   /** @type {String} Source socket identifier (format: nodeId:socketId) */
   from: { type: String },
   /** @type {String} Target socket identifier (format: nodeId:socketId) */
@@ -4956,13 +5305,13 @@ m(tt, "properties", {
  * @static
  * @type {CSSResult}
  */
-m(tt, "styles", S`
+g(rt, "styles", b`
     :host {
       display: none !important;
     }
   `);
-customElements.define("flow-edge", tt);
-class Nt extends y {
+customElements.define("flow-edge", rt);
+class Mt extends S {
   /**
    * Renders the component template.
    * This component acts as a simple slot container.
@@ -4971,7 +5320,7 @@ class Nt extends y {
    * @override
    */
   render() {
-    return w`<slot></slot>`;
+    return y`<slot></slot>`;
   }
 }
 /**
@@ -4979,13 +5328,13 @@ class Nt extends y {
  * @static
  * @type {CSSResult}
  */
-m(Nt, "styles", S`
+g(Mt, "styles", b`
     :host {
       display: none !important;
     }
   `);
-customElements.define("flow-definitions", Nt);
-class Tt extends y {
+customElements.define("flow-definitions", Mt);
+class Tt extends S {
   /**
    * Renders the component template.
    * This component acts as a simple slot container.
@@ -4994,7 +5343,7 @@ class Tt extends y {
    * @override
    */
   render() {
-    return w`<slot></slot>`;
+    return y`<slot></slot>`;
   }
 }
 /**
@@ -5002,13 +5351,13 @@ class Tt extends y {
  * @static
  * @type {CSSResult}
  */
-m(Tt, "styles", S`
+g(Tt, "styles", b`
     :host {
       display: none !important;
     }
   `);
 customElements.define("flow-nodes", Tt);
-class Mt extends y {
+class Pt extends S {
   /**
    * Renders the component template.
    * This component acts as a simple slot container.
@@ -5017,7 +5366,7 @@ class Mt extends y {
    * @override
    */
   render() {
-    return w`<slot></slot>`;
+    return y`<slot></slot>`;
   }
 }
 /**
@@ -5025,13 +5374,13 @@ class Mt extends y {
  * @static
  * @type {CSSResult}
  */
-m(Mt, "styles", S`
+g(Pt, "styles", b`
     :host {
       display: none !important;
     }
   `);
-customElements.define("flow-edges", Mt);
-class et extends y {
+customElements.define("flow-edges", Pt);
+class at extends S {
   /**
    * Renders the component template.
    * This component acts as a simple slot container.
@@ -5040,7 +5389,7 @@ class et extends y {
    * @override
    */
   render() {
-    return w`<slot></slot>`;
+    return y`<slot></slot>`;
   }
 }
 /**
@@ -5048,7 +5397,7 @@ class et extends y {
  * @static
  * @type {Object}
  */
-m(et, "properties", {
+g(at, "properties", {
   /** @type {String} Type of background: 'grid', 'solid', 'pattern' */
   type: { type: String },
   /** @type {String} Background color */
@@ -5058,28 +5407,29 @@ m(et, "properties", {
  * @static
  * @type {CSSResult}
  */
-m(et, "styles", S`
+g(at, "styles", b`
     :host {
       display: none !important;
     }
   `);
-customElements.define("flow-background", et);
+customElements.define("flow-background", at);
 export {
   se as Edge,
-  et as FlowBackgroundElement,
-  j as FlowContextMenu,
-  Nt as FlowDefinitionsElement,
-  tt as FlowEdgeElement,
-  Mt as FlowEdgesElement,
-  he as FlowGraph,
-  W as FlowGraphElement,
-  Z as FlowNodeDefElement,
-  J as FlowNodeElement,
+  at as FlowBackgroundElement,
+  et as FlowContextMenu,
+  Mt as FlowDefinitionsElement,
+  rt as FlowEdgeElement,
+  Pt as FlowEdgesElement,
+  de as FlowGraph,
+  st as FlowGraphElement,
+  it as FlowNodeDefElement,
+  ot as FlowNodeElement,
   Tt as FlowNodesElement,
-  Gt as FlowSocketAnchorElement,
-  Q as FlowSocketElement,
+  Nt as FlowSocketAnchorElement,
+  nt as FlowSocketElement,
   te as Node,
-  V as Socket,
+  Q as Socket,
+  ae as SpatialGrid,
   ie as Viewport
 };
 //# sourceMappingURL=flowgraph.es.js.map
